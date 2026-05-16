@@ -99,9 +99,10 @@ EdgeInsets.fromLTRB(16, 8, 16, 100)
 | Elemento | Radio |
 |---|---:|
 | Cards | 14 |
-| Inputs | 30 |
+| Inputs generales | 12 |
+| Inputs de búsqueda | 30 |
 | Bottom sheets | 20 superior |
-| Botones/acciones pequeñas | 10 |
+| Botones/acciones pequeñas | 10 a 12 |
 
 ### Bordes
 
@@ -238,16 +239,34 @@ Las cards de categoría tienen una estructura visual dividida en dos zonas.
 
 ## Inputs
 
-Los inputs deben ser redondeados y suaves.
+Los inputs deben ser suaves, claros y fáciles de identificar. El estilo base debe sentirse más rectangular que circular para mantener una interfaz ordenada y de lectura rápida.
 
 ### Estilo
 
 - Fondo: `cardSurface`
-- Radio: `30`
-- Borde: `border`, `0.5`
-- Borde enfocado: `textPrimary`, `1`
+- Radio: `12`
+- Borde: `border`, `0.5`, con opacidad suave cuando aplique
+- Borde enfocado: `accent` o `textPrimary`, `0.5` a `1` según jerarquía
 - Padding interno: horizontal `16`, vertical `12`
 - Hint: `iconInactive`, tamaño `14`
+
+### Inputs con ícono
+
+Para formularios importantes como login:
+- El ícono debe ir dentro del input.
+- El ícono debe usar `iconInactive`.
+- Debe existir un separador vertical sutil entre ícono y texto.
+- El separador debe usar `border`, `0.5`.
+- El bloque de ícono debe tener ancho estable, alrededor de `52`.
+- El separador debe cubrir visualmente la altura útil del input.
+- Los inputs pueden llevar padding horizontal externo para no ocupar todo el ancho de la pantalla.
+
+### Layout de formularios
+
+- En mobile, los inputs deben ser anchos pero no tocar los bordes visuales del contenido.
+- Usar un ancho máximo razonable en pantallas grandes, alrededor de `420`.
+- Mantener separación vertical amplia entre grupos principales.
+- Evitar encerrar formularios simples en cards si la pantalla ya tiene un foco claro.
 
 ### Search input
 
@@ -287,6 +306,51 @@ Ejemplo en inventario:
 - No usar FAB para acciones destructivas.
 - No mostrar demasiadas acciones.
 - Máximo recomendado: 3 acciones.
+
+---
+
+## Botones principales
+
+Los botones principales deben sentirse claros y táctiles sin verse pesados.
+
+### Estilo
+
+- Radio: `12`
+- Fondo: `textPrimary`
+- Texto/ícono: `cardSurface`
+- Elevación: `0`
+- Padding vertical suficiente para toque cómodo.
+
+### Uso en formularios
+
+- El botón principal debe aparecer debajo de los inputs.
+- Puede ser más angosto que los inputs para reforzar jerarquía.
+- En login, el botón debe estar centrado.
+- Si el botón tiene ícono y texto, el ícono puede ir a la derecha cuando la acción representa avanzar o entrar.
+
+---
+
+## Login
+
+La pantalla de login debe ser simple, centrada y sin navbar.
+
+### Estructura visual
+
+- Fondo general: `bodyBg`.
+- No usar card o recuadro contenedor para todo el formulario.
+- Logo/ícono de tienda centrado en la parte superior.
+- Logo grande, con fondo `headerNav` y radio suave.
+- Nombre de tienda centrado debajo del logo.
+- Texto secundario centrado debajo del nombre.
+- Inputs centrados debajo del texto, con separación vertical amplia.
+- Botón principal centrado debajo de los inputs.
+
+### Reglas
+
+- No mostrar información secundaria innecesaria.
+- Mantener el login limpio y enfocado.
+- Evitar sombras y bordes fuertes.
+- Cerrar teclado al tocar fuera del formulario.
 
 ---
 

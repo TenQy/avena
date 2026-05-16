@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'features/navigation/presentation/screens/main_shell.dart';
+import 'features/authentication/presentation/screens/login_screen.dart';
 import 'shared/theme/app_theme.dart';
 
 class TiendaApp extends StatelessWidget {
@@ -12,7 +12,7 @@ class TiendaApp extends StatelessWidget {
       title: 'Tienda',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      home: const MainShell(),
+      home: const LoginScreen(),
     );
   }
 }

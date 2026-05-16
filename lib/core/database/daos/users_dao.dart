@@ -19,6 +19,12 @@ class UsersDao extends DatabaseAccessor<AppDatabase> with _$UsersDaoMixin {
     )..where((user) => user.id.equals(id))).getSingleOrNull();
   }
 
+  Future<User?> getUserByUsername(String username) {
+    return (select(
+      users,
+    )..where((user) => user.username.equals(username))).getSingleOrNull();
+  }
+
   Future<User?> getSuperadmin() {
     return (select(users)
           ..where(

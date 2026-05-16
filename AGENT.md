@@ -381,3 +381,7 @@ Construir una app:
 - DAOs principales creados para usuarios, inventario, caja, ventas, pagos pendientes, logs y cola de sincronizacion.
 - Utilitario UUID creado.
 - Datos iniciales minimos configurados: categoria General y cuenta superadmin idempotente al inicializar la app por primera vez.
+- Fase 3 iniciada parcialmente: pantalla de login creada.
+- Login valida usuario, contrasena, estado activo y soft delete contra la base local.
+- Si las credenciales son correctas, se permite acceso a la pantalla principal.
+- Persistencia de sesion, pantalla de usuarios y logs de login aun no implementados.
