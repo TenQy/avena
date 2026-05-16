@@ -5,6 +5,14 @@ import 'package:drift/native.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+import 'daos/activity_logs_dao.dart';
+import 'daos/cash_dao.dart';
+import 'daos/inventory_dao.dart';
+import 'daos/pending_payments_dao.dart';
+import 'daos/sales_dao.dart';
+import 'daos/sync_queue_dao.dart';
+import 'daos/users_dao.dart';
+import 'database_seed.dart';
 import 'tables/activity_logs.dart';
 import 'tables/cash_movements.dart';
 import 'tables/cash_sessions.dart';
@@ -39,12 +47,30 @@ part 'app_database.g.dart';
     ActivityLogs,
     SyncQueue,
   ],
+  daos: [
+    UsersDao,
+    InventoryDao,
+    CashDao,
+    SalesDao,
+    PendingPaymentsDao,
+    ActivityLogsDao,
+    SyncQueueDao,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
   int get schemaVersion => 1;
+
+  @override
+  MigrationStrategy get migration {
+    return MigrationStrategy(
+      beforeOpen: (details) async {
+        await DatabaseSeed.ensureInitialData(this);
+      },
+    );
+  }
 }
 
 LazyDatabase _openConnection() {

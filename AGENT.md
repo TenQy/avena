@@ -376,3 +376,8 @@ Construir una app:
 - Navbar principal: Dashboard, Ventas, Inventarios y Caja.
 - El header abre un menu lateral derecho con Usuarios, Pagos pendientes, Calculadora y Logs.
 - Pantallas actuales son placeholders; no incluyen logica de negocio.
+- Fase 2: base de datos local configurada con Drift y SQLite.
+- Tablas base creadas: Users, EmployeeSessions, Categories, Subcategories, Products, CashSessions, CashMovements, Sales, SaleItems, SalePayments, PendingPayments, PendingPaymentEntries, ActivityLogs y SyncQueue.
+- DAOs principales creados para usuarios, inventario, caja, ventas, pagos pendientes, logs y cola de sincronizacion.
+- Utilitario UUID creado.
+- Datos iniciales minimos configurados: categoria General y cuenta superadmin idempotente al inicializar la app por primera vez.

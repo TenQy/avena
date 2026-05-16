@@ -9718,6 +9718,17 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $PendingPaymentEntriesTable(this);
   late final $ActivityLogsTable activityLogs = $ActivityLogsTable(this);
   late final $SyncQueueTable syncQueue = $SyncQueueTable(this);
+  late final UsersDao usersDao = UsersDao(this as AppDatabase);
+  late final InventoryDao inventoryDao = InventoryDao(this as AppDatabase);
+  late final CashDao cashDao = CashDao(this as AppDatabase);
+  late final SalesDao salesDao = SalesDao(this as AppDatabase);
+  late final PendingPaymentsDao pendingPaymentsDao = PendingPaymentsDao(
+    this as AppDatabase,
+  );
+  late final ActivityLogsDao activityLogsDao = ActivityLogsDao(
+    this as AppDatabase,
+  );
+  late final SyncQueueDao syncQueueDao = SyncQueueDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
