@@ -523,7 +523,25 @@ Ejemplo:
 
 ---
 
-# Logs
+## Logs de actividad
+
+### Acceso
+Sólo administrador y superadmin.
+
+### Ubicación
+Dentro de Administración / Configuración.
+
+### Funciones
+- Ver acciones importantes del sistema.
+- Filtrar por usuario.
+- Filtrar por fecha.
+- Filtrar por módulo.
+- Consultar detalles de acciones críticas.
+
+### Restricciones
+- Los logs no se pueden eliminar.
+- Los logs no pueden ser editados.
+- Los empleados no tienen acceso.
 
 Las siguientes acciones generan logs:
 

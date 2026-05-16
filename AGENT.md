@@ -366,3 +366,13 @@ Construir una app:
 - optimizada para móvil
 - simple de operar
 - fácil de escalar posteriormente
+
+---
+
+# Estado actual
+
+- Fase 0: base del proyecto Flutter creada con tema visual inicial y widgets compartidos base.
+- Fase 1: tema y navegacion principal implementados.
+- Navbar principal: Dashboard, Ventas, Inventarios y Caja.
+- El header abre un menu lateral derecho con Usuarios, Pagos pendientes, Calculadora y Logs.
+- Pantallas actuales son placeholders; no incluyen logica de negocio.
