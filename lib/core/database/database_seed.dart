@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../constants/app_roles.dart';
 import '../utils/id_generator.dart';
 import 'app_database.dart';
 
@@ -7,7 +8,6 @@ class DatabaseSeed {
   const DatabaseSeed._();
 
   static const _synced = 'synced';
-  static const _superadminRole = 'superadmin';
   static const _superadminUsername = 'superadmin';
   static const _initialPasswordHash = 'initial-superadmin-password';
 
@@ -49,7 +49,7 @@ class DatabaseSeed {
         await (database.select(database.users)
               ..where(
                 (user) =>
-                    user.role.equals(_superadminRole) &
+                    user.role.equals(AppRoles.superadmin) &
                     user.isDeleted.equals(false),
               )
               ..limit(1))
@@ -68,7 +68,7 @@ class DatabaseSeed {
             id: IdGenerator.create(),
             username: _superadminUsername,
             passwordHash: _initialPasswordHash,
-            role: _superadminRole,
+            role: AppRoles.superadmin,
             createdAt: now,
             updatedAt: now,
             syncStatus: _synced,

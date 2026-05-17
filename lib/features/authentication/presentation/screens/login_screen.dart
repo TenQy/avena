@@ -1,41 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_constants.dart';
-import '../../../../core/database/app_database.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
-import '../../../navigation/presentation/screens/main_shell.dart';
 import '../../data/auth_repository.dart';
+import '../../providers/auth_provider.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
-  late final AppDatabase _database;
-  late final AuthRepository _authRepository;
   bool _isLoading = false;
   bool _obscurePassword = true;
   String? _errorMessage;
 
   @override
-  void initState() {
-    super.initState();
-    _database = AppDatabase();
-    _authRepository = AuthRepository(_database);
-  }
-
-  @override
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
-    _database.close();
     super.dispose();
   }
 
@@ -51,10 +41,12 @@ class _LoginScreenState extends State<LoginScreen> {
       _errorMessage = null;
     });
 
-    final result = await _authRepository.validateCredentials(
-      username: _usernameController.text,
-      password: _passwordController.text,
-    );
+    final result = await ref
+        .read(authProvider.notifier)
+        .login(
+          username: _usernameController.text,
+          password: _passwordController.text,
+        );
 
     if (!mounted) {
       return;
@@ -66,9 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     switch (result) {
       case LoginResult.success:
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute<void>(builder: (_) => const MainShell()),
-        );
+        return;
       case LoginResult.invalidCredentials:
         setState(() {
           _errorMessage = 'Usuario o contrasena incorrectos.';

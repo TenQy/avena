@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../../constants/app_roles.dart';
 import '../app_database.dart';
 import '../tables/users.dart';
 
@@ -29,7 +30,8 @@ class UsersDao extends DatabaseAccessor<AppDatabase> with _$UsersDaoMixin {
     return (select(users)
           ..where(
             (user) =>
-                user.role.equals('superadmin') & user.isDeleted.equals(false),
+                user.role.equals(AppRoles.superadmin) &
+                user.isDeleted.equals(false),
           )
           ..limit(1))
         .getSingleOrNull();
