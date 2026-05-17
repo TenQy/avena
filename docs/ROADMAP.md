@@ -476,7 +476,41 @@ La app puede trabajar offline y sincronizar al recuperar conexión.
 
 ---
 
-# Fase 13: Seguridad y permisos
+# Fase 13: Configuración
+
+## Objetivo
+
+Implementar una pantalla de configuración para agrupar información administrativa, estado del sistema y herramientas de mantenimiento.
+
+## Tareas
+
+- Crear pantalla de configuración.
+- Mostrar datos del usuario actual.
+- Mostrar información del negocio.
+- Mostrar información de la app.
+- Mostrar versión de app.
+- Mostrar estado de sincronización.
+- Mostrar información de caja actual.
+- Implementar tema claro/oscuro.
+- Implementar exportación de respaldo.
+- Implementar restauración de base local.
+- Preparar configuración de impresión para tickets futuros.
+- Restringir acciones según rol.
+
+## Entregables
+
+- Pantalla de configuración funcional.
+- Información de sistema visible.
+- Acciones administrativas protegidas.
+- Herramientas básicas de respaldo y restauración.
+
+## Estado esperado
+
+El admin puede consultar y administrar configuraciones básicas sin mezclar estos flujos con los módulos operativos.
+
+---
+
+# Fase 14: Seguridad y permisos
 
 ## Objetivo
 
@@ -505,7 +539,7 @@ La UI no es la única barrera de seguridad.
 
 ---
 
-# Fase 14: Testing manual
+# Fase 15: Testing manual
 
 ## Objetivo
 
@@ -542,7 +576,7 @@ La app ya puede probarse en entorno real pequeño.
 
 ---
 
-# Fase 15: Pulido visual y UX
+# Fase 16: Pulido visual y UX
 
 ## Objetivo
 
@@ -572,7 +606,7 @@ La app se siente cómoda para uso diario.
 
 ---
 
-# Fase 16: Preparación de README final
+# Fase 17: Preparación de README final
 
 ## Objetivo
 

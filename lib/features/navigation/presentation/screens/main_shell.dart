@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
 import '../../../../shared/widgets/app_header.dart';
 import '../../../../shared/widgets/app_nav_bar.dart';
+import '../../../../shared/widgets/confirm_dialog.dart';
+import '../../../authentication/providers/auth_provider.dart';
 import '../../../calculator/presentation/screens/calculator_screen.dart';
 import '../../../cash/presentation/screens/cash_screen.dart';
 import '../../../dashboard/presentation/screens/dashboard_screen.dart';
@@ -11,6 +14,7 @@ import '../../../inventory/presentation/screens/inventory_screen.dart';
 import '../../../logs/presentation/screens/logs_screen.dart';
 import '../../../pending_payments/presentation/screens/pending_payments_screen.dart';
 import '../../../sales/presentation/screens/sales_screen.dart';
+import '../../../settings/presentation/screens/settings_screen.dart';
 import '../../../users/presentation/screens/users_screen.dart';
 
 enum MainModule {
@@ -22,16 +26,17 @@ enum MainModule {
   pendingPayments,
   calculator,
   logs,
+  settings,
 }
 
-class MainShell extends StatefulWidget {
+class MainShell extends ConsumerStatefulWidget {
   const MainShell({super.key});
 
   @override
-  State<MainShell> createState() => _MainShellState();
+  ConsumerState<MainShell> createState() => _MainShellState();
 }
 
-class _MainShellState extends State<MainShell> {
+class _MainShellState extends ConsumerState<MainShell> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   MainModule _selectedModule = MainModule.dashboard;
 
@@ -65,6 +70,7 @@ class _MainShellState extends State<MainShell> {
       MainModule.pendingPayments => 'Pagos pendientes',
       MainModule.calculator => 'Calculadora',
       MainModule.logs => 'Logs',
+      MainModule.settings => 'Configuración',
     };
   }
 
@@ -78,6 +84,7 @@ class _MainShellState extends State<MainShell> {
       MainModule.pendingPayments => const PendingPaymentsScreen(),
       MainModule.calculator => const CalculatorScreen(),
       MainModule.logs => const LogsScreen(),
+      MainModule.settings => const SettingsScreen(),
     };
   }
 
@@ -97,6 +104,23 @@ class _MainShellState extends State<MainShell> {
     setState(() {
       _selectedModule = module;
     });
+  }
+
+  Future<void> _logout() async {
+    final shouldLogout = await ConfirmDialog.show(
+      context,
+      title: 'Cerrar sesión',
+      message: '¿Quieres cerrar tu sesión actual?',
+      confirmLabel: 'Cerrar sesión',
+      icon: Icons.logout_rounded,
+    );
+
+    if (!mounted || !shouldLogout) {
+      return;
+    }
+
+    Navigator.of(context).pop();
+    await ref.read(authProvider.notifier).logout();
   }
 
   @override
@@ -162,7 +186,7 @@ class _MainShellState extends State<MainShell> {
                     ),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.lg),
+                const _DrawerSeparator(),
                 _OtherModuleTile(
                   icon: Icons.group_rounded,
                   label: 'Usuarios',
@@ -187,6 +211,19 @@ class _MainShellState extends State<MainShell> {
                   selected: _selectedModule == MainModule.logs,
                   onTap: () => _selectOtherModule(MainModule.logs),
                 ),
+                const Spacer(),
+                const _DrawerSeparator(),
+                _OtherModuleTile(
+                  icon: Icons.settings_rounded,
+                  label: 'Configuración',
+                  selected: _selectedModule == MainModule.settings,
+                  onTap: () => _selectOtherModule(MainModule.settings),
+                ),
+                _DrawerActionTile(
+                  icon: Icons.logout_rounded,
+                  label: 'Cerrar sesión',
+                  onTap: _logout,
+                ),
               ],
             ),
           ),
@@ -198,6 +235,18 @@ class _MainShellState extends State<MainShell> {
         hasActiveItem: _hasActiveNavItem,
         onItemSelected: _onNavSelected,
       ),
+    );
+  }
+}
+
+class _DrawerSeparator extends StatelessWidget {
+  const _DrawerSeparator();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
+      child: Divider(height: 1, thickness: 0.5, color: AppColors.border),
     );
   }
 }
@@ -249,6 +298,47 @@ class _OtherModuleTile extends StatelessWidget {
       ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       tileColor: selected ? AppColors.headerNav : AppColors.cardSurface,
+      onTap: onTap,
+    );
+  }
+}
+
+class _DrawerActionTile extends StatelessWidget {
+  const _DrawerActionTile({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.xs,
+      ),
+      leading: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: AppColors.bodyBg,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: AppColors.border, width: 0.5),
+        ),
+        child: Icon(icon, color: AppColors.iconInactive, size: 22),
+      ),
+      title: Text(
+        label,
+        style: Theme.of(
+          context,
+        ).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
+      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      tileColor: AppColors.cardSurface,
       onTap: onTap,
     );
   }

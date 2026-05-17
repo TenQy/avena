@@ -523,6 +523,61 @@ Ejemplo:
 
 ---
 
+## Configuracion
+
+### Objetivo
+
+La pantalla de configuracion agrupara informacion administrativa y herramientas utiles del sistema.
+
+Esta pantalla no debe mezclar flujos operativos principales como ventas, inventario o caja, pero puede mostrar accesos rapidos o estados relacionados.
+
+---
+
+### Acceso
+
+#### Superadmin y administrador
+
+Pueden acceder a toda la pantalla de configuracion.
+
+#### Empleado
+
+Puede consultar unicamente informacion basica permitida, como:
+- datos del usuario actual
+- informacion de la app
+- version de la app
+
+No puede modificar configuraciones.
+
+---
+
+### Configuracion util futura
+
+La pantalla podra incluir:
+
+- tema claro/oscuro
+- informacion del negocio
+- estado de sincronizacion
+- informacion de la app
+- version de app
+- exportar respaldo
+- restaurar base local
+- configuracion de impresion si en el futuro se agregan tickets
+- datos del usuario actual
+- informacion de caja actual
+
+---
+
+### Restricciones
+
+- Restaurar base local debe requerir confirmacion explicita.
+- Exportar respaldo no debe interrumpir operaciones locales.
+- Las acciones criticas de configuracion deben generar logs cuando el modulo de logs este implementado.
+- Los empleados no deben poder restaurar la base local, exportar respaldos ni modificar datos del negocio.
+- La informacion de caja actual es solo consultiva; abrir, mover o cerrar caja debe seguir ocurriendo desde el modulo de Caja.
+- El estado de sincronizacion debe ser informativo hasta que la sincronizacion cloud este implementada.
+
+---
+
 ## Logs de actividad
 
 ### Acceso
