@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/constants/app_roles.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
 import '../../../../shared/widgets/app_header.dart';
@@ -126,6 +127,14 @@ class _MainShellState extends ConsumerState<MainShell> {
   @override
   Widget build(BuildContext context) {
     final drawerWidth = MediaQuery.sizeOf(context).width * 0.84;
+    final currentUser = ref.watch(currentUserProvider).valueOrNull;
+    final currentRole = currentUser?.role;
+    final canManageUsers =
+        currentRole != null && AppRoles.canManageUsers(currentRole);
+    final canViewLogs =
+        currentRole != null && AppRoles.canViewLogs(currentRole);
+    final canUseCalculator =
+        currentRole != null && AppRoles.isAdminRole(currentRole);
 
     return Scaffold(
       key: _scaffoldKey,
@@ -187,30 +196,33 @@ class _MainShellState extends ConsumerState<MainShell> {
                   ],
                 ),
                 const _DrawerSeparator(),
-                _OtherModuleTile(
-                  icon: Icons.group_rounded,
-                  label: 'Usuarios',
-                  selected: _selectedModule == MainModule.users,
-                  onTap: () => _selectOtherModule(MainModule.users),
-                ),
+                if (canManageUsers)
+                  _OtherModuleTile(
+                    icon: Icons.group_rounded,
+                    label: 'Usuarios',
+                    selected: _selectedModule == MainModule.users,
+                    onTap: () => _selectOtherModule(MainModule.users),
+                  ),
                 _OtherModuleTile(
                   icon: Icons.receipt_long_rounded,
                   label: 'Pagos pendientes',
                   selected: _selectedModule == MainModule.pendingPayments,
                   onTap: () => _selectOtherModule(MainModule.pendingPayments),
                 ),
-                _OtherModuleTile(
-                  icon: Icons.calculate_rounded,
-                  label: 'Calculadora',
-                  selected: _selectedModule == MainModule.calculator,
-                  onTap: () => _selectOtherModule(MainModule.calculator),
-                ),
-                _OtherModuleTile(
-                  icon: Icons.history_rounded,
-                  label: 'Logs',
-                  selected: _selectedModule == MainModule.logs,
-                  onTap: () => _selectOtherModule(MainModule.logs),
-                ),
+                if (canUseCalculator)
+                  _OtherModuleTile(
+                    icon: Icons.calculate_rounded,
+                    label: 'Calculadora',
+                    selected: _selectedModule == MainModule.calculator,
+                    onTap: () => _selectOtherModule(MainModule.calculator),
+                  ),
+                if (canViewLogs)
+                  _OtherModuleTile(
+                    icon: Icons.history_rounded,
+                    label: 'Logs',
+                    selected: _selectedModule == MainModule.logs,
+                    onTap: () => _selectOtherModule(MainModule.logs),
+                  ),
                 const Spacer(),
                 const _DrawerSeparator(),
                 _OtherModuleTile(

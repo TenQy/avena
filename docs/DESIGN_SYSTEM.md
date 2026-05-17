@@ -167,6 +167,8 @@ Debe mostrarse en pantallas principales como:
 - Inventario
 - Caja / Configuración según rol
 
+La navegación debe ocultar módulos que el rol actual no puede usar.
+
 No debe mostrarse en:
 - Login
 - Formularios de creación complejos
@@ -260,6 +262,7 @@ Para formularios importantes como login:
 - El bloque de ícono debe tener ancho estable, alrededor de `52`.
 - El separador debe cubrir visualmente la altura útil del input.
 - Los inputs pueden llevar padding horizontal externo para no ocupar todo el ancho de la pantalla.
+- Los inputs de contraseña deben incluir acción para mostrar u ocultar el texto.
 
 ### Layout de formularios
 
@@ -306,6 +309,7 @@ Ejemplo en inventario:
 - No usar FAB para acciones destructivas.
 - No mostrar demasiadas acciones.
 - Máximo recomendado: 3 acciones.
+- Si aparece un snackbar inferior, el FAB debe desplazarse hacia arriba y volver a su posición cuando el snackbar desaparezca.
 
 ---
 
@@ -327,6 +331,8 @@ Los botones principales deben sentirse claros y táctiles sin verse pesados.
 - Puede ser más angosto que los inputs para reforzar jerarquía.
 - En login, el botón debe estar centrado.
 - Si el botón tiene ícono y texto, el ícono puede ir a la derecha cuando la acción representa avanzar o entrar.
+- En formularios y acciones compactas, cuando un botón tiene texto e ícono, el ícono debe colocarse a la derecha del texto para mantener consistencia visual.
+- Los formularios en bottom sheet deben separar el título del contenido con un divisor sutil usando `AppColors.border` cuando el contenido empiece inmediatamente debajo del encabezado.
 
 ---
 

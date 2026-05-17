@@ -12,6 +12,16 @@ class UsersDao extends DatabaseAccessor<AppDatabase> with _$UsersDaoMixin {
 
   Stream<List<User>> watchUsers() => select(users).watch();
 
+  Stream<List<User>> watchVisibleUsers() {
+    return (select(users)
+          ..where((user) => user.isDeleted.equals(false))
+          ..orderBy([
+            (user) => OrderingTerm(expression: user.role),
+            (user) => OrderingTerm(expression: user.username),
+          ]))
+        .watch();
+  }
+
   Future<List<User>> getUsers() => select(users).get();
 
   Future<User?> getUserById(String id) {
@@ -39,5 +49,5 @@ class UsersDao extends DatabaseAccessor<AppDatabase> with _$UsersDaoMixin {
 
   Future<void> insertUser(UsersCompanion user) => into(users).insert(user);
 
-  Future<bool> updateUser(UsersCompanion user) => update(users).replace(user);
+  Future<bool> updateUser(Insertable<User> user) => update(users).replace(user);
 }

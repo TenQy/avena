@@ -381,7 +381,13 @@ Construir una app:
 - DAOs principales creados para usuarios, inventario, caja, ventas, pagos pendientes, logs y cola de sincronizacion.
 - Utilitario UUID creado.
 - Datos iniciales minimos configurados: categoria General y cuenta superadmin idempotente al inicializar la app por primera vez.
-- Fase 3 iniciada parcialmente: pantalla de login creada.
+- Fase 3 finalizada sin logs: autenticacion, sesion persistente, roles y modulo de usuarios implementados.
 - Login valida usuario, contrasena, estado activo y soft delete contra la base local.
-- Si las credenciales son correctas, se permite acceso a la pantalla principal.
-- Persistencia de sesion, pantalla de usuarios y logs de login aun no implementados.
+- La sesion se persiste localmente y se restaura al abrir la app si el usuario sigue activo y no eliminado.
+- `authProvider` y `currentUserProvider` creados con Riverpod.
+- Roles `superadmin`, `admin` y `employee` centralizados en constantes.
+- Menu lateral filtra modulos segun permisos del rol actual.
+- Pantalla de usuarios implementada para admin/superadmin.
+- Admin puede crear, editar, habilitar e inhabilitar empleados.
+- Superadmin puede crear y editar admins y empleados, habilitar e inhabilitar usuarios permitidos y eliminar usuarios con soft delete.
+- Logs de login y acciones de usuarios quedan pendientes para la fase de Logs.
