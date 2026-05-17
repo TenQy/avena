@@ -17,7 +17,7 @@ class SnackBarAwareFab extends StatelessWidget {
     super.key,
     required this.child,
     this.baseBottom = 0,
-    this.snackBarBottom = 80,
+    this.snackBarBottom = 56,
   });
 
   final Widget child;

@@ -4,9 +4,10 @@ import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 
 class AppSpeedDialFab extends StatefulWidget {
-  const AppSpeedDialFab({super.key, required this.actions});
+  const AppSpeedDialFab({super.key, required this.actions, this.controller});
 
   final List<AppSpeedDialAction> actions;
+  final AppSpeedDialController? controller;
 
   @override
   State<AppSpeedDialFab> createState() => _AppSpeedDialFabState();
@@ -15,16 +16,54 @@ class AppSpeedDialFab extends StatefulWidget {
 class _AppSpeedDialFabState extends State<AppSpeedDialFab> {
   bool _isOpen = false;
 
-  void _toggle() {
+  @override
+  void initState() {
+    super.initState();
+    widget.controller?.addListener(_syncControllerState);
+  }
+
+  @override
+  void didUpdateWidget(covariant AppSpeedDialFab oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller == widget.controller) {
+      return;
+    }
+
+    oldWidget.controller?.removeListener(_syncControllerState);
+    widget.controller?.addListener(_syncControllerState);
+    _syncControllerState();
+  }
+
+  @override
+  void dispose() {
+    widget.controller?.removeListener(_syncControllerState);
+    super.dispose();
+  }
+
+  void _syncControllerState() {
+    final controller = widget.controller;
+    if (controller == null || controller.isOpen == _isOpen) {
+      return;
+    }
+
     setState(() {
-      _isOpen = !_isOpen;
+      _isOpen = controller.isOpen;
     });
+  }
+
+  void _toggle() {
+    final nextValue = !_isOpen;
+    setState(() {
+      _isOpen = nextValue;
+    });
+    widget.controller?._setOpen(nextValue);
   }
 
   void _runAction(VoidCallback action) {
     setState(() {
       _isOpen = false;
     });
+    widget.controller?._setOpen(false);
     action();
   }
 
@@ -53,6 +92,25 @@ class _AppSpeedDialFabState extends State<AppSpeedDialFab> {
   }
 }
 
+class AppSpeedDialController extends ChangeNotifier {
+  bool _isOpen = false;
+
+  bool get isOpen => _isOpen;
+
+  void close() {
+    _setOpen(false);
+  }
+
+  void _setOpen(bool value) {
+    if (_isOpen == value) {
+      return;
+    }
+
+    _isOpen = value;
+    notifyListeners();
+  }
+}
+
 class AppSpeedDialAction {
   const AppSpeedDialAction({
     required this.icon,
@@ -73,36 +131,40 @@ class _SpeedDialActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: onPressed,
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.sm,
-          ),
-          decoration: BoxDecoration(
-            color: AppColors.cardSurface,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.border, width: 0.5),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                action.label,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(color: AppColors.textPrimary),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Icon(action.icon, color: AppColors.iconInactive, size: 20),
-            ],
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Material(
+          color: AppColors.cardSurface,
+          borderRadius: BorderRadius.circular(10),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.sm,
+            ),
+            child: Text(
+              action.label,
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: AppColors.textPrimary),
+            ),
           ),
         ),
-      ),
+        const SizedBox(width: AppSpacing.sm),
+        SizedBox(
+          width: 50,
+          height: 50,
+          child: FloatingActionButton(
+            heroTag: null,
+            mini: true,
+            tooltip: action.label,
+            backgroundColor: AppColors.accent,
+            foregroundColor: AppColors.textPrimary,
+            onPressed: onPressed,
+            child: Icon(action.icon, size: 20),
+          ),
+        ),
+      ],
     );
   }
 }

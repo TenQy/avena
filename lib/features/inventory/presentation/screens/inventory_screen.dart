@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
+import '../../../../shared/widgets/app_dismiss_area.dart';
 import '../../../../shared/widgets/app_snack_bar.dart';
 import '../../../../shared/widgets/app_speed_dial_fab.dart';
 import '../../../../shared/widgets/confirm_dialog.dart';
@@ -20,10 +21,12 @@ class InventoryScreen extends ConsumerStatefulWidget {
 
 class _InventoryScreenState extends ConsumerState<InventoryScreen> {
   final _searchController = TextEditingController();
+  final _speedDialController = AppSpeedDialController();
 
   @override
   void dispose() {
     _searchController.dispose();
+    _speedDialController.dispose();
     super.dispose();
   }
 
@@ -32,57 +35,61 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
     final categoriesState = ref.watch(categoriesProvider);
 
     return Scaffold(
-      body: categoriesState.when(
-        data: (categories) {
-          return CustomScrollView(
-            slivers: [
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.lg,
-                  AppSpacing.lg,
-                  AppSpacing.lg,
-                  AppSpacing.md,
-                ),
-                sliver: SliverToBoxAdapter(
-                  child: _ProductSearchField(controller: _searchController),
-                ),
-              ),
-              if (categories.isEmpty)
-                const SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: EmptyState(
-                    icon: Icons.category_rounded,
-                    message: 'Sin categorías aún',
-                    description: 'Toca + para agregar una.',
+      body: AppDismissArea(
+        onDismiss: _speedDialController.close,
+        child: categoriesState.when(
+          data: (categories) {
+            return CustomScrollView(
+              slivers: [
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.lg,
+                    AppSpacing.lg,
+                    AppSpacing.lg,
+                    AppSpacing.md,
                   ),
-                )
-              else
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.lg,
-                      0,
-                      AppSpacing.lg,
-                      104,
-                    ),
-                    child: _CategoriesGrid(
-                      categories: categories,
-                      onCategoryLongPress: _showCategoryActions,
-                    ),
+                  sliver: SliverToBoxAdapter(
+                    child: _ProductSearchField(controller: _searchController),
                   ),
                 ),
-            ],
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, _) => const EmptyState(
-          icon: Icons.error_outline_rounded,
-          message: 'No se pudieron cargar las categorías',
-          description: 'Intenta nuevamente.',
+                if (categories.isEmpty)
+                  const SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: EmptyState(
+                      icon: Icons.category_rounded,
+                      message: 'Sin categorías aún',
+                      description: 'Toca + para agregar una.',
+                    ),
+                  )
+                else
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.lg,
+                        0,
+                        AppSpacing.lg,
+                        104,
+                      ),
+                      child: _CategoriesGrid(
+                        categories: categories,
+                        onCategoryLongPress: _showCategoryActions,
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (_, _) => const EmptyState(
+            icon: Icons.error_outline_rounded,
+            message: 'No se pudieron cargar las categorías',
+            description: 'Intenta nuevamente.',
+          ),
         ),
       ),
       floatingActionButton: SnackBarAwareFab(
         child: AppSpeedDialFab(
+          controller: _speedDialController,
           actions: [
             AppSpeedDialAction(
               icon: Icons.category_rounded,
