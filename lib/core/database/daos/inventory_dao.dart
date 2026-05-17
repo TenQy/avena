@@ -14,6 +14,41 @@ class InventoryDao extends DatabaseAccessor<AppDatabase>
 
   Stream<List<Category>> watchCategories() => select(categories).watch();
 
+  Stream<List<Category>> watchVisibleCategories() {
+    return (select(categories)
+          ..where((category) => category.isDeleted.equals(false))
+          ..orderBy([
+            (category) => OrderingTerm(expression: category.sortOrder),
+            (category) => OrderingTerm(expression: category.name),
+          ]))
+        .watch();
+  }
+
+  Future<int> countProductsByCategory(String categoryId) {
+    final productCount = products.id.count();
+
+    return (selectOnly(products)
+          ..addColumns([productCount])
+          ..where(
+            products.categoryId.equals(categoryId) &
+                products.isDeleted.equals(false),
+          ))
+        .map((row) => row.read(productCount) ?? 0)
+        .getSingle();
+  }
+
+  Future<bool> updateCategory(Insertable<Category> category) {
+    return update(categories).replace(category);
+  }
+
+  Future<void> updateCategories(
+    List<Insertable<Category>> categoryItems,
+  ) async {
+    await batch((batch) {
+      batch.replaceAll(categories, categoryItems);
+    });
+  }
+
   Stream<List<Subcategory>> watchSubcategoriesByCategory(String categoryId) {
     return (select(subcategories)
           ..where((subcategory) => subcategory.categoryId.equals(categoryId)))

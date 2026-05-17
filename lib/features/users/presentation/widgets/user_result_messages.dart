@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/widgets/app_snack_bar.dart';
 import '../../data/users_repository.dart';
-
-final usersSnackBarVisible = ValueNotifier<bool>(false);
 
 void showUserSaveResult(
   BuildContext context,
@@ -17,7 +16,7 @@ void showUserSaveResult(
     UserSaveResult.notFound => 'El usuario ya no existe.',
   };
 
-  _showUsersSnackBar(context, message);
+  showAppSnackBar(context, message);
 }
 
 void showUserActionResult(
@@ -31,15 +30,5 @@ void showUserActionResult(
     UserActionResult.notFound => 'El usuario ya no existe.',
   };
 
-  _showUsersSnackBar(context, message);
-}
-
-void _showUsersSnackBar(BuildContext context, String message) {
-  usersSnackBarVisible.value = true;
-
-  ScaffoldMessenger.of(
-    context,
-  ).showSnackBar(SnackBar(content: Text(message))).closed.whenComplete(() {
-    usersSnackBarVisible.value = false;
-  });
+  showAppSnackBar(context, message);
 }

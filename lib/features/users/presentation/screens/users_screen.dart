@@ -5,6 +5,7 @@ import '../../../../core/constants/app_roles.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../shared/theme/app_spacing.dart';
 import '../../../../shared/widgets/app_fab.dart';
+import '../../../../shared/widgets/app_snack_bar.dart';
 import '../../../../shared/widgets/empty_state.dart';
 import '../../../authentication/providers/auth_provider.dart';
 import '../../providers/users_provider.dart';
@@ -69,18 +70,8 @@ class _UsersContent extends StatelessWidget {
         Positioned(
           right: AppSpacing.lg,
           bottom: 0,
-          child: ValueListenableBuilder<bool>(
-            valueListenable: usersSnackBarVisible,
-            builder: (context, snackBarVisible, child) {
-              return AnimatedPadding(
-                duration: const Duration(milliseconds: 180),
-                curve: Curves.easeOut,
-                padding: EdgeInsets.only(
-                  bottom: snackBarVisible ? 80 : AppSpacing.lg,
-                ),
-                child: child,
-              );
-            },
+          child: SnackBarAwareFab(
+            baseBottom: AppSpacing.lg,
             child: AppFab(
               tooltip: 'Nuevo usuario',
               icon: Icons.person_add_rounded,
