@@ -64,22 +64,20 @@ class _MainShellState extends ConsumerState<MainShell> {
     setState(() {});
   }
 
-  int get _currentNavIndex {
+  int _currentNavIndex({required bool canManageCash}) {
     return switch (_selectedModule) {
       MainModule.dashboard => 0,
       MainModule.sales => 1,
       MainModule.inventory => 2,
-      MainModule.cash => 3,
+      MainModule.cash => canManageCash ? 3 : 0,
       _ => 0,
     };
   }
 
-  bool get _hasActiveNavItem {
+  bool _hasActiveNavItem({required bool canManageCash}) {
     return switch (_selectedModule) {
-      MainModule.dashboard ||
-      MainModule.sales ||
-      MainModule.inventory ||
-      MainModule.cash => true,
+      MainModule.dashboard || MainModule.sales || MainModule.inventory => true,
+      MainModule.cash => canManageCash,
       _ => false,
     };
   }
@@ -112,13 +110,13 @@ class _MainShellState extends ConsumerState<MainShell> {
     };
   }
 
-  void _onNavSelected(int index) {
+  void _onNavSelected(int index, {required bool canManageCash}) {
     setState(() {
       _selectedModule = switch (index) {
         0 => MainModule.dashboard,
         1 => MainModule.sales,
         2 => MainModule.inventory,
-        _ => MainModule.cash,
+        _ => canManageCash ? MainModule.cash : MainModule.dashboard,
       };
     });
   }
@@ -158,6 +156,8 @@ class _MainShellState extends ConsumerState<MainShell> {
         currentRole != null && AppRoles.canViewLogs(currentRole);
     final canUseCalculator =
         currentRole != null && AppRoles.isAdminRole(currentRole);
+    final canManageCash =
+        currentRole != null && AppRoles.canManageCash(currentRole);
 
     return Scaffold(
       key: _scaffoldKey,
@@ -275,9 +275,11 @@ class _MainShellState extends ConsumerState<MainShell> {
       ),
       body: _screen,
       bottomNavigationBar: AppNavBar(
-        currentIndex: _currentNavIndex,
-        hasActiveItem: _hasActiveNavItem,
-        onItemSelected: _onNavSelected,
+        currentIndex: _currentNavIndex(canManageCash: canManageCash),
+        hasActiveItem: _hasActiveNavItem(canManageCash: canManageCash),
+        showCash: canManageCash,
+        onItemSelected: (index) =>
+            _onNavSelected(index, canManageCash: canManageCash),
       ),
     );
   }

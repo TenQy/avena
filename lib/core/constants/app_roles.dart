@@ -23,6 +23,8 @@ class AppRoles {
 
   static bool canEditProducts(String role) => isAdminRole(role);
 
+  static bool canManageCash(String role) => isAdminRole(role);
+
   static bool canModifySettings(String role) => isAdminRole(role);
 
   static bool canAccessPendingPayments(String role) {

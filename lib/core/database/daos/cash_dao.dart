@@ -14,6 +14,13 @@ class CashDao extends DatabaseAccessor<AppDatabase> with _$CashDaoMixin {
     return select(cashSessions).watch();
   }
 
+  Stream<CashSession?> watchOpenCashSession() {
+    return (select(cashSessions)
+          ..where((session) => session.status.equals('open'))
+          ..limit(1))
+        .watchSingleOrNull();
+  }
+
   Future<CashSession?> getOpenCashSession() {
     return (select(cashSessions)
           ..where((session) => session.status.equals('open'))
@@ -29,6 +36,10 @@ class CashDao extends DatabaseAccessor<AppDatabase> with _$CashDaoMixin {
 
   Future<void> insertCashSession(CashSessionsCompanion session) {
     return into(cashSessions).insert(session);
+  }
+
+  Future<bool> updateCashSession(CashSession session) async {
+    return update(cashSessions).replace(session);
   }
 
   Future<void> insertCashMovement(CashMovementsCompanion movement) {
