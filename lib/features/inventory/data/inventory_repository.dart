@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../../../core/constants/app_products.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/utils/id_generator.dart';
 
@@ -11,6 +12,40 @@ enum CategoryActionResult { success, hasProducts, notFound }
 
 enum SubcategoryActionResult { success, notFound }
 
+enum ProductSaveResult {
+  success,
+  emptyName,
+  missingCategory,
+  invalidPrice,
+  invalidStock,
+  categoryNotFound,
+  subcategoryNotFound,
+}
+
+class ProductDraft {
+  const ProductDraft({
+    required this.name,
+    required this.categoryId,
+    required this.productType,
+    required this.price,
+    required this.trackStock,
+    this.brand,
+    this.subcategoryId,
+    this.description,
+    this.stockQuantity,
+  });
+
+  final String name;
+  final String? brand;
+  final String categoryId;
+  final String? subcategoryId;
+  final String? description;
+  final String productType;
+  final double price;
+  final bool trackStock;
+  final double? stockQuantity;
+}
+
 class InventoryRepository {
   InventoryRepository(this._database);
 
@@ -20,6 +55,10 @@ class InventoryRepository {
 
   Stream<List<Category>> watchCategories() {
     return _database.inventoryDao.watchVisibleCategories();
+  }
+
+  Stream<List<Product>> watchProducts() {
+    return _database.inventoryDao.watchProducts();
   }
 
   Stream<List<Subcategory>> watchSubcategoriesByCategory(String categoryId) {
@@ -126,6 +165,85 @@ class InventoryRepository {
     );
 
     return SubcategorySaveResult.success;
+  }
+
+  Future<ProductSaveResult> createProduct(ProductDraft draft) async {
+    final cleanName = draft.name.trim();
+    final cleanBrand = draft.brand?.trim();
+    final cleanDescription = draft.description?.trim();
+
+    if (cleanName.isEmpty) {
+      return ProductSaveResult.emptyName;
+    }
+
+    if (draft.categoryId.trim().isEmpty) {
+      return ProductSaveResult.missingCategory;
+    }
+
+    if (draft.price <= 0) {
+      return ProductSaveResult.invalidPrice;
+    }
+
+    if (draft.trackStock &&
+        (draft.stockQuantity == null || draft.stockQuantity! < 0)) {
+      return ProductSaveResult.invalidStock;
+    }
+
+    final categories = await _database.inventoryDao
+        .watchVisibleCategories()
+        .first;
+    final categoryExists = categories.any(
+      (category) => category.id == draft.categoryId,
+    );
+
+    if (!categoryExists) {
+      return ProductSaveResult.categoryNotFound;
+    }
+
+    if (draft.subcategoryId != null) {
+      final subcategories = await _database.inventoryDao
+          .watchSubcategoriesByCategory(draft.categoryId)
+          .first;
+      final subcategoryExists = subcategories.any(
+        (subcategory) => subcategory.id == draft.subcategoryId,
+      );
+
+      if (!subcategoryExists) {
+        return ProductSaveResult.subcategoryNotFound;
+      }
+    }
+
+    final now = DateTime.now();
+    final priceUnit = draft.productType == AppProductTypes.bulk
+        ? AppProductPriceUnits.kilogram
+        : AppProductPriceUnits.unit;
+
+    await _database.inventoryDao.insertProduct(
+      ProductsCompanion.insert(
+        id: IdGenerator.create(),
+        name: cleanName,
+        brand: Value(
+          cleanBrand == null || cleanBrand.isEmpty ? null : cleanBrand,
+        ),
+        categoryId: draft.categoryId,
+        subcategoryId: Value(draft.subcategoryId),
+        description: Value(
+          cleanDescription == null || cleanDescription.isEmpty
+              ? null
+              : cleanDescription,
+        ),
+        productType: draft.productType,
+        price: draft.price,
+        priceUnit: priceUnit,
+        trackStock: Value(draft.trackStock),
+        stockQuantity: Value(draft.trackStock ? draft.stockQuantity : null),
+        createdAt: now,
+        updatedAt: now,
+        syncStatus: _pendingSync,
+      ),
+    );
+
+    return ProductSaveResult.success;
   }
 
   Future<SubcategoryActionResult> deleteSubcategory(

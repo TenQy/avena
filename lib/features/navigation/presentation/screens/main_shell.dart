@@ -11,6 +11,7 @@ import '../../../authentication/providers/auth_provider.dart';
 import '../../../calculator/presentation/screens/calculator_screen.dart';
 import '../../../cash/presentation/screens/cash_screen.dart';
 import '../../../dashboard/presentation/screens/dashboard_screen.dart';
+import '../../../inventory/presentation/controllers/inventory_screen_controller.dart';
 import '../../../inventory/presentation/screens/inventory_screen.dart';
 import '../../../logs/presentation/screens/logs_screen.dart';
 import '../../../pending_payments/presentation/screens/pending_payments_screen.dart';

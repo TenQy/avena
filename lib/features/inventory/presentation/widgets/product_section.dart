@@ -1,0 +1,80 @@
+import 'package:flutter/material.dart';
+
+import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_spacing.dart';
+import '../utils/product_sections.dart';
+import 'product_list_card.dart';
+
+class ProductSection extends StatelessWidget {
+  const ProductSection({
+    super.key,
+    required this.section,
+    this.onDeleteSubcategory,
+  });
+
+  final ProductSectionData section;
+  final VoidCallback? onDeleteSubcategory;
+
+  @override
+  Widget build(BuildContext context) {
+    final title = section.subcategory?.name ?? 'Sin subcategoría';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Text(
+              '$title (${section.products.length})',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(width: AppSpacing.md),
+            const Expanded(
+              child: Divider(
+                height: 1,
+                thickness: 0.5,
+                color: AppColors.border,
+              ),
+            ),
+            if (onDeleteSubcategory != null) ...[
+              const SizedBox(width: AppSpacing.xs),
+              IconButton(
+                tooltip: 'Eliminar subcategoría',
+                icon: const Icon(Icons.delete_outline_rounded),
+                color: AppColors.iconInactive,
+                onPressed: onDeleteSubcategory,
+              ),
+            ],
+          ],
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        if (section.products.isEmpty)
+          const EmptyProductCard()
+        else
+          for (final product in section.products) ...[
+            ProductListCard(product: product),
+            const SizedBox(height: AppSpacing.sm),
+          ],
+      ],
+    );
+  }
+}
+
+class EmptyProductCard extends StatelessWidget {
+  const EmptyProductCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Text(
+          'Sin productos en esta subcategoría.',
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+        ),
+      ),
+    );
+  }
+}

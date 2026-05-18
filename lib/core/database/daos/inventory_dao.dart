@@ -63,7 +63,12 @@ class InventoryDao extends DatabaseAccessor<AppDatabase>
         .watch();
   }
 
-  Stream<List<Product>> watchProducts() => select(products).watch();
+  Stream<List<Product>> watchProducts() {
+    return (select(products)
+          ..where((product) => product.isDeleted.equals(false))
+          ..orderBy([(product) => OrderingTerm(expression: product.name)]))
+        .watch();
+  }
 
   Stream<List<Product>> watchVisibleProductsByCategory(String categoryId) {
     return (select(products)
