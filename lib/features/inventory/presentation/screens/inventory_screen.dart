@@ -13,10 +13,34 @@ import '../../data/inventory_repository.dart';
 import '../../providers/inventory_provider.dart';
 
 class InventoryScreen extends ConsumerStatefulWidget {
-  const InventoryScreen({super.key});
+  const InventoryScreen({super.key, required this.controller});
+
+  final InventoryScreenController controller;
 
   @override
   ConsumerState<InventoryScreen> createState() => _InventoryScreenState();
+}
+
+class InventoryScreenController extends ChangeNotifier {
+  Category? _selectedCategory;
+
+  Category? get selectedCategory => _selectedCategory;
+  String get title => _selectedCategory?.name ?? 'Inventario';
+  bool get canGoBack => _selectedCategory != null;
+
+  void openCategory(Category category) {
+    _selectedCategory = category;
+    notifyListeners();
+  }
+
+  void closeCategory() {
+    if (_selectedCategory == null) {
+      return;
+    }
+
+    _selectedCategory = null;
+    notifyListeners();
+  }
 }
 
 class _InventoryScreenState extends ConsumerState<InventoryScreen> {
@@ -24,15 +48,46 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
   final _speedDialController = AppSpeedDialController();
 
   @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(_onControllerChanged);
+  }
+
+  @override
+  void didUpdateWidget(covariant InventoryScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller == widget.controller) {
+      return;
+    }
+
+    oldWidget.controller.removeListener(_onControllerChanged);
+    widget.controller.addListener(_onControllerChanged);
+  }
+
+  @override
   void dispose() {
+    widget.controller.removeListener(_onControllerChanged);
     _searchController.dispose();
     _speedDialController.dispose();
     super.dispose();
   }
 
+  void _onControllerChanged() {
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     final categoriesState = ref.watch(categoriesProvider);
+    final selectedCategory = widget.controller.selectedCategory;
+
+    if (selectedCategory != null) {
+      return InventoryCategoryScreen(category: selectedCategory);
+    }
 
     return Scaffold(
       body: AppDismissArea(
@@ -72,6 +127,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                       ),
                       child: _CategoriesGrid(
                         categories: categories,
+                        onCategoryTap: _openCategory,
                         onCategoryLongPress: _showCategoryActions,
                       ),
                     ),
@@ -109,6 +165,10 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
 
   void _showCreateProductPendingMessage() {
     showAppSnackBar(context, 'Crear producto estará disponible pronto.');
+  }
+
+  void _openCategory(Category category) {
+    widget.controller.openCategory(category);
   }
 
   Future<void> _showCreateCategoryForm() async {
@@ -247,13 +307,500 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
   }
 }
 
+class InventoryCategoryScreen extends ConsumerStatefulWidget {
+  const InventoryCategoryScreen({super.key, required this.category});
+
+  final Category category;
+
+  @override
+  ConsumerState<InventoryCategoryScreen> createState() =>
+      _InventoryCategoryScreenState();
+}
+
+class _InventoryCategoryScreenState
+    extends ConsumerState<InventoryCategoryScreen> {
+  final _searchController = TextEditingController();
+  final _speedDialController = AppSpeedDialController();
+  String? _selectedSubcategoryId;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _speedDialController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final subcategoriesState = ref.watch(
+      subcategoriesByCategoryProvider(widget.category.id),
+    );
+    final productsState = ref.watch(
+      productsByCategoryProvider(widget.category.id),
+    );
+
+    return Scaffold(
+      body: AppDismissArea(
+        onDismiss: _speedDialController.close,
+        child: CustomScrollView(
+          slivers: [
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.lg,
+                AppSpacing.lg,
+                AppSpacing.md,
+              ),
+              sliver: SliverToBoxAdapter(
+                child: _ProductSearchField(controller: _searchController),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                0,
+                AppSpacing.lg,
+                104,
+              ),
+              sliver: SliverToBoxAdapter(
+                child: subcategoriesState.when(
+                  data: (subcategories) {
+                    return productsState.when(
+                      data: (products) => _CategoryProductList(
+                        subcategories: subcategories,
+                        products: products,
+                        selectedSubcategoryId: _selectedSubcategoryId,
+                        onFilterChanged: _setSubcategoryFilter,
+                        onDeleteSubcategory: _deleteSubcategory,
+                      ),
+                      loading: () => const _InventoryLoadingBlock(),
+                      error: (_, _) => const EmptyState(
+                        icon: Icons.error_outline_rounded,
+                        message: 'No se pudieron cargar los productos',
+                        description: 'Intenta nuevamente.',
+                      ),
+                    );
+                  },
+                  loading: () => const _InventoryLoadingBlock(),
+                  error: (_, _) => const EmptyState(
+                    icon: Icons.error_outline_rounded,
+                    message: 'No se pudieron cargar las subcategorías',
+                    description: 'Intenta nuevamente.',
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: SnackBarAwareFab(
+        child: AppSpeedDialFab(
+          controller: _speedDialController,
+          actions: [
+            AppSpeedDialAction(
+              icon: Icons.create_new_folder_rounded,
+              label: 'Crear subcategoría',
+              onPressed: _showCreateSubcategoryForm,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showCreateSubcategoryForm() async {
+    final result = await showModalBottomSheet<SubcategorySaveResult>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.cardSurface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return _CreateSubcategorySheet(category: widget.category);
+      },
+    );
+
+    if (!mounted || result == null) {
+      return;
+    }
+
+    _showSubcategorySaveResult(result);
+  }
+
+  void _setSubcategoryFilter(String? subcategoryId) {
+    setState(() {
+      _selectedSubcategoryId = subcategoryId;
+    });
+  }
+
+  Future<void> _deleteSubcategory(Subcategory subcategory) async {
+    final shouldDelete = await ConfirmDialog.show(
+      context,
+      title: 'Eliminar subcategoría',
+      message:
+          'La subcategoría se quitará y sus productos pasarán a Sin subcategoría.',
+      confirmLabel: 'Eliminar',
+      icon: Icons.delete_rounded,
+    );
+
+    if (!mounted || !shouldDelete) {
+      return;
+    }
+
+    final result = await ref
+        .read(inventoryRepositoryProvider)
+        .deleteSubcategory(subcategory);
+
+    if (!mounted) {
+      return;
+    }
+
+    if (_selectedSubcategoryId == subcategory.id) {
+      setState(() {
+        _selectedSubcategoryId = null;
+      });
+    }
+
+    _showSubcategoryActionResult(result);
+  }
+
+  void _showSubcategorySaveResult(SubcategorySaveResult result) {
+    final message = switch (result) {
+      SubcategorySaveResult.success => 'Subcategoría creada.',
+      SubcategorySaveResult.emptyName => 'Ingresa un nombre de subcategoría.',
+      SubcategorySaveResult.nameTaken => 'Esa subcategoría ya existe.',
+      SubcategorySaveResult.categoryNotFound => 'La categoría ya no existe.',
+    };
+
+    showAppSnackBar(context, message);
+  }
+
+  void _showSubcategoryActionResult(SubcategoryActionResult result) {
+    final message = switch (result) {
+      SubcategoryActionResult.success => 'Subcategoría eliminada.',
+      SubcategoryActionResult.notFound => 'La subcategoría ya no existe.',
+    };
+
+    showAppSnackBar(context, message);
+  }
+}
+
+class _CategoryProductList extends StatelessWidget {
+  const _CategoryProductList({
+    required this.subcategories,
+    required this.products,
+    required this.selectedSubcategoryId,
+    required this.onFilterChanged,
+    required this.onDeleteSubcategory,
+  });
+
+  final List<Subcategory> subcategories;
+  final List<Product> products;
+  final String? selectedSubcategoryId;
+  final ValueChanged<String?> onFilterChanged;
+  final ValueChanged<Subcategory> onDeleteSubcategory;
+
+  @override
+  Widget build(BuildContext context) {
+    final sections = _buildProductSections(subcategories, products);
+    final visibleSections = selectedSubcategoryId == null
+        ? sections
+        : sections
+              .where(
+                (section) => section.subcategory?.id == selectedSubcategoryId,
+              )
+              .toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SubcategoryFilterBar(
+          sections: sections,
+          selectedSubcategoryId: selectedSubcategoryId,
+          onFilterChanged: onFilterChanged,
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        if (visibleSections.isEmpty)
+          const EmptyState(
+            icon: Icons.inventory_2_rounded,
+            message: 'Sin productos aún',
+            description: 'Los productos de esta categoría aparecerán aquí.',
+          )
+        else
+          for (final section in visibleSections) ...[
+            _ProductSection(
+              section: section,
+              onDeleteSubcategory: section.subcategory == null
+                  ? null
+                  : () => onDeleteSubcategory(section.subcategory!),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+          ],
+      ],
+    );
+  }
+}
+
+class _SubcategoryFilterBar extends StatelessWidget {
+  const _SubcategoryFilterBar({
+    required this.sections,
+    required this.selectedSubcategoryId,
+    required this.onFilterChanged,
+  });
+
+  final List<_ProductSectionData> sections;
+  final String? selectedSubcategoryId;
+  final ValueChanged<String?> onFilterChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    if (sections.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(right: AppSpacing.sm),
+            child: FilterChip(
+              label: Text('Todas (${_totalProducts(sections)})'),
+              selected: selectedSubcategoryId == null,
+              onSelected: (_) => onFilterChanged(null),
+            ),
+          ),
+          for (final section in sections)
+            if (section.subcategory != null)
+              Padding(
+                padding: const EdgeInsets.only(right: AppSpacing.sm),
+                child: FilterChip(
+                  label: Text(
+                    '${section.subcategory!.name} (${section.products.length})',
+                  ),
+                  selected: selectedSubcategoryId == section.subcategory!.id,
+                  onSelected: (_) => onFilterChanged(section.subcategory!.id),
+                ),
+              ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProductSection extends StatelessWidget {
+  const _ProductSection({required this.section, this.onDeleteSubcategory});
+
+  final _ProductSectionData section;
+  final VoidCallback? onDeleteSubcategory;
+
+  @override
+  Widget build(BuildContext context) {
+    final title = section.subcategory?.name ?? 'Sin subcategoría';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Text(
+              '$title (${section.products.length})',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(width: AppSpacing.md),
+            const Expanded(
+              child: Divider(
+                height: 1,
+                thickness: 0.5,
+                color: AppColors.border,
+              ),
+            ),
+            if (onDeleteSubcategory != null) ...[
+              const SizedBox(width: AppSpacing.xs),
+              IconButton(
+                tooltip: 'Eliminar subcategoría',
+                icon: const Icon(Icons.delete_outline_rounded),
+                color: AppColors.iconInactive,
+                onPressed: onDeleteSubcategory,
+              ),
+            ],
+          ],
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        if (section.products.isEmpty)
+          const _EmptyProductCard()
+        else
+          for (final product in section.products) ...[
+            _ProductListCard(product: product),
+            const SizedBox(height: AppSpacing.sm),
+          ],
+      ],
+    );
+  }
+}
+
+class _EmptyProductCard extends StatelessWidget {
+  const _EmptyProductCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Text(
+          'Sin productos en esta subcategoría.',
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+        ),
+      ),
+    );
+  }
+}
+
+class _ProductListCard extends StatelessWidget {
+  const _ProductListCard({required this.product});
+
+  final Product product;
+
+  @override
+  Widget build(BuildContext context) {
+    final price = '\$${product.price.toStringAsFixed(2)}';
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: AppColors.headerNav,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.border, width: 0.5),
+              ),
+              child: const Icon(
+                Icons.inventory_2_rounded,
+                color: AppColors.iconInactive,
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  if (product.brand != null && product.brand!.isNotEmpty)
+                    Text(
+                      product.brand!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Text(
+              price,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _InventoryLoadingBlock extends StatelessWidget {
+  const _InventoryLoadingBlock();
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox(
+      height: 96,
+      child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+    );
+  }
+}
+
+class _ProductSectionData {
+  const _ProductSectionData({
+    required this.subcategory,
+    required this.products,
+  });
+
+  final Subcategory? subcategory;
+  final List<Product> products;
+}
+
+List<_ProductSectionData> _buildProductSections(
+  List<Subcategory> subcategories,
+  List<Product> products,
+) {
+  final sections = [
+    for (final subcategory in subcategories)
+      _ProductSectionData(
+        subcategory: subcategory,
+        products: products
+            .where((product) => product.subcategoryId == subcategory.id)
+            .toList(),
+      ),
+  ];
+
+  sections.sort((a, b) {
+    final countComparison = b.products.length.compareTo(a.products.length);
+    if (countComparison != 0) {
+      return countComparison;
+    }
+
+    return a.subcategory!.name.toLowerCase().compareTo(
+      b.subcategory!.name.toLowerCase(),
+    );
+  });
+
+  final uncategorizedProducts = products
+      .where((product) => product.subcategoryId == null)
+      .toList();
+
+  if (uncategorizedProducts.isNotEmpty) {
+    sections.add(
+      _ProductSectionData(subcategory: null, products: uncategorizedProducts),
+    );
+  }
+
+  return sections;
+}
+
+int _totalProducts(List<_ProductSectionData> sections) {
+  return sections.fold(0, (total, section) => total + section.products.length);
+}
+
 class _CategoriesGrid extends StatelessWidget {
   const _CategoriesGrid({
     required this.categories,
+    required this.onCategoryTap,
     required this.onCategoryLongPress,
   });
 
   final List<Category> categories;
+  final ValueChanged<Category> onCategoryTap;
   final ValueChanged<Category> onCategoryLongPress;
 
   @override
@@ -270,6 +817,7 @@ class _CategoriesGrid extends StatelessWidget {
               child: _CategoryCard(
                 category: categories.first,
                 isMain: true,
+                onTap: () => onCategoryTap(categories.first),
                 onLongPress: () => onCategoryLongPress(categories.first),
               ),
             ),
@@ -291,6 +839,7 @@ class _CategoriesGrid extends StatelessWidget {
                   return _CategoryCard(
                     category: category,
                     isMain: false,
+                    onTap: () => onCategoryTap(category),
                     onLongPress: () => onCategoryLongPress(category),
                   );
                 },
@@ -339,16 +888,19 @@ class _CategoryCard extends StatelessWidget {
   const _CategoryCard({
     required this.category,
     required this.isMain,
+    required this.onTap,
     required this.onLongPress,
   });
 
   final Category category;
   final bool isMain;
+  final VoidCallback onTap;
   final VoidCallback onLongPress;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onTap: onTap,
       onLongPress: onLongPress,
       child: Card(
         child: Column(
@@ -427,6 +979,135 @@ class _InventoryOptionTile extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       onTap: onTap,
     );
+  }
+}
+
+class _CreateSubcategorySheet extends ConsumerStatefulWidget {
+  const _CreateSubcategorySheet({required this.category});
+
+  final Category category;
+
+  @override
+  ConsumerState<_CreateSubcategorySheet> createState() =>
+      _CreateSubcategorySheetState();
+}
+
+class _CreateSubcategorySheetState
+    extends ConsumerState<_CreateSubcategorySheet> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  bool _isSaving = false;
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          AppSpacing.md,
+          AppSpacing.lg,
+          AppSpacing.lg + bottomInset,
+        ),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.border,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              Text(
+                'Nueva subcategoría',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              const Divider(height: 1, thickness: 0.5, color: AppColors.border),
+              const SizedBox(height: AppSpacing.lg),
+              TextFormField(
+                controller: _nameController,
+                textInputAction: TextInputAction.done,
+                decoration: const InputDecoration(
+                  labelText: 'Nombre de subcategoría',
+                  prefixIcon: Icon(Icons.create_new_folder_rounded),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Ingresa un nombre.';
+                  }
+
+                  return null;
+                },
+                onFieldSubmitted: (_) => _save(),
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              FilledButton(
+                onPressed: _isSaving ? null : _save,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('Crear subcategoría'),
+                    const SizedBox(width: AppSpacing.sm),
+                    if (_isSaving)
+                      const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    else
+                      const Icon(Icons.save_rounded),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _save() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    setState(() {
+      _isSaving = true;
+    });
+
+    final result = await ref
+        .read(inventoryRepositoryProvider)
+        .createSubcategory(
+          category: widget.category,
+          name: _nameController.text,
+        );
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _isSaving = false;
+    });
+
+    Navigator.of(context).pop(result);
   }
 }
 

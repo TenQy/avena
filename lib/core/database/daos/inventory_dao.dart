@@ -51,11 +51,53 @@ class InventoryDao extends DatabaseAccessor<AppDatabase>
 
   Stream<List<Subcategory>> watchSubcategoriesByCategory(String categoryId) {
     return (select(subcategories)
-          ..where((subcategory) => subcategory.categoryId.equals(categoryId)))
+          ..where(
+            (subcategory) =>
+                subcategory.categoryId.equals(categoryId) &
+                subcategory.isDeleted.equals(false),
+          )
+          ..orderBy([
+            (subcategory) => OrderingTerm(expression: subcategory.sortOrder),
+            (subcategory) => OrderingTerm(expression: subcategory.name),
+          ]))
         .watch();
   }
 
   Stream<List<Product>> watchProducts() => select(products).watch();
+
+  Stream<List<Product>> watchVisibleProductsByCategory(String categoryId) {
+    return (select(products)
+          ..where(
+            (product) =>
+                product.categoryId.equals(categoryId) &
+                product.isDeleted.equals(false),
+          )
+          ..orderBy([(product) => OrderingTerm(expression: product.name)]))
+        .watch();
+  }
+
+  Future<bool> updateSubcategory(Insertable<Subcategory> subcategory) {
+    return update(subcategories).replace(subcategory);
+  }
+
+  Future<int> clearProductsSubcategory({
+    required String subcategoryId,
+    required DateTime updatedAt,
+    required String syncStatus,
+  }) {
+    return (update(products)..where(
+          (product) =>
+              product.subcategoryId.equals(subcategoryId) &
+              product.isDeleted.equals(false),
+        ))
+        .write(
+          ProductsCompanion(
+            subcategoryId: const Value(null),
+            updatedAt: Value(updatedAt),
+            syncStatus: Value(syncStatus),
+          ),
+        );
+  }
 
   Future<void> insertCategory(CategoriesCompanion category) {
     return into(categories).insert(category);

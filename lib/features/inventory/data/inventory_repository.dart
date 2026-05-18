@@ -5,7 +5,11 @@ import '../../../core/utils/id_generator.dart';
 
 enum CategorySaveResult { success, emptyName, nameTaken }
 
+enum SubcategorySaveResult { success, emptyName, nameTaken, categoryNotFound }
+
 enum CategoryActionResult { success, hasProducts, notFound }
+
+enum SubcategoryActionResult { success, notFound }
 
 class InventoryRepository {
   InventoryRepository(this._database);
@@ -16,6 +20,14 @@ class InventoryRepository {
 
   Stream<List<Category>> watchCategories() {
     return _database.inventoryDao.watchVisibleCategories();
+  }
+
+  Stream<List<Subcategory>> watchSubcategoriesByCategory(String categoryId) {
+    return _database.inventoryDao.watchSubcategoriesByCategory(categoryId);
+  }
+
+  Stream<List<Product>> watchProductsByCategory(String categoryId) {
+    return _database.inventoryDao.watchVisibleProductsByCategory(categoryId);
   }
 
   Future<CategorySaveResult> createCategory(String name) async {
@@ -58,6 +70,90 @@ class InventoryRepository {
     );
 
     return CategorySaveResult.success;
+  }
+
+  Future<SubcategorySaveResult> createSubcategory({
+    required Category category,
+    required String name,
+  }) async {
+    final cleanName = name.trim();
+
+    if (cleanName.isEmpty) {
+      return SubcategorySaveResult.emptyName;
+    }
+
+    final categories = await _database.inventoryDao
+        .watchVisibleCategories()
+        .first;
+    final categoryExists = categories.any((item) => item.id == category.id);
+
+    if (!categoryExists) {
+      return SubcategorySaveResult.categoryNotFound;
+    }
+
+    final subcategories = await _database.inventoryDao
+        .watchSubcategoriesByCategory(category.id)
+        .first;
+    final nameExists = subcategories.any(
+      (subcategory) =>
+          subcategory.name.toLowerCase() == cleanName.toLowerCase(),
+    );
+
+    if (nameExists) {
+      return SubcategorySaveResult.nameTaken;
+    }
+
+    final now = DateTime.now();
+    final nextSortOrder = subcategories.isEmpty
+        ? 0
+        : subcategories
+                  .map((subcategory) => subcategory.sortOrder)
+                  .reduce(
+                    (value, element) => value > element ? value : element,
+                  ) +
+              1;
+
+    await _database.inventoryDao.insertSubcategory(
+      SubcategoriesCompanion.insert(
+        id: IdGenerator.create(),
+        categoryId: category.id,
+        name: cleanName,
+        sortOrder: Value(nextSortOrder),
+        createdAt: now,
+        updatedAt: now,
+        syncStatus: _pendingSync,
+      ),
+    );
+
+    return SubcategorySaveResult.success;
+  }
+
+  Future<SubcategoryActionResult> deleteSubcategory(
+    Subcategory subcategory,
+  ) async {
+    final now = DateTime.now();
+
+    await _database.inventoryDao.clearProductsSubcategory(
+      subcategoryId: subcategory.id,
+      updatedAt: now,
+      syncStatus: _pendingSync,
+    );
+
+    final updated = await _database.inventoryDao.updateSubcategory(
+      subcategory.copyWith(
+        isActive: false,
+        isDeleted: true,
+        deletedAt: Value(now),
+        updatedAt: now,
+        syncStatus: _pendingSync,
+      ),
+    );
+
+    if (!updated) {
+      return SubcategoryActionResult.notFound;
+    }
+
+    return SubcategoryActionResult.success;
   }
 
   Future<CategoryActionResult> setMainCategory(

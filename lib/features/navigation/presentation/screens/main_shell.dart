@@ -39,7 +39,29 @@ class MainShell extends ConsumerStatefulWidget {
 
 class _MainShellState extends ConsumerState<MainShell> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _inventoryController = InventoryScreenController();
   MainModule _selectedModule = MainModule.dashboard;
+
+  @override
+  void initState() {
+    super.initState();
+    _inventoryController.addListener(_onInventoryChanged);
+  }
+
+  @override
+  void dispose() {
+    _inventoryController.removeListener(_onInventoryChanged);
+    _inventoryController.dispose();
+    super.dispose();
+  }
+
+  void _onInventoryChanged() {
+    if (!mounted || _selectedModule != MainModule.inventory) {
+      return;
+    }
+
+    setState(() {});
+  }
 
   int get _currentNavIndex {
     return switch (_selectedModule) {
@@ -65,7 +87,7 @@ class _MainShellState extends ConsumerState<MainShell> {
     return switch (_selectedModule) {
       MainModule.dashboard => 'Dashboard',
       MainModule.sales => 'Ventas',
-      MainModule.inventory => 'Inventarios',
+      MainModule.inventory => _inventoryController.title,
       MainModule.cash => 'Caja',
       MainModule.users => 'Usuarios',
       MainModule.pendingPayments => 'Pagos pendientes',
@@ -79,7 +101,7 @@ class _MainShellState extends ConsumerState<MainShell> {
     return switch (_selectedModule) {
       MainModule.dashboard => const DashboardScreen(),
       MainModule.sales => const SalesScreen(),
-      MainModule.inventory => const InventoryScreen(),
+      MainModule.inventory => InventoryScreen(controller: _inventoryController),
       MainModule.cash => const CashScreen(),
       MainModule.users => const UsersScreen(),
       MainModule.pendingPayments => const PendingPaymentsScreen(),
@@ -140,6 +162,15 @@ class _MainShellState extends ConsumerState<MainShell> {
       key: _scaffoldKey,
       appBar: AppHeader(
         title: _title,
+        leading:
+            _selectedModule == MainModule.inventory &&
+                _inventoryController.canGoBack
+            ? IconButton(
+                tooltip: 'Volver a categorías',
+                icon: const Icon(Icons.arrow_back_rounded),
+                onPressed: _inventoryController.closeCategory,
+              )
+            : null,
         actions: [
           IconButton(
             tooltip: 'Mas modulos',

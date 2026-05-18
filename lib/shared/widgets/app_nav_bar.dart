@@ -37,7 +37,7 @@ class AppNavBar extends StatelessWidget {
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.inventory_2_rounded),
-          label: 'Inventarios',
+          label: 'Inventario',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.account_balance_wallet_rounded),

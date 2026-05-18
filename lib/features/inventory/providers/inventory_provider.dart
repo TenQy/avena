@@ -11,3 +11,18 @@ final inventoryRepositoryProvider = Provider<InventoryRepository>((ref) {
 final categoriesProvider = StreamProvider<List<Category>>((ref) {
   return ref.watch(inventoryRepositoryProvider).watchCategories();
 });
+
+final subcategoriesByCategoryProvider =
+    StreamProvider.family<List<Subcategory>, String>((ref, categoryId) {
+      return ref
+          .watch(inventoryRepositoryProvider)
+          .watchSubcategoriesByCategory(categoryId);
+    });
+
+final productsByCategoryProvider = StreamProvider.family<List<Product>, String>(
+  (ref, categoryId) {
+    return ref
+        .watch(inventoryRepositoryProvider)
+        .watchProductsByCategory(categoryId);
+  },
+);
