@@ -11,13 +11,13 @@ class CategoryCard extends StatelessWidget {
     required this.category,
     required this.isMain,
     required this.onTap,
-    required this.onLongPress,
+    this.onLongPress,
   });
 
   final Category category;
   final bool isMain;
   final VoidCallback onTap;
-  final VoidCallback onLongPress;
+  final VoidCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) {

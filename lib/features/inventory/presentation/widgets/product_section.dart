@@ -11,13 +11,13 @@ class ProductSection extends StatelessWidget {
     super.key,
     required this.section,
     required this.onProductTap,
-    required this.onProductLongPress,
+    this.onProductLongPress,
     this.onDeleteSubcategory,
   });
 
   final ProductSectionData section;
   final ValueChanged<Product> onProductTap;
-  final ValueChanged<Product> onProductLongPress;
+  final ValueChanged<Product>? onProductLongPress;
   final VoidCallback? onDeleteSubcategory;
 
   @override
@@ -60,7 +60,9 @@ class ProductSection extends StatelessWidget {
             ProductListCard(
               product: product,
               onTap: () => onProductTap(product),
-              onLongPress: () => onProductLongPress(product),
+              onLongPress: onProductLongPress == null
+                  ? null
+                  : () => onProductLongPress!(product),
             ),
             const SizedBox(height: AppSpacing.sm),
           ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/constants/app_roles.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
@@ -9,6 +10,7 @@ import '../../../../shared/widgets/app_snack_bar.dart';
 import '../../../../shared/widgets/app_speed_dial_fab.dart';
 import '../../../../shared/widgets/confirm_dialog.dart';
 import '../../../../shared/widgets/empty_state.dart';
+import '../../../authentication/providers/auth_provider.dart';
 import '../../data/inventory_repository.dart';
 import '../../providers/inventory_provider.dart';
 import '../utils/inventory_messages.dart';
@@ -69,6 +71,9 @@ class _InventoryCategoryScreenState
     final productsState = ref.watch(
       productsByCategoryProvider(widget.category.id),
     );
+    final currentUser = ref.watch(currentUserProvider).valueOrNull;
+    final canEditInventory =
+        currentUser != null && AppRoles.canEditProducts(currentUser.role);
 
     return Scaffold(
       body: AppDismissArea(
@@ -103,9 +108,13 @@ class _InventoryCategoryScreenState
                         searchQuery: _searchController.text,
                         selectedSubcategoryId: _selectedSubcategoryId,
                         onFilterChanged: _setSubcategoryFilter,
-                        onDeleteSubcategory: _deleteSubcategory,
                         onProductTap: _openProductDetail,
-                        onProductLongPress: _showProductActions,
+                        onDeleteSubcategory: canEditInventory
+                            ? _deleteSubcategory
+                            : null,
+                        onProductLongPress: canEditInventory
+                            ? _showProductActions
+                            : null,
                       ),
                       loading: () => const InventoryLoadingBlock(),
                       error: (_, _) => const EmptyState(
@@ -127,23 +136,25 @@ class _InventoryCategoryScreenState
           ],
         ),
       ),
-      floatingActionButton: SnackBarAwareFab(
-        child: AppSpeedDialFab(
-          controller: _speedDialController,
-          actions: [
-            AppSpeedDialAction(
-              icon: Icons.create_new_folder_rounded,
-              label: 'Crear subcategoría',
-              onPressed: _showCreateSubcategoryForm,
-            ),
-            AppSpeedDialAction(
-              icon: Icons.inventory_2_rounded,
-              label: 'Crear producto',
-              onPressed: _showCreateProductForm,
-            ),
-          ],
-        ),
-      ),
+      floatingActionButton: canEditInventory
+          ? SnackBarAwareFab(
+              child: AppSpeedDialFab(
+                controller: _speedDialController,
+                actions: [
+                  AppSpeedDialAction(
+                    icon: Icons.create_new_folder_rounded,
+                    label: 'Crear subcategoría',
+                    onPressed: _showCreateSubcategoryForm,
+                  ),
+                  AppSpeedDialAction(
+                    icon: Icons.inventory_2_rounded,
+                    label: 'Crear producto',
+                    onPressed: _showCreateProductForm,
+                  ),
+                ],
+              ),
+            )
+          : null,
     );
   }
 

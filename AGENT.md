@@ -391,12 +391,16 @@ Construir una app:
 - Admin puede crear, editar, habilitar e inhabilitar empleados.
 - Superadmin puede crear y editar admins y empleados, habilitar e inhabilitar usuarios permitidos y eliminar usuarios con soft delete.
 - Logs de login y acciones de usuarios quedan pendientes para la fase de Logs.
-- Fase 4 iniciada parcialmente: pantalla de Inventario reemplaza placeholder y muestra buscador global visual de productos.
+- Fase 4 finalizada: Inventario permite administrar categorias, subcategorias y productos locales.
 - Inventario lista categorias locales activas; la primera categoria es principal y ocupa dos columnas.
 - Categorias restantes se muestran en grid de dos columnas con cards compactas.
-- FAB de Inventario usa speed dial reutilizable con acciones Crear categoria y Crear producto.
-- Crear categoria funciona con nombre, persistencia local, validacion de nombre vacio y duplicados.
-- Crear producto aun no implementado; solo muestra mensaje temporal.
-- Long press en categoria permite establecerla como principal o eliminarla.
+- Busqueda global y busqueda por categoria implementadas para productos.
+- FAB de Inventario usa speed dial reutilizable con acciones Crear categoria y Crear producto solo para admin/superadmin.
+- Pantalla de categoria permite crear subcategorias, crear productos dentro de la categoria y filtrar por subcategoria.
+- Crear, editar y eliminar productos funcionan con persistencia local, soft delete, validaciones y soporte para productos por unidad o a granel.
+- Detalle de producto muestra informacion general, precio, stock y porciones calculadas para productos a granel.
+- Long press en categoria permite establecerla como principal o eliminarla solo para admin/superadmin.
 - Eliminar categoria usa soft delete y bloquea eliminacion si tiene productos.
+- Eliminar subcategoria quita la subcategoria y mueve sus productos a Sin subcategoria.
+- Employee conserva inventario de solo lectura: puede navegar categorias y ver detalles de producto, sin FABs de creacion, long press de edicion/eliminacion ni borrado de subcategorias.
 - Logica reutilizable creada para elevar FAB cuando aparece snackbar inferior.

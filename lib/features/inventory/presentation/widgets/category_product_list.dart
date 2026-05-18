@@ -15,9 +15,9 @@ class CategoryProductList extends StatelessWidget {
     required this.searchQuery,
     required this.selectedSubcategoryId,
     required this.onFilterChanged,
-    required this.onDeleteSubcategory,
     required this.onProductTap,
-    required this.onProductLongPress,
+    this.onDeleteSubcategory,
+    this.onProductLongPress,
   });
 
   final List<Subcategory> subcategories;
@@ -25,9 +25,9 @@ class CategoryProductList extends StatelessWidget {
   final String searchQuery;
   final String? selectedSubcategoryId;
   final ValueChanged<String?> onFilterChanged;
-  final ValueChanged<Subcategory> onDeleteSubcategory;
+  final ValueChanged<Subcategory>? onDeleteSubcategory;
   final ValueChanged<Product> onProductTap;
-  final ValueChanged<Product> onProductLongPress;
+  final ValueChanged<Product>? onProductLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -62,9 +62,10 @@ class CategoryProductList extends StatelessWidget {
               section: section,
               onProductTap: onProductTap,
               onProductLongPress: onProductLongPress,
-              onDeleteSubcategory: section.subcategory == null
+              onDeleteSubcategory:
+                  section.subcategory == null || onDeleteSubcategory == null
                   ? null
-                  : () => onDeleteSubcategory(section.subcategory!),
+                  : () => onDeleteSubcategory!(section.subcategory!),
             ),
             const SizedBox(height: AppSpacing.lg),
           ],

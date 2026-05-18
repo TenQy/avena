@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/constants/app_roles.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
@@ -9,6 +10,7 @@ import '../../../../shared/widgets/app_snack_bar.dart';
 import '../../../../shared/widgets/app_speed_dial_fab.dart';
 import '../../../../shared/widgets/confirm_dialog.dart';
 import '../../../../shared/widgets/empty_state.dart';
+import '../../../authentication/providers/auth_provider.dart';
 import '../../data/inventory_repository.dart';
 import '../../providers/inventory_provider.dart';
 import '../controllers/inventory_screen_controller.dart';
@@ -84,6 +86,9 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
     final productsState = ref.watch(productsProvider);
     final selectedProduct = widget.controller.selectedProduct;
     final selectedCategory = widget.controller.selectedCategory;
+    final currentUser = ref.watch(currentUserProvider).valueOrNull;
+    final canEditInventory =
+        currentUser != null && AppRoles.canEditProducts(currentUser.role);
 
     if (selectedProduct != null) {
       return ProductDetailScreen(product: selectedProduct);
@@ -101,8 +106,11 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
         onDismiss: _speedDialController.close,
         child: categoriesState.when(
           data: (categories) => productsState.when(
-            data: (products) =>
-                _buildCategories(categories: categories, products: products),
+            data: (products) => _buildCategories(
+              categories: categories,
+              products: products,
+              canEditInventory: canEditInventory,
+            ),
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (_, _) => const EmptyState(
               icon: Icons.error_outline_rounded,
@@ -118,29 +126,32 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
           ),
         ),
       ),
-      floatingActionButton: SnackBarAwareFab(
-        child: AppSpeedDialFab(
-          controller: _speedDialController,
-          actions: [
-            AppSpeedDialAction(
-              icon: Icons.category_rounded,
-              label: 'Crear categoría',
-              onPressed: _showCreateCategoryForm,
-            ),
-            AppSpeedDialAction(
-              icon: Icons.inventory_2_rounded,
-              label: 'Crear producto',
-              onPressed: _showCreateProductForm,
-            ),
-          ],
-        ),
-      ),
+      floatingActionButton: canEditInventory
+          ? SnackBarAwareFab(
+              child: AppSpeedDialFab(
+                controller: _speedDialController,
+                actions: [
+                  AppSpeedDialAction(
+                    icon: Icons.category_rounded,
+                    label: 'Crear categoría',
+                    onPressed: _showCreateCategoryForm,
+                  ),
+                  AppSpeedDialAction(
+                    icon: Icons.inventory_2_rounded,
+                    label: 'Crear producto',
+                    onPressed: _showCreateProductForm,
+                  ),
+                ],
+              ),
+            )
+          : null,
     );
   }
 
   Widget _buildCategories({
     required List<Category> categories,
     required List<Product> products,
+    required bool canEditInventory,
   }) {
     final searchQuery = _searchController.text;
 
@@ -193,7 +204,9 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
               child: CategoriesGrid(
                 categories: categories,
                 onCategoryTap: _openCategory,
-                onCategoryLongPress: _showCategoryActions,
+                onCategoryLongPress: canEditInventory
+                    ? _showCategoryActions
+                    : null,
               ),
             ),
           ),

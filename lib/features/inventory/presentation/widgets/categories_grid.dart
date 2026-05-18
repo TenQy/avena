@@ -9,12 +9,12 @@ class CategoriesGrid extends StatelessWidget {
     super.key,
     required this.categories,
     required this.onCategoryTap,
-    required this.onCategoryLongPress,
+    this.onCategoryLongPress,
   });
 
   final List<Category> categories;
   final ValueChanged<Category> onCategoryTap;
-  final ValueChanged<Category> onCategoryLongPress;
+  final ValueChanged<Category>? onCategoryLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +31,9 @@ class CategoriesGrid extends StatelessWidget {
                 category: categories.first,
                 isMain: true,
                 onTap: () => onCategoryTap(categories.first),
-                onLongPress: () => onCategoryLongPress(categories.first),
+                onLongPress: onCategoryLongPress == null
+                    ? null
+                    : () => onCategoryLongPress!(categories.first),
               ),
             ),
             if (categories.length > 1) ...[
@@ -53,7 +55,9 @@ class CategoriesGrid extends StatelessWidget {
                     category: category,
                     isMain: false,
                     onTap: () => onCategoryTap(category),
-                    onLongPress: () => onCategoryLongPress(category),
+                    onLongPress: onCategoryLongPress == null
+                        ? null
+                        : () => onCategoryLongPress!(category),
                   );
                 },
               ),
