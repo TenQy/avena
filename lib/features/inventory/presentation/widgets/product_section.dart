@@ -10,11 +10,13 @@ class ProductSection extends StatelessWidget {
   const ProductSection({
     super.key,
     required this.section,
+    required this.onProductTap,
     required this.onProductLongPress,
     this.onDeleteSubcategory,
   });
 
   final ProductSectionData section;
+  final ValueChanged<Product> onProductTap;
   final ValueChanged<Product> onProductLongPress;
   final VoidCallback? onDeleteSubcategory;
 
@@ -57,6 +59,7 @@ class ProductSection extends StatelessWidget {
           for (final product in section.products) ...[
             ProductListCard(
               product: product,
+              onTap: () => onProductTap(product),
               onLongPress: () => onProductLongPress(product),
             ),
             const SizedBox(height: AppSpacing.sm),

@@ -19,9 +19,14 @@ import '../widgets/inventory_loading_block.dart';
 import '../widgets/product_search_field.dart';
 
 class InventoryCategoryScreen extends ConsumerStatefulWidget {
-  const InventoryCategoryScreen({super.key, required this.category});
+  const InventoryCategoryScreen({
+    super.key,
+    required this.category,
+    required this.onProductTap,
+  });
 
   final Category category;
+  final ValueChanged<Product> onProductTap;
 
   @override
   ConsumerState<InventoryCategoryScreen> createState() =>
@@ -99,6 +104,7 @@ class _InventoryCategoryScreenState
                         selectedSubcategoryId: _selectedSubcategoryId,
                         onFilterChanged: _setSubcategoryFilter,
                         onDeleteSubcategory: _deleteSubcategory,
+                        onProductTap: _openProductDetail,
                         onProductLongPress: _showProductActions,
                       ),
                       loading: () => const InventoryLoadingBlock(),
@@ -261,6 +267,10 @@ class _InventoryCategoryScreenState
     setState(() {
       _selectedSubcategoryId = subcategoryId;
     });
+  }
+
+  void _openProductDetail(Product product) {
+    widget.onProductTap(product);
   }
 
   Future<void> _deleteSubcategory(Subcategory subcategory) async {

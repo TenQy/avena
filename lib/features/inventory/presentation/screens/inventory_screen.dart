@@ -20,6 +20,7 @@ import '../widgets/inventory_option_tile.dart';
 import '../widgets/product_search_field.dart';
 import '../widgets/product_search_results.dart';
 import 'category_screen.dart';
+import 'product_detail_screen.dart';
 
 class InventoryScreen extends ConsumerStatefulWidget {
   const InventoryScreen({super.key, required this.controller});
@@ -81,10 +82,18 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
   Widget build(BuildContext context) {
     final categoriesState = ref.watch(categoriesProvider);
     final productsState = ref.watch(productsProvider);
+    final selectedProduct = widget.controller.selectedProduct;
     final selectedCategory = widget.controller.selectedCategory;
 
+    if (selectedProduct != null) {
+      return ProductDetailScreen(product: selectedProduct);
+    }
+
     if (selectedCategory != null) {
-      return InventoryCategoryScreen(category: selectedCategory);
+      return InventoryCategoryScreen(
+        category: selectedCategory,
+        onProductTap: widget.controller.openProduct,
+      );
     }
 
     return Scaffold(
