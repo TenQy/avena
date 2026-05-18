@@ -12,6 +12,8 @@ enum CategoryActionResult { success, hasProducts, notFound }
 
 enum SubcategoryActionResult { success, notFound }
 
+enum ProductActionResult { success, notFound }
+
 enum ProductSaveResult {
   success,
   emptyName,
@@ -168,9 +170,115 @@ class InventoryRepository {
   }
 
   Future<ProductSaveResult> createProduct(ProductDraft draft) async {
+    final validationResult = await _validateProductDraft(draft);
+    if (validationResult != null) {
+      return validationResult;
+    }
+
     final cleanName = draft.name.trim();
     final cleanBrand = draft.brand?.trim();
     final cleanDescription = draft.description?.trim();
+    final now = DateTime.now();
+    final priceUnit = draft.productType == AppProductTypes.bulk
+        ? AppProductPriceUnits.kilogram
+        : AppProductPriceUnits.unit;
+
+    await _database.inventoryDao.insertProduct(
+      ProductsCompanion.insert(
+        id: IdGenerator.create(),
+        name: cleanName,
+        brand: Value(
+          cleanBrand == null || cleanBrand.isEmpty ? null : cleanBrand,
+        ),
+        categoryId: draft.categoryId,
+        subcategoryId: Value(draft.subcategoryId),
+        description: Value(
+          cleanDescription == null || cleanDescription.isEmpty
+              ? null
+              : cleanDescription,
+        ),
+        productType: draft.productType,
+        price: draft.price,
+        priceUnit: priceUnit,
+        trackStock: Value(draft.trackStock),
+        stockQuantity: Value(draft.trackStock ? draft.stockQuantity : null),
+        createdAt: now,
+        updatedAt: now,
+        syncStatus: _pendingSync,
+      ),
+    );
+
+    return ProductSaveResult.success;
+  }
+
+  Future<ProductSaveResult> updateProduct(
+    Product product,
+    ProductDraft draft,
+  ) async {
+    final validationResult = await _validateProductDraft(draft);
+    if (validationResult != null) {
+      return validationResult;
+    }
+
+    final cleanName = draft.name.trim();
+    final cleanBrand = draft.brand?.trim();
+    final cleanDescription = draft.description?.trim();
+    final now = DateTime.now();
+    final priceUnit = draft.productType == AppProductTypes.bulk
+        ? AppProductPriceUnits.kilogram
+        : AppProductPriceUnits.unit;
+
+    final updated = await _database.inventoryDao.updateProduct(
+      product.copyWith(
+        name: cleanName,
+        brand: Value(
+          cleanBrand == null || cleanBrand.isEmpty ? null : cleanBrand,
+        ),
+        categoryId: draft.categoryId,
+        subcategoryId: Value(draft.subcategoryId),
+        description: Value(
+          cleanDescription == null || cleanDescription.isEmpty
+              ? null
+              : cleanDescription,
+        ),
+        productType: draft.productType,
+        price: draft.price,
+        priceUnit: priceUnit,
+        trackStock: draft.trackStock,
+        stockQuantity: Value(draft.trackStock ? draft.stockQuantity : null),
+        updatedAt: now,
+        syncStatus: _pendingSync,
+      ),
+    );
+
+    if (!updated) {
+      return ProductSaveResult.categoryNotFound;
+    }
+
+    return ProductSaveResult.success;
+  }
+
+  Future<ProductActionResult> deleteProduct(Product product) async {
+    final now = DateTime.now();
+    final updated = await _database.inventoryDao.updateProduct(
+      product.copyWith(
+        isActive: false,
+        isDeleted: true,
+        deletedAt: Value(now),
+        updatedAt: now,
+        syncStatus: _pendingSync,
+      ),
+    );
+
+    if (!updated) {
+      return ProductActionResult.notFound;
+    }
+
+    return ProductActionResult.success;
+  }
+
+  Future<ProductSaveResult?> _validateProductDraft(ProductDraft draft) async {
+    final cleanName = draft.name.trim();
 
     if (cleanName.isEmpty) {
       return ProductSaveResult.emptyName;
@@ -213,37 +321,7 @@ class InventoryRepository {
       }
     }
 
-    final now = DateTime.now();
-    final priceUnit = draft.productType == AppProductTypes.bulk
-        ? AppProductPriceUnits.kilogram
-        : AppProductPriceUnits.unit;
-
-    await _database.inventoryDao.insertProduct(
-      ProductsCompanion.insert(
-        id: IdGenerator.create(),
-        name: cleanName,
-        brand: Value(
-          cleanBrand == null || cleanBrand.isEmpty ? null : cleanBrand,
-        ),
-        categoryId: draft.categoryId,
-        subcategoryId: Value(draft.subcategoryId),
-        description: Value(
-          cleanDescription == null || cleanDescription.isEmpty
-              ? null
-              : cleanDescription,
-        ),
-        productType: draft.productType,
-        price: draft.price,
-        priceUnit: priceUnit,
-        trackStock: Value(draft.trackStock),
-        stockQuantity: Value(draft.trackStock ? draft.stockQuantity : null),
-        createdAt: now,
-        updatedAt: now,
-        syncStatus: _pendingSync,
-      ),
-    );
-
-    return ProductSaveResult.success;
+    return null;
   }
 
   Future<SubcategoryActionResult> deleteSubcategory(

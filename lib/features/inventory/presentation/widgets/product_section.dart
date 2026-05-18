@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/database/app_database.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
 import '../utils/product_sections.dart';
@@ -9,10 +10,12 @@ class ProductSection extends StatelessWidget {
   const ProductSection({
     super.key,
     required this.section,
+    required this.onProductLongPress,
     this.onDeleteSubcategory,
   });
 
   final ProductSectionData section;
+  final ValueChanged<Product> onProductLongPress;
   final VoidCallback? onDeleteSubcategory;
 
   @override
@@ -52,7 +55,10 @@ class ProductSection extends StatelessWidget {
           const EmptyProductCard()
         else
           for (final product in section.products) ...[
-            ProductListCard(product: product),
+            ProductListCard(
+              product: product,
+              onLongPress: () => onProductLongPress(product),
+            ),
             const SizedBox(height: AppSpacing.sm),
           ],
       ],

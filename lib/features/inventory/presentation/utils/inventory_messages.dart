@@ -54,15 +54,32 @@ void showSubcategoryActionResult(
   showAppSnackBar(context, message);
 }
 
-void showProductSaveResult(BuildContext context, ProductSaveResult result) {
+void showProductSaveResult(
+  BuildContext context,
+  ProductSaveResult result, {
+  String successMessage = 'Producto creado.',
+}) {
   final message = switch (result) {
-    ProductSaveResult.success => 'Producto creado.',
+    ProductSaveResult.success => successMessage,
     ProductSaveResult.emptyName => 'Ingresa un nombre de producto.',
     ProductSaveResult.missingCategory => 'Selecciona una categoría.',
     ProductSaveResult.invalidPrice => 'Ingresa un precio válido.',
     ProductSaveResult.invalidStock => 'Ingresa un stock válido.',
     ProductSaveResult.categoryNotFound => 'La categoría ya no existe.',
     ProductSaveResult.subcategoryNotFound => 'La subcategoría ya no existe.',
+  };
+
+  showAppSnackBar(context, message);
+}
+
+void showProductActionResult(
+  BuildContext context,
+  ProductActionResult result, {
+  required String successMessage,
+}) {
+  final message = switch (result) {
+    ProductActionResult.success => successMessage,
+    ProductActionResult.notFound => 'El producto ya no existe.',
   };
 
   showAppSnackBar(context, message);

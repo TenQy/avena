@@ -85,6 +85,10 @@ class InventoryDao extends DatabaseAccessor<AppDatabase>
     return update(subcategories).replace(subcategory);
   }
 
+  Future<bool> updateProduct(Insertable<Product> product) {
+    return update(products).replace(product);
+  }
+
   Future<int> clearProductsSubcategory({
     required String subcategoryId,
     required DateTime updatedAt,

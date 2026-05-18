@@ -14,9 +14,10 @@ import 'inventory_loading_block.dart';
 import 'subcategory_dropdown.dart';
 
 class CreateProductSheet extends ConsumerStatefulWidget {
-  const CreateProductSheet({super.key, this.initialCategory});
+  const CreateProductSheet({super.key, this.initialCategory, this.product});
 
   final Category? initialCategory;
+  final Product? product;
 
   @override
   ConsumerState<CreateProductSheet> createState() => _CreateProductSheetState();
@@ -39,7 +40,21 @@ class _CreateProductSheetState extends ConsumerState<CreateProductSheet> {
   @override
   void initState() {
     super.initState();
-    _selectedCategoryId = widget.initialCategory?.id;
+    final product = widget.product;
+    _selectedCategoryId = product?.categoryId ?? widget.initialCategory?.id;
+    _selectedSubcategoryId = product?.subcategoryId;
+    _productType = product?.productType ?? AppProductTypes.unit;
+    _trackStock = product?.trackStock ?? false;
+
+    if (product != null) {
+      _nameController.text = product.name;
+      _brandController.text = product.brand ?? '';
+      _descriptionController.text = product.description ?? '';
+      _priceController.text = _formatNumber(product.price);
+      _stockController.text = product.stockQuantity == null
+          ? ''
+          : _formatNumber(product.stockQuantity!);
+    }
   }
 
   @override
@@ -101,7 +116,9 @@ class _CreateProductSheetState extends ConsumerState<CreateProductSheet> {
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   Text(
-                    'Nuevo producto',
+                    widget.product == null
+                        ? 'Nuevo producto'
+                        : 'Editar producto',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: AppSpacing.md),
@@ -210,7 +227,11 @@ class _CreateProductSheetState extends ConsumerState<CreateProductSheet> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Text('Crear producto'),
+                        Text(
+                          widget.product == null
+                              ? 'Crear producto'
+                              : 'Guardar cambios',
+                        ),
                         const SizedBox(width: AppSpacing.sm),
                         if (_isSaving)
                           const SizedBox(
@@ -253,23 +274,22 @@ class _CreateProductSheetState extends ConsumerState<CreateProductSheet> {
       _isSaving = true;
     });
 
-    final result = await ref
-        .read(inventoryRepositoryProvider)
-        .createProduct(
-          ProductDraft(
-            name: _nameController.text,
-            brand: _brandController.text,
-            categoryId: categoryId,
-            subcategoryId: _selectedSubcategoryId,
-            description: _descriptionController.text,
-            productType: _productType,
-            price: parseNumber(_priceController.text) ?? 0,
-            trackStock: _trackStock,
-            stockQuantity: _trackStock
-                ? parseNumber(_stockController.text)
-                : null,
-          ),
-        );
+    final draft = ProductDraft(
+      name: _nameController.text,
+      brand: _brandController.text,
+      categoryId: categoryId,
+      subcategoryId: _selectedSubcategoryId,
+      description: _descriptionController.text,
+      productType: _productType,
+      price: parseNumber(_priceController.text) ?? 0,
+      trackStock: _trackStock,
+      stockQuantity: _trackStock ? parseNumber(_stockController.text) : null,
+    );
+    final repository = ref.read(inventoryRepositoryProvider);
+    final product = widget.product;
+    final result = product == null
+        ? await repository.createProduct(draft)
+        : await repository.updateProduct(product, draft);
 
     if (!mounted) {
       return;
@@ -281,6 +301,13 @@ class _CreateProductSheetState extends ConsumerState<CreateProductSheet> {
 
     Navigator.of(context).pop(result);
   }
+}
+
+String _formatNumber(double value) {
+  final rounded = value.toStringAsFixed(3);
+  return rounded
+      .replaceFirst(RegExp(r'0+$'), '')
+      .replaceFirst(RegExp(r'\.$'), '');
 }
 
 class _ProductTextFields extends StatelessWidget {

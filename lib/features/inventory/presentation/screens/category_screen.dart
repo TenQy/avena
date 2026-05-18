@@ -99,6 +99,7 @@ class _InventoryCategoryScreenState
                         selectedSubcategoryId: _selectedSubcategoryId,
                         onFilterChanged: _setSubcategoryFilter,
                         onDeleteSubcategory: _deleteSubcategory,
+                        onProductLongPress: _showProductActions,
                       ),
                       loading: () => const InventoryLoadingBlock(),
                       error: (_, _) => const EmptyState(
@@ -180,6 +181,82 @@ class _InventoryCategoryScreenState
     showProductSaveResult(context, result);
   }
 
+  Future<void> _showEditProductForm(Product product) async {
+    final result = await showModalBottomSheet<ProductSaveResult>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.cardSurface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return CreateProductSheet(product: product);
+      },
+    );
+
+    if (!mounted || result == null) {
+      return;
+    }
+
+    showProductSaveResult(
+      context,
+      result,
+      successMessage: 'Producto actualizado.',
+    );
+  }
+
+  Future<void> _showProductActions(Product product) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.cardSurface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              AppSpacing.md,
+              AppSpacing.lg,
+              AppSpacing.lg,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.border,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                _ProductActionTile(
+                  icon: Icons.edit_rounded,
+                  label: 'Editar producto',
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _showEditProductForm(product);
+                  },
+                ),
+                _ProductActionTile(
+                  icon: Icons.delete_rounded,
+                  label: 'Eliminar producto',
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _deleteProduct(product);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   void _setSubcategoryFilter(String? subcategoryId) {
     setState(() {
       _selectedSubcategoryId = subcategoryId;
@@ -215,5 +292,72 @@ class _InventoryCategoryScreenState
     }
 
     showSubcategoryActionResult(context, result);
+  }
+
+  Future<void> _deleteProduct(Product product) async {
+    final shouldDelete = await ConfirmDialog.show(
+      context,
+      title: 'Eliminar producto',
+      message: 'El producto se quitará del inventario.',
+      confirmLabel: 'Eliminar',
+      icon: Icons.delete_rounded,
+    );
+
+    if (!mounted || !shouldDelete) {
+      return;
+    }
+
+    final result = await ref
+        .read(inventoryRepositoryProvider)
+        .deleteProduct(product);
+
+    if (!mounted) {
+      return;
+    }
+
+    showProductActionResult(
+      context,
+      result,
+      successMessage: 'Producto eliminado.',
+    );
+  }
+}
+
+class _ProductActionTile extends StatelessWidget {
+  const _ProductActionTile({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.xs,
+      ),
+      leading: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: AppColors.bodyBg,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: AppColors.border, width: 0.5),
+        ),
+        child: Icon(icon, color: AppColors.iconInactive, size: 22),
+      ),
+      title: Text(label, style: Theme.of(context).textTheme.bodyLarge),
+      trailing: const Icon(
+        Icons.chevron_right_rounded,
+        color: AppColors.iconInactive,
+      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      onTap: onTap,
+    );
   }
 }
