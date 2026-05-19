@@ -8,6 +8,8 @@ class AppPaymentMethods {
   static const mixed = 'mixed';
 
   static const all = [cash, transfer, terminalCard, terminalBonus, mixed];
+
+  static const mixable = [cash, transfer, terminalCard, terminalBonus];
 }
 
 class AppPaymentCommissions {
@@ -17,4 +19,14 @@ class AppPaymentCommissions {
   static const transfer = 0.0;
   static const terminalCard = 0.05;
   static const terminalBonus = 0.065;
+
+  static double rateFor(String method) {
+    return switch (method) {
+      AppPaymentMethods.terminalCard => terminalCard,
+      AppPaymentMethods.terminalBonus => terminalBonus,
+      AppPaymentMethods.cash => cash,
+      AppPaymentMethods.transfer => transfer,
+      _ => 0,
+    };
+  }
 }

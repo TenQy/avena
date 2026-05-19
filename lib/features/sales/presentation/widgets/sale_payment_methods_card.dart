@@ -1,11 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../../core/constants/payment_methods.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
 
 class SalePaymentMethodsCard extends StatelessWidget {
-  const SalePaymentMethodsCard({super.key});
+  const SalePaymentMethodsCard({
+    super.key,
+    required this.selectedMethod,
+    required this.mixedPayments,
+    required this.total,
+    required this.mixedTotal,
+    required this.onMethodSelected,
+    required this.onMixedPaymentChanged,
+  });
+
+  final String selectedMethod;
+  final Map<String, double> mixedPayments;
+  final double total;
+  final double mixedTotal;
+  final ValueChanged<String> onMethodSelected;
+  final void Function(String method, double amount) onMixedPaymentChanged;
+
+  bool get _isMixed => selectedMethod == AppPaymentMethods.mixed;
 
   @override
   Widget build(BuildContext context) {
@@ -25,12 +43,37 @@ class SalePaymentMethodsCard extends StatelessWidget {
               runSpacing: AppSpacing.sm,
               children: [
                 for (final method in AppPaymentMethods.all)
-                  _PaymentChip(label: _paymentLabel(method)),
+                  ChoiceChip(
+                    label: Text(_paymentLabel(method)),
+                    selected: selectedMethod == method,
+                    showCheckmark: false,
+                    onSelected: (_) => onMethodSelected(method),
+                    backgroundColor: AppColors.bodyBg,
+                    selectedColor: AppColors.headerNav,
+                    side: const BorderSide(color: AppColors.border, width: 0.5),
+                    labelStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: selectedMethod == method
+                          ? AppColors.textPrimary
+                          : AppColors.textSecondary,
+                      fontWeight: selectedMethod == method
+                          ? FontWeight.w600
+                          : FontWeight.normal,
+                    ),
+                  ),
               ],
             ),
+            if (_isMixed) ...[
+              const SizedBox(height: AppSpacing.lg),
+              _MixedPaymentInputs(
+                payments: mixedPayments,
+                onChanged: onMixedPaymentChanged,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _MixedPaymentSummary(total: total, mixedTotal: mixedTotal),
+            ],
             const SizedBox(height: AppSpacing.md),
             Text(
-              'Comisiones: terminal debito/credito 5%, bonos 6.5%.',
+              'Comisiones: debito/credito 5%, bonos 6.5%.',
               style: Theme.of(
                 context,
               ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
@@ -42,20 +85,103 @@ class SalePaymentMethodsCard extends StatelessWidget {
   }
 }
 
-class _PaymentChip extends StatelessWidget {
-  const _PaymentChip({required this.label});
+class _MixedPaymentInputs extends StatelessWidget {
+  const _MixedPaymentInputs({required this.payments, required this.onChanged});
 
-  final String label;
+  final Map<String, double> payments;
+  final void Function(String method, double amount) onChanged;
 
   @override
   Widget build(BuildContext context) {
-    return Chip(
-      label: Text(label),
-      backgroundColor: AppColors.bodyBg,
-      side: const BorderSide(color: AppColors.border, width: 0.5),
-      labelStyle: Theme.of(
-        context,
-      ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+    return Column(
+      children: [
+        for (final method in AppPaymentMethods.mixable) ...[
+          TextFormField(
+            key: ValueKey('mixed-$method'),
+            initialValue: _initialValue(payments[method]),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+            ],
+            decoration: InputDecoration(
+              labelText: 'Monto base - ${_paymentLabel(method)}',
+              prefixIcon: const Icon(Icons.attach_money_rounded),
+            ),
+            onChanged: (value) {
+              onChanged(method, double.tryParse(value.trim()) ?? 0);
+            },
+          ),
+          if (method != AppPaymentMethods.mixable.last)
+            const SizedBox(height: AppSpacing.md),
+        ],
+        Text(
+          'Debito/credito y bonos agregan comision al total cobrado.',
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+        ),
+      ],
+    );
+  }
+}
+
+class _MixedPaymentSummary extends StatelessWidget {
+  const _MixedPaymentSummary({required this.total, required this.mixedTotal});
+
+  final double total;
+  final double mixedTotal;
+
+  @override
+  Widget build(BuildContext context) {
+    final remaining = total - mixedTotal;
+
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.bodyBg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.border, width: 0.5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _SummaryRow(label: 'Total venta', value: _money(total)),
+          const SizedBox(height: AppSpacing.sm),
+          _SummaryRow(label: 'Pagado con comision', value: _money(mixedTotal)),
+          const SizedBox(height: AppSpacing.sm),
+          _SummaryRow(label: 'Restante', value: _money(remaining)),
+        ],
+      ),
+    );
+  }
+}
+
+class _SummaryRow extends StatelessWidget {
+  const _SummaryRow({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            label,
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+          ),
+        ),
+        Text(
+          value,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -69,4 +195,16 @@ String _paymentLabel(String method) {
     AppPaymentMethods.mixed => 'Mixto',
     _ => method,
   };
+}
+
+String _money(double value) {
+  return '\$${value.toStringAsFixed(2)}';
+}
+
+String _initialValue(double? value) {
+  if (value == null || value <= 0) {
+    return '';
+  }
+
+  return value.toStringAsFixed(2);
 }

@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/constants/app_products.dart';
-import '../../../../core/database/app_database.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
 import '../../../../shared/widgets/app_dismiss_area.dart';
 import '../../../../shared/widgets/empty_state.dart';
 import '../../../inventory/providers/inventory_provider.dart';
+import '../../providers/current_sale_provider.dart';
 import '../models/sale_draft_item.dart';
 import '../widgets/bulk_sale_item_sheet.dart';
 import '../widgets/sale_items_card.dart';
@@ -24,11 +23,6 @@ class SalesScreen extends ConsumerStatefulWidget {
 
 class _SalesScreenState extends ConsumerState<SalesScreen> {
   final _searchController = TextEditingController();
-  final List<SaleDraftItem> _items = [];
-
-  double get _subtotal {
-    return _items.fold(0, (total, item) => total + item.subtotal);
-  }
 
   @override
   void initState() {
@@ -54,6 +48,8 @@ class _SalesScreenState extends ConsumerState<SalesScreen> {
   @override
   Widget build(BuildContext context) {
     final productsState = ref.watch(productsProvider);
+    final currentSale = ref.watch(currentSaleProvider);
+    final saleController = ref.read(currentSaleProvider.notifier);
 
     return AppDismissArea(
       child: productsState.when(
@@ -69,21 +65,31 @@ class _SalesScreenState extends ConsumerState<SalesScreen> {
               controller: _searchController,
               products: products,
               query: _searchController.text,
-              onAddProduct: _addProduct,
+              onAddProduct: saleController.addProduct,
             ),
             const SizedBox(height: AppSpacing.lg),
             SaleItemsCard(
-              items: _items,
-              onIncreaseQuantity: _increaseQuantity,
-              onDecreaseQuantity: _decreaseQuantity,
+              items: currentSale.items,
+              onIncreaseQuantity: saleController.increaseQuantity,
+              onDecreaseQuantity: saleController.decreaseQuantity,
               onEditBulkItem: _showBulkItemSheet,
-              onApplyBulkPortion: _applyBulkPortion,
-              onRemoveItem: _removeItem,
+              onApplyBulkPortion: saleController.applyBulkPortion,
+              onRemoveItem: saleController.removeItem,
             ),
             const SizedBox(height: AppSpacing.lg),
-            const SalePaymentMethodsCard(),
+            SalePaymentMethodsCard(
+              selectedMethod: currentSale.paymentMethod,
+              mixedPayments: currentSale.mixedPayments,
+              total: currentSale.total,
+              mixedTotal: currentSale.mixedTotal,
+              onMethodSelected: saleController.selectPaymentMethod,
+              onMixedPaymentChanged: saleController.updateMixedPayment,
+            ),
             const SizedBox(height: AppSpacing.lg),
-            SaleTotalCard(subtotal: _subtotal, commission: 0),
+            SaleTotalCard(
+              subtotal: currentSale.subtotal,
+              commission: currentSale.commission,
+            ),
           ],
         ),
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -94,20 +100,6 @@ class _SalesScreenState extends ConsumerState<SalesScreen> {
         ),
       ),
     );
-  }
-
-  void _addProduct(Product product) {
-    final index = _items.indexWhere((item) => item.product.id == product.id);
-
-    setState(() {
-      if (index == -1) {
-        _items.add(SaleDraftItem(product: product, quantity: 1));
-        return;
-      }
-
-      final item = _items[index];
-      _items[index] = item.copyWith(quantity: item.quantity + 1);
-    });
   }
 
   Future<void> _showBulkItemSheet(SaleDraftItem item) async {
@@ -127,80 +119,12 @@ class _SalesScreenState extends ConsumerState<SalesScreen> {
       return;
     }
 
-    final index = _items.indexWhere(
-      (currentItem) => currentItem.product.id == item.product.id,
-    );
-
-    if (index == -1) {
-      return;
-    }
-
-    setState(() {
-      _items[index] = _items[index].copyWith(
-        quantity: result.quantity,
-        customSubtotal: result.subtotal,
-      );
-    });
-  }
-
-  void _applyBulkPortion(SaleDraftItem item, AppBulkPortion portion) {
-    final index = _items.indexWhere(
-      (currentItem) => currentItem.product.id == item.product.id,
-    );
-
-    if (index == -1) {
-      return;
-    }
-
-    setState(() {
-      _items[index] = _items[index].copyWith(
-        quantity: portion.kilogramFactor,
-        customSubtotal: item.product.price * portion.kilogramFactor,
-      );
-    });
-  }
-
-  void _increaseQuantity(SaleDraftItem item) {
-    final index = _items.indexWhere(
-      (currentItem) => currentItem.product.id == item.product.id,
-    );
-
-    if (index == -1) {
-      return;
-    }
-
-    setState(() {
-      _items[index] = _items[index].copyWith(
-        quantity: _items[index].quantity + 1,
-      );
-    });
-  }
-
-  void _decreaseQuantity(SaleDraftItem item) {
-    final index = _items.indexWhere(
-      (currentItem) => currentItem.product.id == item.product.id,
-    );
-
-    if (index == -1) {
-      return;
-    }
-
-    setState(() {
-      final nextQuantity = _items[index].quantity - 1;
-      if (nextQuantity <= 0) {
-        _items.removeAt(index);
-        return;
-      }
-
-      _items[index] = _items[index].copyWith(quantity: nextQuantity);
-    });
-  }
-
-  void _removeItem(SaleDraftItem item) {
-    setState(() {
-      _items.removeWhere(
-        (currentItem) => currentItem.product.id == item.product.id,
-      );
-    });
+    ref
+        .read(currentSaleProvider.notifier)
+        .updateBulkItem(
+          item: item,
+          quantity: result.quantity,
+          subtotal: result.subtotal,
+        );
   }
 }

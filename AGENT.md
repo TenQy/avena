@@ -381,3 +381,16 @@ Construir una app:
   - apertura/cierre
   - movimientos
   - ingresos separados
+- Fase 6 en progreso:
+  - pantalla principal de Ventas implementada
+  - buscador funcional de productos locales por nombre o marca
+  - venta actual persistente entre pantallas con `currentSaleProvider`
+  - productos por unidad se pueden agregar, incrementar, disminuir y quitar
+  - productos a granel se pueden modificar por monto o peso
+  - productos a granel soportan entrada en kg o gr
+  - porciones rapidas reutilizables para granel: 1 kg, 1/2 kg y 100 g
+  - metodos de pago seleccionables: efectivo, transferencia, debito/credito, bonos y mixto
+  - pago mixto permite capturar montos por metodo sin guardar venta
+  - comisiones calculadas: debito/credito 5% y bonos 6.5%
+  - total de venta calcula subtotal + comision
+  - aun no se guarda venta, no se actualiza caja y no se registra stock/logs
