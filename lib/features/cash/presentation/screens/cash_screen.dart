@@ -11,6 +11,11 @@ import '../../../authentication/providers/auth_provider.dart';
 import '../../data/cash_repository.dart';
 import '../../providers/cash_provider.dart';
 import '../utils/cash_messages.dart';
+import '../widgets/cash_income_card.dart';
+import '../widgets/cash_movement_sheet.dart';
+import '../widgets/cash_movements_card.dart';
+import '../widgets/closed_cash_card.dart';
+import '../widgets/open_cash_card.dart';
 import '../widgets/open_cash_sheet.dart';
 
 class CashScreen extends ConsumerWidget {
@@ -60,14 +65,44 @@ class _CashContent extends ConsumerWidget {
       ),
       children: [
         if (session == null)
-          _ClosedCashCard(onOpenCash: () => _showOpenCashSheet(context))
+          ClosedCashCard(onOpenCash: () => _showOpenCashSheet(context))
         else
-          _OpenCashCard(
-            session: session!,
-            onCloseCash: () => _closeCash(context, ref, session!),
-          ),
+          ..._openCashSections(context, ref, session!),
       ],
     );
+  }
+
+  List<Widget> _openCashSections(
+    BuildContext context,
+    WidgetRef ref,
+    CashSession session,
+  ) {
+    final movementsState = ref.watch(
+      cashMovementsBySessionProvider(session.id),
+    );
+
+    return [
+      OpenCashCard(
+        session: session,
+        onWithdrawal: () =>
+            _showMovementSheet(context, session, CashMovementType.withdrawal),
+        onDeposit: () =>
+            _showMovementSheet(context, session, CashMovementType.deposit),
+        onCloseCash: () => _closeCash(context, ref, session),
+      ),
+      const SizedBox(height: AppSpacing.lg),
+      CashIncomeCard(session: session),
+      const SizedBox(height: AppSpacing.lg),
+      movementsState.when(
+        data: (movements) => CashMovementsCard(movements: movements),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (_, _) => const EmptyState(
+          icon: Icons.error_outline_rounded,
+          message: 'No se pudieron cargar los movimientos',
+          description: 'Intenta nuevamente.',
+        ),
+      ),
+    ];
   }
 
   Future<void> _showOpenCashSheet(BuildContext context) async {
@@ -88,6 +123,30 @@ class _CashContent extends ConsumerWidget {
     }
 
     showOpenCashResult(context, result);
+  }
+
+  Future<void> _showMovementSheet(
+    BuildContext context,
+    CashSession session,
+    CashMovementType type,
+  ) async {
+    final result = await showModalBottomSheet<CashMovementResult>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.cardSurface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return CashMovementSheet(session: session, type: type);
+      },
+    );
+
+    if (!context.mounted || result == null) {
+      return;
+    }
+
+    showCashMovementResult(context, result);
   }
 
   Future<void> _closeCash(
@@ -118,160 +177,4 @@ class _CashContent extends ConsumerWidget {
 
     showCloseCashResult(context, result);
   }
-}
-
-class _ClosedCashCard extends StatelessWidget {
-  const _ClosedCashCard({required this.onOpenCash});
-
-  final VoidCallback onOpenCash;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const _CashIconHeader(
-              icon: Icons.account_balance_wallet_rounded,
-              label: 'Caja cerrada',
-            ),
-            const SizedBox(height: AppSpacing.md),
-            Text(
-              'No hay una caja abierta.',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              'Abre caja registrando el efectivo inicial.',
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
-            ),
-            const SizedBox(height: AppSpacing.xl),
-            FilledButton.icon(
-              onPressed: onOpenCash,
-              icon: const Icon(Icons.lock_open_rounded),
-              label: const Text('Abrir caja'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _OpenCashCard extends StatelessWidget {
-  const _OpenCashCard({required this.session, required this.onCloseCash});
-
-  final CashSession session;
-  final VoidCallback onCloseCash;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const _CashIconHeader(
-              icon: Icons.lock_open_rounded,
-              label: 'Caja abierta',
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            _CashDetailRow(
-              label: 'Dinero inicial',
-              value: _money(session.openingCashAmount),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            _CashDetailRow(
-              label: 'Apertura',
-              value: _dateTime(session.openedAt),
-            ),
-            const SizedBox(height: AppSpacing.xl),
-            OutlinedButton.icon(
-              onPressed: onCloseCash,
-              icon: const Icon(Icons.lock_rounded),
-              label: const Text('Cerrar caja'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _CashIconHeader extends StatelessWidget {
-  const _CashIconHeader({required this.icon, required this.label});
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: AppColors.headerNav,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.border, width: 0.5),
-          ),
-          child: Icon(icon, color: AppColors.textPrimary),
-        ),
-        const SizedBox(width: AppSpacing.md),
-        Expanded(
-          child: Text(label, style: Theme.of(context).textTheme.titleLarge),
-        ),
-      ],
-    );
-  }
-}
-
-class _CashDetailRow extends StatelessWidget {
-  const _CashDetailRow({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            label,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
-          ),
-        ),
-        Text(
-          value,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-String _money(double value) {
-  return '\$${value.toStringAsFixed(2)}';
-}
-
-String _dateTime(DateTime value) {
-  final day = value.day.toString().padLeft(2, '0');
-  final month = value.month.toString().padLeft(2, '0');
-  final year = value.year.toString();
-  final hour = value.hour.toString().padLeft(2, '0');
-  final minute = value.minute.toString().padLeft(2, '0');
-
-  return '$day/$month/$year $hour:$minute';
 }

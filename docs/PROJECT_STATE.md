@@ -1,0 +1,92 @@
+# Estado actual
+
+- Fase 0 completada:
+  - Proyecto Flutter creado.
+  - Tema visual inicial y widgets compartidos base implementados.
+
+- Fase 1 completada:
+  - Navegación principal implementada.
+  - Navbar: Dashboard, Ventas, Inventario y Caja.
+  - Header con menú lateral para Usuarios, Pagos pendientes, Calculadora y Logs.
+  - Pantallas actuales siguen siendo placeholders sin lógica de negocio.
+
+- Fase 2 completada:
+  - Base de datos local configurada con Drift + SQLite.
+  - Tablas principales creadas:
+    - Users
+    - EmployeeSessions
+    - Categories
+    - Subcategories
+    - Products
+    - CashSessions
+    - CashMovements
+    - Sales
+    - SaleItems
+    - SalePayments
+    - PendingPayments
+    - PendingPaymentEntries
+    - ActivityLogs
+    - SyncQueue
+  - DAOs principales implementados.
+  - UUID helper creado.
+  - Datos iniciales:
+    - Categoría General
+    - Cuenta superadmin idempotente
+
+- Fase 3 completada (sin logs):
+  - Autenticación local implementada.
+  - Sesión persistente funcional.
+  - Roles:
+    - superadmin
+    - admin
+    - employee
+  - Menú lateral filtrado según permisos.
+  - Módulo de usuarios funcional.
+  - Admin:
+    - crear/editar empleados
+    - habilitar/inhabilitar empleados
+  - Superadmin:
+    - administrar admins y empleados
+    - soft delete de usuarios
+  - Logs pendientes para fase de Logs.
+
+- Fase 4 completada:
+  - Inventario funcional con persistencia local.
+  - Gestión de:
+    - categorías
+    - subcategorías
+    - productos
+  - Búsqueda global y por categoría.
+  - Productos:
+    - por unidad
+    - a granel
+  - Detalles de producto implementados.
+  - Soft delete para categorías y productos.
+  - Categorías principales destacadas visualmente.
+  - FAB reutilizable tipo speed dial.
+  - Employee mantiene inventario en modo lectura.
+  - Helpers reutilizables para FAB/snackbar.
+
+- Fase 5 iniciada:
+  - Módulo Caja funcional para admin/superadmin.
+  - Employee sin acceso a Caja.
+  - `CashRepository` y providers implementados.
+  - Validación de única caja abierta.
+  - Apertura y cierre de caja funcionales.
+  - Retiros y depósitos persistidos localmente.
+  - Movimientos ordenados por fecha.
+  - Caja muestra:
+    - dinero inicial
+    - caja esperada
+    - diferencia esperada
+    - fecha de apertura
+  - Ingresos separados visualmente:
+    - efectivo
+    - transferencia
+    - terminal
+  - Comisiones documentadas:
+    - tarjeta 5%
+    - bonos 6.5%
+  - UI de Caja modularizada en widgets.
+  - Helpers de dinero y fecha separados.
+  - Logs de Caja pendientes para fase de Logs.

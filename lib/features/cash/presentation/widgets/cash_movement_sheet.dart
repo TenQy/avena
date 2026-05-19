@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/database/app_database.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
 import '../../../authentication/providers/auth_provider.dart';
@@ -9,26 +10,41 @@ import '../../data/cash_repository.dart';
 import '../../providers/cash_provider.dart';
 import 'cash_button_content.dart';
 
-class OpenCashSheet extends ConsumerStatefulWidget {
-  const OpenCashSheet({super.key});
+class CashMovementSheet extends ConsumerStatefulWidget {
+  const CashMovementSheet({
+    super.key,
+    required this.session,
+    required this.type,
+  });
+
+  final CashSession session;
+  final CashMovementType type;
 
   @override
-  ConsumerState<OpenCashSheet> createState() => _OpenCashSheetState();
+  ConsumerState<CashMovementSheet> createState() => _CashMovementSheetState();
 }
 
-class _OpenCashSheetState extends ConsumerState<OpenCashSheet> {
+class _CashMovementSheetState extends ConsumerState<CashMovementSheet> {
   final _amountController = TextEditingController();
+  final _reasonController = TextEditingController();
   bool _isSaving = false;
+
+  bool get _isDeposit => widget.type == CashMovementType.deposit;
 
   @override
   void dispose() {
     _amountController.dispose();
+    _reasonController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+    final title = _isDeposit ? 'Deposito' : 'Retiro';
+    final description = _isDeposit
+        ? 'Registra efectivo agregado a caja.'
+        : 'Registra efectivo retirado de caja.';
 
     return SafeArea(
       child: Padding(
@@ -54,13 +70,13 @@ class _OpenCashSheetState extends ConsumerState<OpenCashSheet> {
             ),
             const SizedBox(height: AppSpacing.lg),
             Text(
-              'Abrir caja',
+              title,
               style: Theme.of(context).textTheme.titleLarge,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              'Registra el efectivo inicial disponible.',
+              description,
               style: Theme.of(
                 context,
               ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
@@ -77,23 +93,36 @@ class _OpenCashSheetState extends ConsumerState<OpenCashSheet> {
                 FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
               ],
               decoration: const InputDecoration(
-                labelText: 'Dinero inicial',
+                labelText: 'Monto',
                 prefixIcon: Icon(Icons.attach_money_rounded),
               ),
-              onSubmitted: (_) => _openCash(),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            TextField(
+              controller: _reasonController,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: const InputDecoration(
+                labelText: 'Motivo',
+                prefixIcon: Icon(Icons.notes_rounded),
+              ),
+              onSubmitted: (_) => _saveMovement(),
             ),
             const SizedBox(height: AppSpacing.xl),
             FilledButton(
-              onPressed: _isSaving ? null : _openCash,
+              onPressed: _isSaving ? null : _saveMovement,
               child: CashButtonContent(
-                label: _isSaving ? 'Abriendo...' : 'Abrir caja',
+                label: _isSaving ? 'Guardando...' : 'Registrar $title',
                 trailing: _isSaving
                     ? const SizedBox(
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Icon(Icons.lock_open_rounded),
+                    : Icon(
+                        _isDeposit
+                            ? Icons.add_circle_outline_rounded
+                            : Icons.remove_circle_outline_rounded,
+                      ),
               ),
             ),
           ],
@@ -102,20 +131,20 @@ class _OpenCashSheetState extends ConsumerState<OpenCashSheet> {
     );
   }
 
-  Future<void> _openCash() async {
+  Future<void> _saveMovement() async {
     if (_isSaving) {
       return;
     }
 
     final currentUser = ref.read(currentUserProvider).valueOrNull;
     if (currentUser == null) {
-      Navigator.of(context).pop(OpenCashResult.unauthorized);
+      Navigator.of(context).pop(CashMovementResult.unauthorized);
       return;
     }
 
     final amount = double.tryParse(_amountController.text.trim());
     if (amount == null) {
-      Navigator.of(context).pop(OpenCashResult.invalidOpeningAmount);
+      Navigator.of(context).pop(CashMovementResult.invalidAmount);
       return;
     }
 
@@ -125,7 +154,13 @@ class _OpenCashSheetState extends ConsumerState<OpenCashSheet> {
 
     final result = await ref
         .read(cashRepositoryProvider)
-        .openCashSession(actor: currentUser, openingCashAmount: amount);
+        .createMovement(
+          actor: currentUser,
+          session: widget.session,
+          type: widget.type,
+          amount: amount,
+          reason: _reasonController.text,
+        );
 
     if (!mounted) {
       return;

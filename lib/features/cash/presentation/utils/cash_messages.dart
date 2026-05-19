@@ -23,3 +23,17 @@ void showCloseCashResult(BuildContext context, CloseCashResult result) {
 
   showAppSnackBar(context, message);
 }
+
+void showCashMovementResult(BuildContext context, CashMovementResult result) {
+  final message = switch (result) {
+    CashMovementResult.success => 'Movimiento registrado.',
+    CashMovementResult.unauthorized =>
+      'No tienes permisos para modificar caja.',
+    CashMovementResult.invalidAmount => 'Ingresa un monto valido.',
+    CashMovementResult.emptyReason => 'Ingresa un motivo.',
+    CashMovementResult.sessionNotFound =>
+      'La caja abierta ya no esta disponible.',
+  };
+
+  showAppSnackBar(context, message);
+}

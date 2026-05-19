@@ -11,3 +11,10 @@ final cashRepositoryProvider = Provider<CashRepository>((ref) {
 final currentCashSessionProvider = StreamProvider<CashSession?>((ref) {
   return ref.watch(cashRepositoryProvider).watchOpenCashSession();
 });
+
+final cashMovementsBySessionProvider =
+    StreamProvider.family<List<CashMovement>, String>((ref, cashSessionId) {
+      return ref
+          .watch(cashRepositoryProvider)
+          .watchMovementsBySession(cashSessionId);
+    });

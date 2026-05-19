@@ -369,38 +369,15 @@ Construir una app:
 
 ---
 
-# Estado actual
+## Estado actual
 
-- Fase 0: base del proyecto Flutter creada con tema visual inicial y widgets compartidos base.
-- Fase 1: tema y navegacion principal implementados.
-- Navbar principal: Dashboard, Ventas, Inventarios y Caja.
-- El header abre un menu lateral derecho con Usuarios, Pagos pendientes, Calculadora y Logs.
-- Pantallas actuales son placeholders; no incluyen logica de negocio.
-- Fase 2: base de datos local configurada con Drift y SQLite.
-- Tablas base creadas: Users, EmployeeSessions, Categories, Subcategories, Products, CashSessions, CashMovements, Sales, SaleItems, SalePayments, PendingPayments, PendingPaymentEntries, ActivityLogs y SyncQueue.
-- DAOs principales creados para usuarios, inventario, caja, ventas, pagos pendientes, logs y cola de sincronizacion.
-- Utilitario UUID creado.
-- Datos iniciales minimos configurados: categoria General y cuenta superadmin idempotente al inicializar la app por primera vez.
-- Fase 3 finalizada sin logs: autenticacion, sesion persistente, roles y modulo de usuarios implementados.
-- Login valida usuario, contrasena, estado activo y soft delete contra la base local.
-- La sesion se persiste localmente y se restaura al abrir la app si el usuario sigue activo y no eliminado.
-- `authProvider` y `currentUserProvider` creados con Riverpod.
-- Roles `superadmin`, `admin` y `employee` centralizados en constantes.
-- Menu lateral filtra modulos segun permisos del rol actual.
-- Pantalla de usuarios implementada para admin/superadmin.
-- Admin puede crear, editar, habilitar e inhabilitar empleados.
-- Superadmin puede crear y editar admins y empleados, habilitar e inhabilitar usuarios permitidos y eliminar usuarios con soft delete.
-- Logs de login y acciones de usuarios quedan pendientes para la fase de Logs.
-- Fase 4 finalizada: Inventario permite administrar categorias, subcategorias y productos locales.
-- Inventario lista categorias locales activas; la primera categoria es principal y ocupa dos columnas.
-- Categorias restantes se muestran en grid de dos columnas con cards compactas.
-- Busqueda global y busqueda por categoria implementadas para productos.
-- FAB de Inventario usa speed dial reutilizable con acciones Crear categoria y Crear producto solo para admin/superadmin.
-- Pantalla de categoria permite crear subcategorias, crear productos dentro de la categoria y filtrar por subcategoria.
-- Crear, editar y eliminar productos funcionan con persistencia local, soft delete, validaciones y soporte para productos por unidad o a granel.
-- Detalle de producto muestra informacion general, precio, stock y porciones calculadas para productos a granel.
-- Long press en categoria permite establecerla como principal o eliminarla solo para admin/superadmin.
-- Eliminar categoria usa soft delete y bloquea eliminacion si tiene productos.
-- Eliminar subcategoria quita la subcategoria y mueve sus productos a Sin subcategoria.
-- Employee conserva inventario de solo lectura: puede navegar categorias y ver detalles de producto, sin FABs de creacion, long press de edicion/eliminacion ni borrado de subcategorias.
-- Logica reutilizable creada para elevar FAB cuando aparece snackbar inferior.
+- Fase 0 completada
+- Fase 1 completada
+- Fase 2 completada
+- Fase 3 completada 
+- Fase 4 completada
+- Fase 5 iniciada:
+  - caja funcional local
+  - apertura/cierre
+  - movimientos
+  - ingresos separados
