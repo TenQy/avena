@@ -376,7 +376,7 @@ Construir una app:
 - Fase 2 completada
 - Fase 3 completada 
 - Fase 4 completada
-- Fase 5 iniciada:
+- Fase 5 completada:
   - caja funcional local
   - apertura/cierre
   - movimientos

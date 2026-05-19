@@ -67,7 +67,7 @@
   - Employee mantiene inventario en modo lectura.
   - Helpers reutilizables para FAB/snackbar.
 
-- Fase 5 iniciada:
+- Fase 5 Completada:
   - Módulo Caja funcional para admin/superadmin.
   - Employee sin acceso a Caja.
   - `CashRepository` y providers implementados.
@@ -89,4 +89,3 @@
     - bonos 6.5%
   - UI de Caja modularizada en widgets.
   - Helpers de dinero y fecha separados.
-  - Logs de Caja pendientes para fase de Logs.
