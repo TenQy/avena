@@ -4,7 +4,16 @@ import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
 
 class SaleTotalCard extends StatelessWidget {
-  const SaleTotalCard({super.key});
+  const SaleTotalCard({
+    super.key,
+    required this.subtotal,
+    required this.commission,
+  });
+
+  final double subtotal;
+  final double commission;
+
+  double get total => subtotal + commission;
 
   @override
   Widget build(BuildContext context) {
@@ -14,9 +23,9 @@ class SaleTotalCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _TotalRow(label: 'Subtotal', value: _money(0)),
+            _TotalRow(label: 'Subtotal', value: _money(subtotal)),
             const SizedBox(height: AppSpacing.md),
-            _TotalRow(label: 'Comision', value: _money(0)),
+            _TotalRow(label: 'Comision', value: _money(commission)),
             const Padding(
               padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
               child: Divider(
@@ -25,7 +34,7 @@ class SaleTotalCard extends StatelessWidget {
                 color: AppColors.border,
               ),
             ),
-            _TotalRow(label: 'Total', value: _money(0), emphasized: true),
+            _TotalRow(label: 'Total', value: _money(total), emphasized: true),
             const SizedBox(height: AppSpacing.xl),
             FilledButton(
               onPressed: null,

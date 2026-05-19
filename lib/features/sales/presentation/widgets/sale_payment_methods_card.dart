@@ -64,7 +64,7 @@ String _paymentLabel(String method) {
   return switch (method) {
     AppPaymentMethods.cash => 'Efectivo',
     AppPaymentMethods.transfer => 'Transferencia',
-    AppPaymentMethods.terminalCard => 'Terminal',
+    AppPaymentMethods.terminalCard => 'Debito/Credito',
     AppPaymentMethods.terminalBonus => 'Bonos',
     AppPaymentMethods.mixed => 'Mixto',
     _ => method,

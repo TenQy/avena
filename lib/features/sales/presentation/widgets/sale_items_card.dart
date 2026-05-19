@@ -1,10 +1,25 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_products.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
+import '../models/sale_draft_item.dart';
 
 class SaleItemsCard extends StatelessWidget {
-  const SaleItemsCard({super.key});
+  const SaleItemsCard({
+    super.key,
+    required this.items,
+    required this.onIncreaseQuantity,
+    required this.onDecreaseQuantity,
+    required this.onEditBulkItem,
+    required this.onRemoveItem,
+  });
+
+  final List<SaleDraftItem> items;
+  final ValueChanged<SaleDraftItem> onIncreaseQuantity;
+  final ValueChanged<SaleDraftItem> onDecreaseQuantity;
+  final ValueChanged<SaleDraftItem> onEditBulkItem;
+  final ValueChanged<SaleDraftItem> onRemoveItem;
 
   @override
   Widget build(BuildContext context) {
@@ -16,34 +31,195 @@ class SaleItemsCard extends StatelessWidget {
           children: [
             Text('Productos', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: AppSpacing.lg),
-            Container(
-              padding: const EdgeInsets.all(AppSpacing.lg),
-              decoration: BoxDecoration(
-                color: AppColors.bodyBg,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.border, width: 0.5),
-              ),
-              child: Column(
-                children: [
-                  const Icon(
-                    Icons.shopping_cart_outlined,
-                    color: AppColors.iconInactive,
-                    size: 36,
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    'Sin productos agregados.',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
+            if (items.isEmpty)
+              const _EmptySaleItems()
+            else
+              for (final item in items) ...[
+                _SaleItemTile(
+                  item: item,
+                  onIncreaseQuantity: onIncreaseQuantity,
+                  onDecreaseQuantity: onDecreaseQuantity,
+                  onEditBulkItem: onEditBulkItem,
+                  onRemoveItem: onRemoveItem,
+                ),
+                if (item != items.last)
+                  const Divider(height: AppSpacing.lg, color: AppColors.border),
+              ],
           ],
         ),
       ),
     );
   }
+}
+
+class _SaleItemTile extends StatelessWidget {
+  const _SaleItemTile({
+    required this.item,
+    required this.onIncreaseQuantity,
+    required this.onDecreaseQuantity,
+    required this.onEditBulkItem,
+    required this.onRemoveItem,
+  });
+
+  final SaleDraftItem item;
+  final ValueChanged<SaleDraftItem> onIncreaseQuantity;
+  final ValueChanged<SaleDraftItem> onDecreaseQuantity;
+  final ValueChanged<SaleDraftItem> onEditBulkItem;
+  final ValueChanged<SaleDraftItem> onRemoveItem;
+
+  @override
+  Widget build(BuildContext context) {
+    final product = item.product;
+    final isBulk = product.productType == AppProductTypes.bulk;
+    final unitLabel = isBulk ? 'kg' : 'pz';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                product.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Text(
+              _money(item.subtotal),
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          '${_quantity(item.quantity)} $unitLabel x ${_money(product.price)}',
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        if (isBulk)
+          Row(
+            children: [
+              OutlinedButton(
+                onPressed: () => onEditBulkItem(item),
+                child: const _ButtonContent(
+                  label: 'Modificar',
+                  icon: Icons.scale_rounded,
+                ),
+              ),
+              const Spacer(),
+              IconButton(
+                tooltip: 'Quitar',
+                onPressed: () => onRemoveItem(item),
+                icon: const Icon(Icons.close_rounded),
+              ),
+            ],
+          )
+        else
+          Row(
+            children: [
+              IconButton(
+                tooltip: 'Restar',
+                onPressed: () => onDecreaseQuantity(item),
+                icon: const Icon(Icons.remove_circle_outline_rounded),
+              ),
+              SizedBox(
+                width: 32,
+                child: Text(
+                  _quantity(item.quantity),
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+              ),
+              IconButton(
+                tooltip: 'Sumar',
+                onPressed: () => onIncreaseQuantity(item),
+                icon: const Icon(Icons.add_circle_outline_rounded),
+              ),
+              const Spacer(),
+              IconButton(
+                tooltip: 'Quitar',
+                onPressed: () => onRemoveItem(item),
+                icon: const Icon(Icons.close_rounded),
+              ),
+            ],
+          ),
+      ],
+    );
+  }
+}
+
+class _ButtonContent extends StatelessWidget {
+  const _ButtonContent({required this.label, required this.icon});
+
+  final String label;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(label),
+        const SizedBox(width: AppSpacing.sm),
+        Icon(icon),
+      ],
+    );
+  }
+}
+
+class _EmptySaleItems extends StatelessWidget {
+  const _EmptySaleItems();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(
+        color: AppColors.bodyBg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.border, width: 0.5),
+      ),
+      child: Column(
+        children: [
+          const Icon(
+            Icons.shopping_cart_outlined,
+            color: AppColors.iconInactive,
+            size: 36,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            'Sin productos agregados.',
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+String _money(double value) {
+  return '\$${value.toStringAsFixed(2)}';
+}
+
+String _quantity(double value) {
+  if (value == value.roundToDouble()) {
+    return value.toInt().toString();
+  }
+
+  return value.toStringAsFixed(3);
 }

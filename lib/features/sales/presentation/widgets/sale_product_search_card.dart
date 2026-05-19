@@ -1,13 +1,28 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_products.dart';
+import '../../../../core/database/app_database.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
 
 class SaleProductSearchCard extends StatelessWidget {
-  const SaleProductSearchCard({super.key});
+  const SaleProductSearchCard({
+    super.key,
+    required this.controller,
+    required this.products,
+    required this.query,
+    required this.onAddProduct,
+  });
+
+  final TextEditingController controller;
+  final List<Product> products;
+  final String query;
+  final ValueChanged<Product> onAddProduct;
 
   @override
   Widget build(BuildContext context) {
+    final filteredProducts = _filterProducts(products, query);
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
@@ -19,29 +34,42 @@ class SaleProductSearchCard extends StatelessWidget {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: AppSpacing.md),
-            const TextField(
-              enabled: false,
+            TextField(
+              controller: controller,
               decoration: InputDecoration(
                 hintText: 'Buscar producto...',
-                prefixIcon: Icon(Icons.search_rounded),
+                prefixIcon: const Icon(Icons.search_rounded),
+                suffixIcon: query.trim().isEmpty
+                    ? null
+                    : IconButton(
+                        tooltip: 'Limpiar busqueda',
+                        icon: const Icon(Icons.close_rounded),
+                        onPressed: controller.clear,
+                      ),
               ),
             ),
-            const SizedBox(height: AppSpacing.md),
-            FilledButton(
-              onPressed: null,
-              child: const _ButtonContent(
-                label: 'Agregar',
-                icon: Icons.add_rounded,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              'La busqueda y seleccion se conectaran en el siguiente paso.',
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
-              textAlign: TextAlign.center,
-            ),
+            if (query.trim().isNotEmpty) ...[
+              const SizedBox(height: AppSpacing.md),
+              if (filteredProducts.isEmpty)
+                Text(
+                  'Sin resultados.',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                )
+              else
+                for (final product in filteredProducts.take(6)) ...[
+                  _ProductSearchTile(
+                    product: product,
+                    onAddProduct: onAddProduct,
+                  ),
+                  if (product != filteredProducts.take(6).last)
+                    const Divider(
+                      height: AppSpacing.lg,
+                      color: AppColors.border,
+                    ),
+                ],
+            ],
           ],
         ),
       ),
@@ -49,22 +77,67 @@ class SaleProductSearchCard extends StatelessWidget {
   }
 }
 
-class _ButtonContent extends StatelessWidget {
-  const _ButtonContent({required this.label, required this.icon});
+class _ProductSearchTile extends StatelessWidget {
+  const _ProductSearchTile({required this.product, required this.onAddProduct});
 
-  final String label;
-  final IconData icon;
+  final Product product;
+  final ValueChanged<Product> onAddProduct;
 
   @override
   Widget build(BuildContext context) {
+    final unitLabel = product.productType == AppProductTypes.bulk
+        ? 'kg'
+        : 'unidad';
+
     return Row(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(label),
-        const SizedBox(width: AppSpacing.sm),
-        Icon(icon),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                product.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                '${_money(product.price)} x $unitLabel',
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: AppSpacing.md),
+        IconButton(
+          tooltip: 'Agregar producto',
+          onPressed: () => onAddProduct(product),
+          icon: const Icon(Icons.add_circle_outline_rounded),
+        ),
       ],
     );
   }
+}
+
+List<Product> _filterProducts(List<Product> products, String query) {
+  final cleanQuery = query.trim().toLowerCase();
+  if (cleanQuery.isEmpty) {
+    return const [];
+  }
+
+  return products.where((product) {
+    final brand = product.brand?.toLowerCase() ?? '';
+    return product.name.toLowerCase().contains(cleanQuery) ||
+        brand.contains(cleanQuery);
+  }).toList();
+}
+
+String _money(double value) {
+  return '\$${value.toStringAsFixed(2)}';
 }
