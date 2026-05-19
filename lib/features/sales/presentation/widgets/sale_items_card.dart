@@ -12,6 +12,7 @@ class SaleItemsCard extends StatelessWidget {
     required this.onIncreaseQuantity,
     required this.onDecreaseQuantity,
     required this.onEditBulkItem,
+    required this.onApplyBulkPortion,
     required this.onRemoveItem,
   });
 
@@ -19,6 +20,8 @@ class SaleItemsCard extends StatelessWidget {
   final ValueChanged<SaleDraftItem> onIncreaseQuantity;
   final ValueChanged<SaleDraftItem> onDecreaseQuantity;
   final ValueChanged<SaleDraftItem> onEditBulkItem;
+  final void Function(SaleDraftItem item, AppBulkPortion portion)
+  onApplyBulkPortion;
   final ValueChanged<SaleDraftItem> onRemoveItem;
 
   @override
@@ -40,6 +43,7 @@ class SaleItemsCard extends StatelessWidget {
                   onIncreaseQuantity: onIncreaseQuantity,
                   onDecreaseQuantity: onDecreaseQuantity,
                   onEditBulkItem: onEditBulkItem,
+                  onApplyBulkPortion: onApplyBulkPortion,
                   onRemoveItem: onRemoveItem,
                 ),
                 if (item != items.last)
@@ -58,6 +62,7 @@ class _SaleItemTile extends StatelessWidget {
     required this.onIncreaseQuantity,
     required this.onDecreaseQuantity,
     required this.onEditBulkItem,
+    required this.onApplyBulkPortion,
     required this.onRemoveItem,
   });
 
@@ -65,6 +70,8 @@ class _SaleItemTile extends StatelessWidget {
   final ValueChanged<SaleDraftItem> onIncreaseQuantity;
   final ValueChanged<SaleDraftItem> onDecreaseQuantity;
   final ValueChanged<SaleDraftItem> onEditBulkItem;
+  final void Function(SaleDraftItem item, AppBulkPortion portion)
+  onApplyBulkPortion;
   final ValueChanged<SaleDraftItem> onRemoveItem;
 
   @override
@@ -108,20 +115,42 @@ class _SaleItemTile extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.sm),
         if (isBulk)
-          Row(
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              OutlinedButton(
-                onPressed: () => onEditBulkItem(item),
-                child: const _ButtonContent(
-                  label: 'Modificar',
-                  icon: Icons.scale_rounded,
-                ),
+              Wrap(
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.sm,
+                children: [
+                  for (final portion in AppBulkPortions.salesQuick)
+                    ActionChip(
+                      label: Text(portion.label),
+                      backgroundColor: AppColors.bodyBg,
+                      side: const BorderSide(
+                        color: AppColors.border,
+                        width: 0.5,
+                      ),
+                      onPressed: () => onApplyBulkPortion(item, portion),
+                    ),
+                ],
               ),
-              const Spacer(),
-              IconButton(
-                tooltip: 'Quitar',
-                onPressed: () => onRemoveItem(item),
-                icon: const Icon(Icons.close_rounded),
+              const SizedBox(height: AppSpacing.sm),
+              Row(
+                children: [
+                  OutlinedButton(
+                    onPressed: () => onEditBulkItem(item),
+                    child: const _ButtonContent(
+                      label: 'Modificar',
+                      icon: Icons.scale_rounded,
+                    ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    tooltip: 'Quitar',
+                    onPressed: () => onRemoveItem(item),
+                    icon: const Icon(Icons.close_rounded),
+                  ),
+                ],
               ),
             ],
           )

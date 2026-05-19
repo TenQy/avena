@@ -210,10 +210,11 @@ class _BulkPortionsSection extends StatelessWidget {
     return _DetailSection(
       title: 'Porciones',
       children: [
-        _DetailRow(label: '1 kg', value: _money(product.price)),
-        _DetailRow(label: '1/2 kg', value: _money(product.price * 0.5)),
-        _DetailRow(label: '100 g', value: _money(product.price * 0.1)),
-        _DetailRow(label: '50 g', value: _money(product.price * 0.05)),
+        for (final portion in AppBulkPortions.standard)
+          _DetailRow(
+            label: portion.label,
+            value: _money(product.price * portion.kilogramFactor),
+          ),
       ],
     );
   }

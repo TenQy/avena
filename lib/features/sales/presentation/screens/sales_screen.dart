@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/constants/app_products.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
@@ -76,6 +77,7 @@ class _SalesScreenState extends ConsumerState<SalesScreen> {
               onIncreaseQuantity: _increaseQuantity,
               onDecreaseQuantity: _decreaseQuantity,
               onEditBulkItem: _showBulkItemSheet,
+              onApplyBulkPortion: _applyBulkPortion,
               onRemoveItem: _removeItem,
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -137,6 +139,23 @@ class _SalesScreenState extends ConsumerState<SalesScreen> {
       _items[index] = _items[index].copyWith(
         quantity: result.quantity,
         customSubtotal: result.subtotal,
+      );
+    });
+  }
+
+  void _applyBulkPortion(SaleDraftItem item, AppBulkPortion portion) {
+    final index = _items.indexWhere(
+      (currentItem) => currentItem.product.id == item.product.id,
+    );
+
+    if (index == -1) {
+      return;
+    }
+
+    setState(() {
+      _items[index] = _items[index].copyWith(
+        quantity: portion.kilogramFactor,
+        customSubtotal: item.product.price * portion.kilogramFactor,
       );
     });
   }
