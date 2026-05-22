@@ -28,6 +28,12 @@ class _BulkSaleItemSheetState extends State<BulkSaleItemSheet> {
   bool _useGrams = false;
 
   double get _pricePerKilogram => widget.item.product.price;
+  double get _availableStock => widget.item.product.stockQuantity ?? 0;
+  bool get _tracksStock => widget.item.product.trackStock;
+  bool get _exceedsStock {
+    final weight = _readWeightInKilograms();
+    return _tracksStock && weight != null && weight > _availableStock;
+  }
 
   @override
   void initState() {
@@ -85,7 +91,9 @@ class _BulkSaleItemSheetState extends State<BulkSaleItemSheet> {
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              '${_money(_pricePerKilogram)} por kg',
+              _tracksStock
+                  ? '${_money(_pricePerKilogram)} por kg · Stock: ${_formatDecimal(_availableStock)} kg'
+                  : '${_money(_pricePerKilogram)} por kg',
               style: Theme.of(
                 context,
               ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
@@ -129,11 +137,12 @@ class _BulkSaleItemSheetState extends State<BulkSaleItemSheet> {
               decoration: InputDecoration(
                 labelText: _useGrams ? 'Peso en gr' : 'Peso en kg',
                 prefixIcon: const Icon(Icons.scale_rounded),
+                errorText: _exceedsStock ? 'Supera el stock disponible' : null,
               ),
             ),
             const SizedBox(height: AppSpacing.xl),
             FilledButton(
-              onPressed: _save,
+              onPressed: _exceedsStock ? null : _save,
               child: const _ButtonContent(
                 label: 'Actualizar',
                 icon: Icons.check_rounded,
@@ -157,6 +166,7 @@ class _BulkSaleItemSheetState extends State<BulkSaleItemSheet> {
 
     final weightInKilograms = amount / _pricePerKilogram;
     _setWeightText(weightInKilograms);
+    setState(() {});
   }
 
   void _onWeightChanged() {
@@ -173,6 +183,7 @@ class _BulkSaleItemSheetState extends State<BulkSaleItemSheet> {
       _amountController,
       _formatDecimal(weightInKilograms * _pricePerKilogram, decimals: 2),
     );
+    setState(() {});
   }
 
   RegExp get _weightInputPattern {
@@ -225,7 +236,11 @@ class _BulkSaleItemSheetState extends State<BulkSaleItemSheet> {
     final amount = double.tryParse(_amountController.text.trim());
     final weight = _readWeightInKilograms();
 
-    if (amount == null || amount <= 0 || weight == null || weight <= 0) {
+    if (amount == null ||
+        amount <= 0 ||
+        weight == null ||
+        weight <= 0 ||
+        (_tracksStock && weight > _availableStock)) {
       return;
     }
 

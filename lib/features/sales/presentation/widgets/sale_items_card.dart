@@ -79,6 +79,9 @@ class _SaleItemTile extends StatelessWidget {
     final product = item.product;
     final isBulk = product.productType == AppProductTypes.bulk;
     final unitLabel = isBulk ? 'kg' : 'pz';
+    final stockQuantity = product.stockQuantity ?? 0;
+    final stockLabel = isBulk ? 'kg disponibles' : 'pz disponibles';
+    final canAddUnit = !product.trackStock || item.quantity < stockQuantity;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -113,6 +116,20 @@ class _SaleItemTile extends StatelessWidget {
             context,
           ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
         ),
+        if (product.trackStock) ...[
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            'Stock: ${_quantity(stockQuantity)} $stockLabel',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: item.quantity > stockQuantity
+                  ? Theme.of(context).colorScheme.error
+                  : AppColors.textSecondary,
+              fontWeight: item.quantity > stockQuantity
+                  ? FontWeight.w600
+                  : FontWeight.normal,
+            ),
+          ),
+        ],
         const SizedBox(height: AppSpacing.sm),
         if (isBulk)
           Column(
@@ -130,7 +147,11 @@ class _SaleItemTile extends StatelessWidget {
                         color: AppColors.border,
                         width: 0.5,
                       ),
-                      onPressed: () => onApplyBulkPortion(item, portion),
+                      onPressed:
+                          !product.trackStock ||
+                              portion.kilogramFactor <= stockQuantity
+                          ? () => onApplyBulkPortion(item, portion)
+                          : null,
                     ),
                 ],
               ),
@@ -172,7 +193,7 @@ class _SaleItemTile extends StatelessWidget {
               ),
               IconButton(
                 tooltip: 'Sumar',
-                onPressed: () => onIncreaseQuantity(item),
+                onPressed: canAddUnit ? () => onIncreaseQuantity(item) : null,
                 icon: const Icon(Icons.add_circle_outline_rounded),
               ),
               const Spacer(),

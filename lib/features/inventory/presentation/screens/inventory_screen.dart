@@ -91,7 +91,34 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
         currentUser != null && AppRoles.canEditProducts(currentUser.role);
 
     if (selectedProduct != null) {
-      return ProductDetailScreen(product: selectedProduct);
+      return productsState.when(
+        data: (products) {
+          Product? currentProduct;
+          for (final product in products) {
+            if (product.id == selectedProduct.id) {
+              currentProduct = product;
+              break;
+            }
+          }
+
+          if (currentProduct == null) {
+            return const Scaffold(
+              body: EmptyState(
+                icon: Icons.inventory_2_outlined,
+                message: 'Producto no disponible',
+              ),
+            );
+          }
+
+          return ProductDetailScreen(product: currentProduct);
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (_, _) => const EmptyState(
+          icon: Icons.error_outline_rounded,
+          message: 'No se pudo cargar el producto',
+          description: 'Intenta nuevamente.',
+        ),
+      );
     }
 
     if (selectedCategory != null) {

@@ -70,6 +70,12 @@ class InventoryDao extends DatabaseAccessor<AppDatabase>
         .watch();
   }
 
+  Future<Product?> getProductById(String id) {
+    return (select(
+      products,
+    )..where((product) => product.id.equals(id))).getSingleOrNull();
+  }
+
   Stream<List<Product>> watchVisibleProductsByCategory(String categoryId) {
     return (select(products)
           ..where(

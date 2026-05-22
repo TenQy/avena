@@ -13,9 +13,13 @@ class SaleDraftItem {
 
   double get subtotal => customSubtotal;
 
-  SaleDraftItem copyWith({double? quantity, double? customSubtotal}) {
+  SaleDraftItem copyWith({
+    Product? product,
+    double? quantity,
+    double? customSubtotal,
+  }) {
     return SaleDraftItem(
-      product: product,
+      product: product ?? this.product,
       quantity: quantity ?? this.quantity,
       customSubtotal: customSubtotal ?? this.customSubtotal,
     );

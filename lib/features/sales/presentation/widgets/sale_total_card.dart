@@ -10,11 +10,17 @@ class SaleTotalCard extends StatefulWidget {
     required this.subtotal,
     required this.commission,
     required this.showCashPayment,
+    required this.canRegister,
+    required this.isRegistering,
+    required this.onRegister,
   });
 
   final double subtotal;
   final double commission;
   final bool showCashPayment;
+  final bool canRegister;
+  final bool isRegistering;
+  final VoidCallback onRegister;
 
   double get total => subtotal + commission;
 
@@ -92,11 +98,18 @@ class _SaleTotalCardState extends State<SaleTotalCard> {
             ],
             const SizedBox(height: AppSpacing.xl),
             FilledButton(
-              onPressed: null,
-              child: const _ButtonContent(
-                label: 'Registrar venta',
-                icon: Icons.point_of_sale_rounded,
-              ),
+              onPressed: widget.canRegister && !widget.isRegistering
+                  ? widget.onRegister
+                  : null,
+              child: widget.isRegistering
+                  ? const SizedBox.square(
+                      dimension: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const _ButtonContent(
+                      label: 'Registrar venta',
+                      icon: Icons.point_of_sale_rounded,
+                    ),
             ),
           ],
         ),
