@@ -1,19 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
 
-class SaleTotalCard extends StatelessWidget {
+class SaleTotalCard extends StatefulWidget {
   const SaleTotalCard({
     super.key,
     required this.subtotal,
     required this.commission,
+    required this.showCashPayment,
   });
 
   final double subtotal;
   final double commission;
+  final bool showCashPayment;
 
   double get total => subtotal + commission;
+
+  @override
+  State<SaleTotalCard> createState() => _SaleTotalCardState();
+}
+
+class _SaleTotalCardState extends State<SaleTotalCard> {
+  final _paidWithController = TextEditingController();
+  double _paidWith = 0;
+
+  double get _change =>
+      (_paidWith - widget.total).clamp(0.0, double.infinity).toDouble();
+
+  @override
+  void initState() {
+    super.initState();
+    _paidWithController.addListener(_onPaidWithChanged);
+  }
+
+  @override
+  void dispose() {
+    _paidWithController.removeListener(_onPaidWithChanged);
+    _paidWithController.dispose();
+    super.dispose();
+  }
+
+  void _onPaidWithChanged() {
+    setState(() {
+      _paidWith = double.tryParse(_paidWithController.text.trim()) ?? 0;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,9 +56,9 @@ class SaleTotalCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _TotalRow(label: 'Subtotal', value: _money(subtotal)),
+            _TotalRow(label: 'Subtotal', value: _money(widget.subtotal)),
             const SizedBox(height: AppSpacing.md),
-            _TotalRow(label: 'Comision', value: _money(commission)),
+            _TotalRow(label: 'Comision', value: _money(widget.commission)),
             const Padding(
               padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
               child: Divider(
@@ -34,7 +67,29 @@ class SaleTotalCard extends StatelessWidget {
                 color: AppColors.border,
               ),
             ),
-            _TotalRow(label: 'Total', value: _money(total), emphasized: true),
+            _TotalRow(
+              label: 'Total',
+              value: _money(widget.total),
+              emphasized: true,
+            ),
+            if (widget.showCashPayment) ...[
+              const SizedBox(height: AppSpacing.lg),
+              TextFormField(
+                controller: _paidWithController,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                ],
+                decoration: const InputDecoration(
+                  labelText: 'Recibido en efectivo',
+                  prefixIcon: Icon(Icons.payments_rounded),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _TotalRow(label: 'Cambio', value: _money(_change)),
+            ],
             const SizedBox(height: AppSpacing.xl),
             FilledButton(
               onPressed: null,

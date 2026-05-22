@@ -10,6 +10,7 @@ class SalePaymentMethodsCard extends StatelessWidget {
     super.key,
     required this.selectedMethod,
     required this.mixedPayments,
+    required this.subtotal,
     required this.total,
     required this.mixedTotal,
     required this.onMethodSelected,
@@ -18,6 +19,7 @@ class SalePaymentMethodsCard extends StatelessWidget {
 
   final String selectedMethod;
   final Map<String, double> mixedPayments;
+  final double subtotal;
   final double total;
   final double mixedTotal;
   final ValueChanged<String> onMethodSelected;
@@ -66,6 +68,7 @@ class SalePaymentMethodsCard extends StatelessWidget {
               const SizedBox(height: AppSpacing.lg),
               _MixedPaymentInputs(
                 payments: mixedPayments,
+                subtotal: subtotal,
                 onChanged: onMixedPaymentChanged,
               ),
               const SizedBox(height: AppSpacing.md),
@@ -86,9 +89,14 @@ class SalePaymentMethodsCard extends StatelessWidget {
 }
 
 class _MixedPaymentInputs extends StatelessWidget {
-  const _MixedPaymentInputs({required this.payments, required this.onChanged});
+  const _MixedPaymentInputs({
+    required this.payments,
+    required this.subtotal,
+    required this.onChanged,
+  });
 
   final Map<String, double> payments;
+  final double subtotal;
   final void Function(String method, double amount) onChanged;
 
   @override
@@ -96,19 +104,31 @@ class _MixedPaymentInputs extends StatelessWidget {
     return Column(
       children: [
         for (final method in AppPaymentMethods.mixable) ...[
-          TextFormField(
-            key: ValueKey('mixed-$method'),
-            initialValue: _initialValue(payments[method]),
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
-            ],
-            decoration: InputDecoration(
-              labelText: 'Monto base - ${_paymentLabel(method)}',
-              prefixIcon: const Icon(Icons.attach_money_rounded),
-            ),
-            onChanged: (value) {
-              onChanged(method, double.tryParse(value.trim()) ?? 0);
+          Builder(
+            builder: (context) {
+              final remainingCharge = _remainingChargeFor(method);
+
+              return TextFormField(
+                key: ValueKey('mixed-$method'),
+                initialValue: _initialValue(payments[method]),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                ],
+                decoration: InputDecoration(
+                  labelText: _paymentLabel(method),
+                  hintText: _money(remainingCharge),
+                  hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: AppColors.textSecondary.withValues(alpha: 0.55),
+                  ),
+                  prefixIcon: const Icon(Icons.attach_money_rounded),
+                ),
+                onChanged: (value) {
+                  onChanged(method, double.tryParse(value.trim()) ?? 0);
+                },
+              );
             },
           ),
           if (method != AppPaymentMethods.mixable.last)
@@ -122,6 +142,21 @@ class _MixedPaymentInputs extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  double _remainingChargeFor(String method) {
+    final paidWithOtherMethods = payments.entries.fold(0.0, (total, entry) {
+      if (entry.key == method) {
+        return total;
+      }
+
+      return total + entry.value;
+    });
+    final remainingBase = (subtotal - paidWithOtherMethods)
+        .clamp(0.0, double.infinity)
+        .toDouble();
+
+    return remainingBase * (1 + AppPaymentCommissions.rateFor(method));
   }
 }
 

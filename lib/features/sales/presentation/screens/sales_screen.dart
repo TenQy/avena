@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/constants/payment_methods.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
 import '../../../../shared/widgets/app_dismiss_area.dart';
@@ -80,6 +81,7 @@ class _SalesScreenState extends ConsumerState<SalesScreen> {
             SalePaymentMethodsCard(
               selectedMethod: currentSale.paymentMethod,
               mixedPayments: currentSale.mixedPayments,
+              subtotal: currentSale.subtotal,
               total: currentSale.total,
               mixedTotal: currentSale.mixedTotal,
               onMethodSelected: saleController.selectPaymentMethod,
@@ -89,6 +91,8 @@ class _SalesScreenState extends ConsumerState<SalesScreen> {
             SaleTotalCard(
               subtotal: currentSale.subtotal,
               commission: currentSale.commission,
+              showCashPayment:
+                  currentSale.paymentMethod == AppPaymentMethods.cash,
             ),
           ],
         ),
