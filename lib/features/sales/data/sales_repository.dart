@@ -49,6 +49,30 @@ class SalesRepository {
   static const _pendingSync = 'pending';
   static const _centTolerance = 0.01;
 
+  Stream<List<Sale>> watchSalesBetween(DateTime start, DateTime end) {
+    return _database.salesDao.watchSalesBetween(start, end);
+  }
+
+  Stream<List<Sale>> watchSalesBetweenByPayment(
+    DateTime start,
+    DateTime end,
+    String paymentMethod,
+  ) {
+    return _database.salesDao.watchSalesBetweenByPayment(
+      start,
+      end,
+      paymentMethod,
+    );
+  }
+
+  Stream<List<SaleItem>> watchItemsBySale(String saleId) {
+    return _database.salesDao.watchItemsBySale(saleId);
+  }
+
+  Stream<List<SalePayment>> watchPaymentsBySale(String saleId) {
+    return _database.salesDao.watchPaymentsBySale(saleId);
+  }
+
   Future<SaleRegisterResult> registerSale({
     required User actor,
     required SaleRegisterDraft draft,

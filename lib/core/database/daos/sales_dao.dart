@@ -11,7 +11,37 @@ part 'sales_dao.g.dart';
 class SalesDao extends DatabaseAccessor<AppDatabase> with _$SalesDaoMixin {
   SalesDao(super.db);
 
-  Stream<List<Sale>> watchSales() => select(sales).watch();
+  Stream<List<Sale>> watchSalesBetween(DateTime start, DateTime end) {
+    return (select(sales)
+          ..where(
+            (sale) =>
+                sale.createdAt.isBiggerOrEqualValue(start) &
+                sale.createdAt.isSmallerThanValue(end),
+          )
+          ..orderBy([(sale) => OrderingTerm.desc(sale.createdAt)]))
+        .watch();
+  }
+
+  Stream<List<Sale>> watchSalesBetweenByPayment(
+    DateTime start,
+    DateTime end,
+    String paymentMethod,
+  ) {
+    final query =
+        select(sales).join([
+            innerJoin(salePayments, salePayments.saleId.equalsExp(sales.id)),
+          ])
+          ..where(
+            sales.createdAt.isBiggerOrEqualValue(start) &
+                sales.createdAt.isSmallerThanValue(end) &
+                salePayments.paymentMethod.equals(paymentMethod),
+          )
+          ..orderBy([OrderingTerm.desc(sales.createdAt)]);
+
+    return query.watch().map(
+      (rows) => rows.map((row) => row.readTable(sales)).toList(),
+    );
+  }
 
   Future<Sale?> getSaleById(String id) {
     return (select(

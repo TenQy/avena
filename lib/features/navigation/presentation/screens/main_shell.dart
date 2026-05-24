@@ -15,6 +15,7 @@ import '../../../inventory/presentation/controllers/inventory_screen_controller.
 import '../../../inventory/presentation/screens/inventory_screen.dart';
 import '../../../logs/presentation/screens/logs_screen.dart';
 import '../../../pending_payments/presentation/screens/pending_payments_screen.dart';
+import '../../../sales/presentation/screens/sales_history_screen.dart';
 import '../../../sales/presentation/screens/sales_screen.dart';
 import '../../../settings/presentation/screens/settings_screen.dart';
 import '../../../users/presentation/screens/users_screen.dart';
@@ -24,6 +25,7 @@ enum MainModule {
   sales,
   inventory,
   cash,
+  salesHistory,
   users,
   pendingPayments,
   calculator,
@@ -88,6 +90,7 @@ class _MainShellState extends ConsumerState<MainShell> {
       MainModule.sales => 'Ventas',
       MainModule.inventory => _inventoryController.title,
       MainModule.cash => 'Caja',
+      MainModule.salesHistory => 'Historial de ventas',
       MainModule.users => 'Usuarios',
       MainModule.pendingPayments => 'Pagos pendientes',
       MainModule.calculator => 'Calculadora',
@@ -102,6 +105,7 @@ class _MainShellState extends ConsumerState<MainShell> {
       MainModule.sales => const SalesScreen(),
       MainModule.inventory => InventoryScreen(controller: _inventoryController),
       MainModule.cash => const CashScreen(),
+      MainModule.salesHistory => const SalesHistoryScreen(),
       MainModule.users => const UsersScreen(),
       MainModule.pendingPayments => const PendingPaymentsScreen(),
       MainModule.calculator => const CalculatorScreen(),
@@ -228,6 +232,12 @@ class _MainShellState extends ConsumerState<MainShell> {
                   ],
                 ),
                 const _DrawerSeparator(),
+                _OtherModuleTile(
+                  icon: Icons.receipt_long_rounded,
+                  label: 'Historial de ventas',
+                  selected: _selectedModule == MainModule.salesHistory,
+                  onTap: () => _selectOtherModule(MainModule.salesHistory),
+                ),
                 if (canManageUsers)
                   _OtherModuleTile(
                     icon: Icons.group_rounded,
