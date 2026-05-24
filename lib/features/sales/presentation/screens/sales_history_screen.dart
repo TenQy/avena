@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/constants/app_roles.dart';
+import '../../../../core/constants/app_sales.dart';
+import '../../../../core/database/app_database.dart';
 import '../../../../core/constants/payment_methods.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
+import '../../../authentication/providers/auth_provider.dart';
 import '../../providers/sales_provider.dart';
+import '../utils/sale_messages.dart';
+import '../widgets/sale_cancel_sheet.dart';
 import '../widgets/sales_history_card.dart';
 
 class SalesHistoryScreen extends ConsumerStatefulWidget {
@@ -20,6 +26,9 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final currentUser = ref.watch(currentUserProvider).valueOrNull;
+    final canCancelSales =
+        currentUser != null && AppRoles.canCancelSales(currentUser.role);
     final filter = SalesHistoryFilter(
       date: _selectedDate,
       paymentMethod: _selectedPaymentMethod,
@@ -58,7 +67,14 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
             return Column(
               children: [
                 for (final sale in sales) ...[
-                  SalesHistoryCard(sale: sale),
+                  SalesHistoryCard(
+                    sale: sale,
+                    onLongPress:
+                        canCancelSales &&
+                            sale.saleStatus == AppSaleStatuses.completed
+                        ? () => _cancelSale(currentUser, sale)
+                        : null,
+                  ),
                   if (sale != sales.last) const SizedBox(height: AppSpacing.md),
                 ],
               ],
@@ -92,6 +108,20 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
     setState(() {
       _selectedDate = selectedDate;
     });
+  }
+
+  Future<void> _cancelSale(User actor, Sale sale) async {
+    final result = await SaleCancelSheet.show(
+      context,
+      actor: actor,
+      sale: sale,
+    );
+
+    if (!mounted || result == null) {
+      return;
+    }
+
+    showSaleCancelResult(context, result);
   }
 }
 

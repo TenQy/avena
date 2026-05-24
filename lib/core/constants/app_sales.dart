@@ -17,6 +17,7 @@ class AppActivityLogActions {
   const AppActivityLogActions._();
 
   static const createSale = 'create_sale';
+  static const cancelSale = 'cancel_sale';
 }
 
 class AppActivityLogEntities {

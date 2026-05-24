@@ -17,6 +17,15 @@ enum SaleRegisterResult {
   insufficientStock,
 }
 
+enum SaleCancelResult {
+  success,
+  unauthorized,
+  emptyReason,
+  notFound,
+  alreadyCancelled,
+  cashSessionNotFound,
+}
+
 class SaleRegisterItem {
   const SaleRegisterItem({
     required this.product,
@@ -71,6 +80,102 @@ class SalesRepository {
 
   Stream<List<SalePayment>> watchPaymentsBySale(String saleId) {
     return _database.salesDao.watchPaymentsBySale(saleId);
+  }
+
+  Future<SaleCancelResult> cancelSale({
+    required User actor,
+    required Sale sale,
+    required String reason,
+  }) async {
+    if (!AppRoles.canCancelSales(actor.role)) {
+      return SaleCancelResult.unauthorized;
+    }
+
+    final cleanReason = reason.trim();
+    if (cleanReason.isEmpty) {
+      return SaleCancelResult.emptyReason;
+    }
+
+    return _database.transaction(() async {
+      final currentSale = await _database.salesDao.getSaleById(sale.id);
+      if (currentSale == null) {
+        return SaleCancelResult.notFound;
+      }
+
+      if (currentSale.saleStatus == AppSaleStatuses.cancelled) {
+        return SaleCancelResult.alreadyCancelled;
+      }
+
+      final cashSession = await _database.cashDao.getCashSessionById(
+        currentSale.cashSessionId,
+      );
+      if (cashSession == null) {
+        return SaleCancelResult.cashSessionNotFound;
+      }
+
+      final items = await _database.salesDao.getItemsBySale(currentSale.id);
+      final payments = await _database.salesDao.getPaymentsBySale(
+        currentSale.id,
+      );
+      final now = DateTime.now();
+
+      await _database.cashDao.updateCashSession(
+        _reversePaymentsFromCashSession(
+          session: cashSession,
+          payments: payments,
+          commissionTotal: currentSale.commissionTotal,
+        ),
+      );
+
+      for (final item in items) {
+        final product = await _database.inventoryDao.getProductById(
+          item.productId,
+        );
+        if (product == null || !product.trackStock) {
+          continue;
+        }
+
+        await _database.inventoryDao.updateProduct(
+          product.copyWith(
+            stockQuantity: Value(
+              _roundQuantity((product.stockQuantity ?? 0) + item.quantity),
+            ),
+            updatedAt: now,
+            syncStatus: _pendingSync,
+          ),
+        );
+      }
+
+      await _database.salesDao.updateSale(
+        currentSale.copyWith(
+          saleStatus: AppSaleStatuses.cancelled,
+          cancelledAt: Value(now),
+          cancelledByUserId: Value(actor.id),
+          cancelReason: Value(cleanReason),
+          syncStatus: _pendingSync,
+        ),
+      );
+
+      await _database.activityLogsDao.insertActivityLog(
+        ActivityLogsCompanion.insert(
+          id: IdGenerator.create(),
+          userId: Value(actor.id),
+          userNameSnapshot: actor.username,
+          userRoleSnapshot: actor.role,
+          action: AppActivityLogActions.cancelSale,
+          entityType: AppActivityLogEntities.sale,
+          entityId: Value(currentSale.id),
+          description: Value(
+            'Venta cancelada por \$${currentSale.total.toStringAsFixed(2)}. '
+            'Motivo: $cleanReason',
+          ),
+          createdAt: now,
+          syncStatus: _pendingSync,
+        ),
+      );
+
+      return SaleCancelResult.success;
+    });
   }
 
   Future<SaleRegisterResult> registerSale({
@@ -322,6 +427,46 @@ class SalesRepository {
       terminalIncome: _roundMoney(terminalIncome),
       bonusIncome: _roundMoney(bonusIncome),
       commissionTotal: _roundMoney(session.commissionTotal + commissionTotal),
+      syncStatus: _pendingSync,
+    );
+  }
+
+  CashSession _reversePaymentsFromCashSession({
+    required CashSession session,
+    required List<SalePayment> payments,
+    required double commissionTotal,
+  }) {
+    var expectedCashAmount = session.expectedCashAmount;
+    var cashIncome = session.cashIncome;
+    var transferIncome = session.transferIncome;
+    var terminalIncome = session.terminalIncome;
+    var bonusIncome = session.bonusIncome;
+
+    for (final payment in payments) {
+      switch (payment.paymentMethod) {
+        case AppPaymentMethods.cash:
+          expectedCashAmount -= payment.totalCharged;
+          cashIncome -= payment.totalCharged;
+          break;
+        case AppPaymentMethods.transfer:
+          transferIncome -= payment.totalCharged;
+          break;
+        case AppPaymentMethods.terminalCard:
+          terminalIncome -= payment.totalCharged;
+          break;
+        case AppPaymentMethods.terminalBonus:
+          bonusIncome -= payment.totalCharged;
+          break;
+      }
+    }
+
+    return session.copyWith(
+      expectedCashAmount: _roundMoney(expectedCashAmount),
+      cashIncome: _roundMoney(cashIncome),
+      transferIncome: _roundMoney(transferIncome),
+      terminalIncome: _roundMoney(terminalIncome),
+      bonusIncome: _roundMoney(bonusIncome),
+      commissionTotal: _roundMoney(session.commissionTotal - commissionTotal),
       syncStatus: _pendingSync,
     );
   }

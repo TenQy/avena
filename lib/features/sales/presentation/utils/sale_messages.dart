@@ -17,3 +17,17 @@ void showSaleRegisterResult(BuildContext context, SaleRegisterResult result) {
 
   showAppSnackBar(context, message);
 }
+
+void showSaleCancelResult(BuildContext context, SaleCancelResult result) {
+  final message = switch (result) {
+    SaleCancelResult.success => 'Venta cancelada.',
+    SaleCancelResult.unauthorized => 'No tienes permisos para cancelar ventas.',
+    SaleCancelResult.emptyReason => 'Ingresa un motivo de cancelacion.',
+    SaleCancelResult.notFound => 'La venta ya no esta disponible.',
+    SaleCancelResult.alreadyCancelled => 'La venta ya fue cancelada.',
+    SaleCancelResult.cashSessionNotFound =>
+      'No se encontro la caja asociada a la venta.',
+  };
+
+  showAppSnackBar(context, message);
+}

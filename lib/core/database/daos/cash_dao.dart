@@ -33,6 +33,12 @@ class CashDao extends DatabaseAccessor<AppDatabase> with _$CashDaoMixin {
         .getSingleOrNull();
   }
 
+  Future<CashSession?> getCashSessionById(String id) {
+    return (select(
+      cashSessions,
+    )..where((session) => session.id.equals(id))).getSingleOrNull();
+  }
+
   Stream<List<CashMovement>> watchMovementsBySession(String cashSessionId) {
     return (select(cashMovements)
           ..where((movement) => movement.cashSessionId.equals(cashSessionId))

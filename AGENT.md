@@ -381,7 +381,7 @@ Construir una app:
   - apertura/cierre
   - movimientos
   - ingresos separados
-- Fase 6 en progreso:
+- Fase 6 completada:
   - pantalla principal de Ventas implementada
   - buscador funcional de productos locales por nombre o marca
   - venta actual persistente entre pantallas con `currentSaleProvider`
@@ -393,4 +393,16 @@ Construir una app:
   - pago mixto permite capturar montos por metodo sin guardar venta
   - comisiones calculadas: debito/credito 5% y bonos 6.5%
   - total de venta calcula subtotal + comision
-  - aun no se guarda venta, no se actualiza caja y no se registra stock/logs
+  - registro local de ventas, items y metodos de pago
+  - validacion de caja abierta y stock disponible
+  - actualizacion de caja fisica e ingresos digitales segun metodo de pago
+  - descuento de stock controlado y log de venta
+- Fase 7 completada:
+  - modulo independiente de Historial de ventas
+  - consulta de ventas por fecha seleccionada
+  - filtro por metodo de pago, incluyendo pagos mixtos
+  - cards con productos, cantidades, usuario, total, estado y hora AM/PM
+  - cancelacion por pulsacion prolongada disponible solo para admin/superadmin
+  - motivo de cancelacion obligatorio
+  - reversion de caja, ingresos y stock controlado al cancelar
+  - venta cancelada permanece auditable y genera log

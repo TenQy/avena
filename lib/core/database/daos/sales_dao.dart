@@ -49,10 +49,22 @@ class SalesDao extends DatabaseAccessor<AppDatabase> with _$SalesDaoMixin {
     )..where((sale) => sale.id.equals(id))).getSingleOrNull();
   }
 
+  Future<List<SaleItem>> getItemsBySale(String saleId) {
+    return (select(
+      saleItems,
+    )..where((item) => item.saleId.equals(saleId))).get();
+  }
+
   Stream<List<SaleItem>> watchItemsBySale(String saleId) {
     return (select(
       saleItems,
     )..where((item) => item.saleId.equals(saleId))).watch();
+  }
+
+  Future<List<SalePayment>> getPaymentsBySale(String saleId) {
+    return (select(
+      salePayments,
+    )..where((payment) => payment.saleId.equals(saleId))).get();
   }
 
   Stream<List<SalePayment>> watchPaymentsBySale(String saleId) {
@@ -62,6 +74,8 @@ class SalesDao extends DatabaseAccessor<AppDatabase> with _$SalesDaoMixin {
   }
 
   Future<void> insertSale(SalesCompanion sale) => into(sales).insert(sale);
+
+  Future<bool> updateSale(Sale sale) => update(sales).replace(sale);
 
   Future<void> insertSaleItem(SaleItemsCompanion item) {
     return into(saleItems).insert(item);
