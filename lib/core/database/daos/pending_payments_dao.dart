@@ -12,7 +12,9 @@ class PendingPaymentsDao extends DatabaseAccessor<AppDatabase>
   PendingPaymentsDao(super.db);
 
   Stream<List<PendingPayment>> watchPendingPayments() {
-    return select(pendingPayments).watch();
+    return (select(
+      pendingPayments,
+    )..orderBy([(payment) => OrderingTerm.desc(payment.createdAt)])).watch();
   }
 
   Stream<List<PendingPaymentEntry>> watchEntriesByPendingPayment(
