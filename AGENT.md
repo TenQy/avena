@@ -406,3 +406,18 @@ Construir una app:
   - motivo de cancelacion obligatorio
   - reversion de caja, ingresos y stock controlado al cancelar
   - venta cancelada permanece auditable y genera log
+- Fase 8 completada:
+  - pantalla funcional de pagos pendientes con filtros para activos y completados
+  - creacion manual de pagos pendientes con datos basicos del cliente
+  - registro de abonos por metodo de pago con comisiones aplicables
+  - actualizacion automatica de saldo y estado pendiente/parcial/completado
+  - historial de abonos visible por pago pendiente
+  - creacion de pago pendiente desde una venta con productos asociados
+  - abono inicial opcional al registrar venta pendiente
+  - logs locales para creacion de pagos pendientes y registro de abonos
+- Fase 9 completada:
+  - pantalla funcional de Calculadora accesible para admin/superadmin
+  - calculos temporales sin persistencia para precio por kg y gramos
+  - calculo de precio por unidad desde caja, paquete o pieza individual
+  - porcentaje de ganancia configurable
+  - resultados claros para porciones de granel y venta por unidad
