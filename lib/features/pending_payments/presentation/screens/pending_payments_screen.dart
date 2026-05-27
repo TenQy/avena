@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/constants/app_pending_payments.dart';
 import '../../../../core/constants/app_roles.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../shared/theme/app_spacing.dart';
@@ -11,6 +12,7 @@ import '../../../authentication/providers/auth_provider.dart';
 import '../../providers/pending_payments_provider.dart';
 import '../utils/pending_payment_messages.dart';
 import '../widgets/create_pending_payment_sheet.dart';
+import '../widgets/payment_entry_sheet.dart';
 import '../widgets/pending_payment_card.dart';
 
 class PendingPaymentsScreen extends ConsumerWidget {
@@ -43,7 +45,9 @@ class PendingPaymentsScreen extends ConsumerWidget {
   }
 }
 
-class _PendingPaymentsContent extends StatelessWidget {
+enum _PendingPaymentsView { active, completed }
+
+class _PendingPaymentsContent extends StatefulWidget {
   const _PendingPaymentsContent({
     required this.currentUser,
     required this.payments,
@@ -53,29 +57,83 @@ class _PendingPaymentsContent extends StatelessWidget {
   final List<PendingPayment> payments;
 
   @override
+  State<_PendingPaymentsContent> createState() =>
+      _PendingPaymentsContentState();
+}
+
+class _PendingPaymentsContentState extends State<_PendingPaymentsContent> {
+  _PendingPaymentsView _selectedView = _PendingPaymentsView.active;
+
+  @override
   Widget build(BuildContext context) {
+    final filteredPayments = widget.payments.where((payment) {
+      final isCompleted = payment.status == AppPendingPaymentStatuses.completed;
+      return _selectedView == _PendingPaymentsView.completed
+          ? isCompleted
+          : !isCompleted;
+    }).toList();
+    final showingCompleted = _selectedView == _PendingPaymentsView.completed;
+
     return Stack(
       children: [
-        if (payments.isEmpty)
-          const EmptyState(
-            icon: Icons.receipt_long_outlined,
-            message: 'Sin pagos pendientes',
-            description: 'Toca + para agregar uno.',
-          )
-        else
-          ListView.separated(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.lg,
-              AppSpacing.lg,
-              AppSpacing.lg,
-              104,
+        Column(
+          children: [
+            _PendingPaymentFilterBar(
+              selectedView: _selectedView,
+              activeCount: widget.payments
+                  .where(
+                    (payment) =>
+                        payment.status != AppPendingPaymentStatuses.completed,
+                  )
+                  .length,
+              completedCount: widget.payments
+                  .where(
+                    (payment) =>
+                        payment.status == AppPendingPaymentStatuses.completed,
+                  )
+                  .length,
+              onSelected: (view) {
+                setState(() {
+                  _selectedView = view;
+                });
+              },
             ),
-            itemBuilder: (context, index) {
-              return PendingPaymentCard(payment: payments[index]);
-            },
-            separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
-            itemCount: payments.length,
-          ),
+            Expanded(
+              child: filteredPayments.isEmpty
+                  ? EmptyState(
+                      icon: showingCompleted
+                          ? Icons.task_alt_rounded
+                          : Icons.receipt_long_outlined,
+                      message: showingCompleted
+                          ? 'Sin pagos completados'
+                          : 'Sin pagos pendientes activos',
+                      description: showingCompleted
+                          ? 'Los pagos cubiertos apareceran aqui.'
+                          : 'Toca + para agregar uno.',
+                    )
+                  : ListView.separated(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.lg,
+                        AppSpacing.sm,
+                        AppSpacing.lg,
+                        104,
+                      ),
+                      itemBuilder: (context, index) {
+                        final payment = filteredPayments[index];
+                        return PendingPaymentCard(
+                          payment: payment,
+                          onRegisterEntry: showingCompleted
+                              ? null
+                              : () => _showPaymentEntrySheet(context, payment),
+                        );
+                      },
+                      separatorBuilder: (_, _) =>
+                          const SizedBox(height: AppSpacing.md),
+                      itemCount: filteredPayments.length,
+                    ),
+            ),
+          ],
+        ),
         Positioned(
           right: AppSpacing.lg,
           bottom: 0,
@@ -95,7 +153,7 @@ class _PendingPaymentsContent extends StatelessWidget {
   Future<void> _showCreateSheet(BuildContext context) async {
     final result = await CreatePendingPaymentSheet.show(
       context,
-      actor: currentUser,
+      actor: widget.currentUser,
     );
 
     if (!context.mounted || result == null) {
@@ -103,6 +161,64 @@ class _PendingPaymentsContent extends StatelessWidget {
     }
 
     showPendingPaymentCreateResult(context, result);
+  }
+
+  Future<void> _showPaymentEntrySheet(
+    BuildContext context,
+    PendingPayment payment,
+  ) async {
+    final result = await PaymentEntrySheet.show(
+      context,
+      actor: widget.currentUser,
+      payment: payment,
+    );
+
+    if (!context.mounted || result == null) {
+      return;
+    }
+
+    showPendingPaymentEntryResult(context, result);
+  }
+}
+
+class _PendingPaymentFilterBar extends StatelessWidget {
+  const _PendingPaymentFilterBar({
+    required this.selectedView,
+    required this.activeCount,
+    required this.completedCount,
+    required this.onSelected,
+  });
+
+  final _PendingPaymentsView selectedView;
+  final int activeCount;
+  final int completedCount;
+  final ValueChanged<_PendingPaymentsView> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.lg,
+        AppSpacing.lg,
+        AppSpacing.sm,
+      ),
+      child: Row(
+        children: [
+          ChoiceChip(
+            label: Text('Activos ($activeCount)'),
+            selected: selectedView == _PendingPaymentsView.active,
+            onSelected: (_) => onSelected(_PendingPaymentsView.active),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          ChoiceChip(
+            label: Text('Completados ($completedCount)'),
+            selected: selectedView == _PendingPaymentsView.completed,
+            onSelected: (_) => onSelected(_PendingPaymentsView.completed),
+          ),
+        ],
+      ),
+    );
   }
 }
 

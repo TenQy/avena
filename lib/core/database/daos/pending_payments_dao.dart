@@ -21,8 +21,15 @@ class PendingPaymentsDao extends DatabaseAccessor<AppDatabase>
     String pendingPaymentId,
   ) {
     return (select(pendingPaymentEntries)
-          ..where((entry) => entry.pendingPaymentId.equals(pendingPaymentId)))
+          ..where((entry) => entry.pendingPaymentId.equals(pendingPaymentId))
+          ..orderBy([(entry) => OrderingTerm.desc(entry.createdAt)]))
         .watch();
+  }
+
+  Future<PendingPayment?> getPendingPaymentById(String id) {
+    return (select(
+      pendingPayments,
+    )..where((payment) => payment.id.equals(id))).getSingleOrNull();
   }
 
   Future<void> insertPendingPayment(PendingPaymentsCompanion pendingPayment) {
@@ -31,5 +38,9 @@ class PendingPaymentsDao extends DatabaseAccessor<AppDatabase>
 
   Future<void> insertPendingPaymentEntry(PendingPaymentEntriesCompanion entry) {
     return into(pendingPaymentEntries).insert(entry);
+  }
+
+  Future<bool> updatePendingPayment(PendingPayment payment) {
+    return update(pendingPayments).replace(payment);
   }
 }

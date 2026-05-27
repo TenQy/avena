@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../../../core/constants/app_pending_payments.dart';
 import '../../../core/constants/app_products.dart';
 import '../../../core/constants/app_roles.dart';
 import '../../../core/constants/app_sales.dart';
@@ -11,7 +12,9 @@ enum SaleRegisterResult {
   success,
   unauthorized,
   emptySale,
+  emptyCustomerName,
   invalidPayment,
+  invalidPendingAmount,
   cashSessionNotFound,
   productNotFound,
   insufficientStock,
@@ -48,6 +51,22 @@ class SaleRegisterDraft {
   final List<SaleRegisterItem> items;
   final String paymentMethod;
   final Map<String, double> mixedPayments;
+}
+
+class PendingSaleInput {
+  const PendingSaleInput({
+    required this.customerName,
+    this.customerPhone,
+    this.description,
+    required this.initialPaidAmount,
+    required this.initialPaymentMethod,
+  });
+
+  final String customerName;
+  final String? customerPhone;
+  final String? description;
+  final double initialPaidAmount;
+  final String initialPaymentMethod;
 }
 
 class SalesRepository {
@@ -344,6 +363,285 @@ class SalesRepository {
 
       return SaleRegisterResult.success;
     });
+  }
+
+  Future<SaleRegisterResult> registerPendingSale({
+    required User actor,
+    required SaleRegisterDraft draft,
+    required PendingSaleInput pendingInput,
+  }) async {
+    if (!AppRoles.canAccessSales(actor.role)) {
+      return SaleRegisterResult.unauthorized;
+    }
+
+    if (draft.items.isEmpty) {
+      return SaleRegisterResult.emptySale;
+    }
+
+    final customerName = pendingInput.customerName.trim();
+    if (customerName.isEmpty) {
+      return SaleRegisterResult.emptyCustomerName;
+    }
+
+    final subtotal = _roundMoney(
+      draft.items.fold(0.0, (total, item) => total + item.subtotal),
+    );
+    final initialPaidAmount = _roundMoney(pendingInput.initialPaidAmount);
+    if (initialPaidAmount < 0 ||
+        initialPaidAmount >= subtotal ||
+        (initialPaidAmount > 0 &&
+            !AppPaymentMethods.mixable.contains(
+              pendingInput.initialPaymentMethod,
+            ))) {
+      return SaleRegisterResult.invalidPendingAmount;
+    }
+
+    return _database.transaction(() async {
+      final cashSession = await _database.cashDao.getOpenCashSession();
+      if (cashSession == null) {
+        return SaleRegisterResult.cashSessionNotFound;
+      }
+
+      final now = DateTime.now();
+      final saleId = IdGenerator.create();
+      final pendingPaymentId = IdGenerator.create();
+      final currentProducts = <String, Product>{};
+      final initialPayments = initialPaidAmount > 0
+          ? [
+              _SalePaymentDraft.fromBase(
+                pendingInput.initialPaymentMethod,
+                initialPaidAmount,
+              ),
+            ]
+          : <_SalePaymentDraft>[];
+      final commissionTotal = initialPayments.fold(
+        0.0,
+        (total, payment) => total + payment.commissionAmount,
+      );
+      final paidCharge = initialPayments.fold(
+        0.0,
+        (total, payment) => total + payment.totalCharged,
+      );
+      final pendingAmount = _roundMoney(subtotal - initialPaidAmount);
+
+      for (final item in draft.items) {
+        final currentProduct = await _database.inventoryDao.getProductById(
+          item.product.id,
+        );
+
+        if (currentProduct == null || currentProduct.isDeleted) {
+          return SaleRegisterResult.productNotFound;
+        }
+
+        if (currentProduct.trackStock &&
+            (currentProduct.stockQuantity ?? 0) + _centTolerance <
+                item.quantity) {
+          return SaleRegisterResult.insufficientStock;
+        }
+
+        currentProducts[item.product.id] = currentProduct;
+      }
+
+      final cashUpdated = await _database.cashDao.updateCashSession(
+        _applyPaymentsToCashSession(
+          session: cashSession,
+          payments: initialPayments,
+          commissionTotal: commissionTotal,
+        ),
+      );
+      if (!cashUpdated) {
+        return SaleRegisterResult.cashSessionNotFound;
+      }
+
+      for (final item in draft.items) {
+        final currentProduct = currentProducts[item.product.id]!;
+        if (!currentProduct.trackStock) {
+          continue;
+        }
+
+        await _database.inventoryDao.updateProduct(
+          currentProduct.copyWith(
+            stockQuantity: Value(
+              _roundQuantity(
+                (currentProduct.stockQuantity ?? 0) - item.quantity,
+              ),
+            ),
+            updatedAt: now,
+            syncStatus: _pendingSync,
+          ),
+        );
+      }
+
+      await _database.salesDao.insertSale(
+        SalesCompanion.insert(
+          id: saleId,
+          cashSessionId: cashSession.id,
+          userId: actor.id,
+          userNameSnapshot: actor.username,
+          userRoleSnapshot: actor.role,
+          subtotal: subtotal,
+          commissionTotal: Value(_roundMoney(commissionTotal)),
+          total: _roundMoney(subtotal + commissionTotal),
+          paidAmount: Value(_roundMoney(paidCharge)),
+          pendingAmount: Value(pendingAmount),
+          paymentStatus: initialPaidAmount > 0
+              ? AppPaymentStatuses.partial
+              : AppPaymentStatuses.pending,
+          saleStatus: AppSaleStatuses.completed,
+          createdAt: now,
+          syncStatus: _pendingSync,
+        ),
+      );
+
+      for (final item in draft.items) {
+        final product = item.product;
+        await _database.salesDao.insertSaleItem(
+          SaleItemsCompanion.insert(
+            id: IdGenerator.create(),
+            saleId: saleId,
+            productId: product.id,
+            productNameSnapshot: product.name,
+            productBrandSnapshot: Value(product.brand),
+            productTypeSnapshot: product.productType,
+            priceUnitSnapshot: product.priceUnit,
+            unitPriceSnapshot: product.price,
+            quantity: item.quantity,
+            quantityUnit: product.productType == AppProductTypes.bulk
+                ? AppProductPriceUnits.kilogram
+                : AppProductPriceUnits.unit,
+            subtotal: item.subtotal,
+          ),
+        );
+      }
+
+      for (final payment in initialPayments) {
+        await _database.salesDao.insertSalePayment(
+          SalePaymentsCompanion.insert(
+            id: IdGenerator.create(),
+            saleId: saleId,
+            paymentMethod: payment.method,
+            baseAmount: payment.baseAmount,
+            commissionRate: Value(payment.commissionRate),
+            commissionAmount: Value(payment.commissionAmount),
+            totalCharged: payment.totalCharged,
+            createdAt: now,
+            syncStatus: _pendingSync,
+          ),
+        );
+      }
+
+      final customerPhone = pendingInput.customerPhone?.trim();
+      await _database.pendingPaymentsDao.insertPendingPayment(
+        PendingPaymentsCompanion.insert(
+          id: pendingPaymentId,
+          saleId: Value(saleId),
+          customerName: customerName,
+          customerPhone: Value(
+            customerPhone == null || customerPhone.isEmpty
+                ? null
+                : customerPhone,
+          ),
+          description: Value(_pendingSaleDescription(draft, pendingInput)),
+          totalAmount: subtotal,
+          paidAmount: Value(initialPaidAmount),
+          remainingAmount: pendingAmount,
+          status: initialPaidAmount > 0
+              ? AppPendingPaymentStatuses.partial
+              : AppPendingPaymentStatuses.pending,
+          createdByUserId: actor.id,
+          createdAt: now,
+          syncStatus: _pendingSync,
+        ),
+      );
+
+      if (initialPaidAmount > 0) {
+        await _database.pendingPaymentsDao.insertPendingPaymentEntry(
+          PendingPaymentEntriesCompanion.insert(
+            id: IdGenerator.create(),
+            pendingPaymentId: pendingPaymentId,
+            createdByUserId: actor.id,
+            amount: initialPaidAmount,
+            paymentMethod: pendingInput.initialPaymentMethod,
+            createdAt: now,
+            note: const Value('Abono al registrar la venta'),
+            syncStatus: _pendingSync,
+          ),
+        );
+
+        await _database.activityLogsDao.insertActivityLog(
+          ActivityLogsCompanion.insert(
+            id: IdGenerator.create(),
+            userId: Value(actor.id),
+            userNameSnapshot: actor.username,
+            userRoleSnapshot: actor.role,
+            action: AppPendingPaymentLogActions.createPaymentEntry,
+            entityType: AppPendingPaymentLogEntities.pendingPayment,
+            entityId: Value(pendingPaymentId),
+            description: Value(
+              'Abono inicial para $customerName por '
+              '\$${paidCharge.toStringAsFixed(2)} '
+              '(saldo cubierto: \$${initialPaidAmount.toStringAsFixed(2)})',
+            ),
+            createdAt: now,
+            syncStatus: _pendingSync,
+          ),
+        );
+      }
+
+      await _database.activityLogsDao.insertActivityLog(
+        ActivityLogsCompanion.insert(
+          id: IdGenerator.create(),
+          userId: Value(actor.id),
+          userNameSnapshot: actor.username,
+          userRoleSnapshot: actor.role,
+          action: AppActivityLogActions.createSale,
+          entityType: AppActivityLogEntities.sale,
+          entityId: Value(saleId),
+          description: Value(
+            'Venta con pago pendiente registrada por '
+            '\$${subtotal.toStringAsFixed(2)}',
+          ),
+          createdAt: now,
+          syncStatus: _pendingSync,
+        ),
+      );
+
+      await _database.activityLogsDao.insertActivityLog(
+        ActivityLogsCompanion.insert(
+          id: IdGenerator.create(),
+          userId: Value(actor.id),
+          userNameSnapshot: actor.username,
+          userRoleSnapshot: actor.role,
+          action: AppPendingPaymentLogActions.createPendingPayment,
+          entityType: AppPendingPaymentLogEntities.pendingPayment,
+          entityId: Value(pendingPaymentId),
+          description: Value(
+            'Pago pendiente creado desde venta para $customerName por '
+            '\$${pendingAmount.toStringAsFixed(2)}',
+          ),
+          createdAt: now,
+          syncStatus: _pendingSync,
+        ),
+      );
+
+      return SaleRegisterResult.success;
+    });
+  }
+
+  String _pendingSaleDescription(
+    SaleRegisterDraft draft,
+    PendingSaleInput pendingInput,
+  ) {
+    final customDescription = pendingInput.description?.trim();
+    final products = draft.items
+        .map((item) => '${item.product.name} x${item.quantity}')
+        .join(', ');
+
+    if (customDescription == null || customDescription.isEmpty) {
+      return 'Productos: $products';
+    }
+
+    return '$customDescription\nProductos: $products';
   }
 
   bool _isValidPaymentDraft(SaleRegisterDraft draft) {

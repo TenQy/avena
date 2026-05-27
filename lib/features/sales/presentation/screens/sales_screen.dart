@@ -16,6 +16,7 @@ import '../../providers/sales_provider.dart';
 import '../models/sale_draft_item.dart';
 import '../utils/sale_messages.dart';
 import '../widgets/bulk_sale_item_sheet.dart';
+import '../widgets/pending_sale_sheet.dart';
 import '../widgets/sale_items_card.dart';
 import '../widgets/sale_payment_methods_card.dart';
 import '../widgets/sale_product_search_card.dart';
@@ -105,8 +106,10 @@ class _SalesScreenState extends ConsumerState<SalesScreen> {
               showCashPayment:
                   currentSale.paymentMethod == AppPaymentMethods.cash,
               canRegister: currentSale.canRegister,
+              canRegisterPending: currentSale.items.isNotEmpty,
               isRegistering: _isRegistering,
               onRegister: _registerSale,
+              onRegisterPending: _registerPendingSale,
             ),
           ],
         ),
@@ -198,6 +201,50 @@ class _SalesScreenState extends ConsumerState<SalesScreen> {
     setState(() {
       _isRegistering = false;
     });
+
+    if (result == SaleRegisterResult.success) {
+      ref.read(currentSaleProvider.notifier).reset();
+      _searchController.clear();
+    }
+
+    showSaleRegisterResult(context, result);
+  }
+
+  Future<void> _registerPendingSale() async {
+    if (_isRegistering) {
+      return;
+    }
+
+    final currentUser = ref.read(currentUserProvider).valueOrNull;
+    if (currentUser == null) {
+      showSaleRegisterResult(context, SaleRegisterResult.unauthorized);
+      return;
+    }
+
+    final currentSale = ref.read(currentSaleProvider);
+    final draft = SaleRegisterDraft(
+      items: [
+        for (final item in currentSale.items)
+          SaleRegisterItem(
+            product: item.product,
+            quantity: item.quantity,
+            subtotal: item.subtotal,
+          ),
+      ],
+      paymentMethod: currentSale.paymentMethod,
+      mixedPayments: currentSale.mixedPayments,
+    );
+
+    final result = await PendingSaleSheet.show(
+      context,
+      actor: currentUser,
+      draft: draft,
+      subtotal: currentSale.subtotal,
+    );
+
+    if (!mounted || result == null) {
+      return;
+    }
 
     if (result == SaleRegisterResult.success) {
       ref.read(currentSaleProvider.notifier).reset();

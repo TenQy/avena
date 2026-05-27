@@ -94,7 +94,7 @@ class SalesHistoryCard extends ConsumerWidget {
               const SizedBox(height: AppSpacing.sm),
               paymentsState.when(
                 data: (payments) => Text(
-                  'Pago: ${payments.map((payment) => paymentMethodLabel(payment.paymentMethod)).join(' + ')}',
+                  'Pago: ${payments.isEmpty ? 'Pendiente' : payments.map((payment) => paymentMethodLabel(payment.paymentMethod)).join(' + ')}',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -103,6 +103,16 @@ class SalesHistoryCard extends ConsumerWidget {
                 error: (_, _) =>
                     const _InlineUnavailable(message: 'Pago no disponible.'),
               ),
+              if (sale.pendingAmount > 0) ...[
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  'Pendiente: ${_money(sale.pendingAmount)}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
               if (sale.saleStatus == AppSaleStatuses.cancelled &&
                   sale.cancelReason != null) ...[
                 const SizedBox(height: AppSpacing.md),

@@ -10,6 +10,7 @@ class AppPendingPaymentLogActions {
   const AppPendingPaymentLogActions._();
 
   static const createPendingPayment = 'create_pending_payment';
+  static const createPaymentEntry = 'create_payment_entry';
 }
 
 class AppPendingPaymentLogEntities {

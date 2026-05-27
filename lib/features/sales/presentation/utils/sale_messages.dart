@@ -9,7 +9,10 @@ void showSaleRegisterResult(BuildContext context, SaleRegisterResult result) {
     SaleRegisterResult.unauthorized =>
       'No tienes permisos para registrar ventas.',
     SaleRegisterResult.emptySale => 'Agrega al menos un producto.',
+    SaleRegisterResult.emptyCustomerName => 'Ingresa el nombre del cliente.',
     SaleRegisterResult.invalidPayment => 'Revisa los montos del pago.',
+    SaleRegisterResult.invalidPendingAmount =>
+      'El abono debe ser menor al total pendiente.',
     SaleRegisterResult.cashSessionNotFound => 'No hay una caja abierta.',
     SaleRegisterResult.productNotFound => 'Un producto ya no esta disponible.',
     SaleRegisterResult.insufficientStock => 'Stock insuficiente para la venta.',

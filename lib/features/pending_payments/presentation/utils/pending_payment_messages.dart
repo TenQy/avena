@@ -19,3 +19,25 @@ void showPendingPaymentCreateResult(
 
   showAppSnackBar(context, message);
 }
+
+void showPendingPaymentEntryResult(
+  BuildContext context,
+  PendingPaymentEntryResult result,
+) {
+  final message = switch (result) {
+    PendingPaymentEntryResult.success => 'Abono registrado.',
+    PendingPaymentEntryResult.unauthorized =>
+      'No tienes permisos para registrar abonos.',
+    PendingPaymentEntryResult.paymentNotFound =>
+      'El pago pendiente ya no esta disponible.',
+    PendingPaymentEntryResult.alreadyCompleted =>
+      'Este pago ya fue completado.',
+    PendingPaymentEntryResult.invalidAmount => 'Ingresa un monto valido.',
+    PendingPaymentEntryResult.exceedsRemainingAmount =>
+      'El abono supera el monto pendiente.',
+    PendingPaymentEntryResult.invalidPaymentMethod =>
+      'Selecciona un metodo de pago valido.',
+  };
+
+  showAppSnackBar(context, message);
+}

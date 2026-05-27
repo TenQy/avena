@@ -11,16 +11,20 @@ class SaleTotalCard extends StatefulWidget {
     required this.commission,
     required this.showCashPayment,
     required this.canRegister,
+    required this.canRegisterPending,
     required this.isRegistering,
     required this.onRegister,
+    required this.onRegisterPending,
   });
 
   final double subtotal;
   final double commission;
   final bool showCashPayment;
   final bool canRegister;
+  final bool canRegisterPending;
   final bool isRegistering;
   final VoidCallback onRegister;
+  final VoidCallback onRegisterPending;
 
   double get total => subtotal + commission;
 
@@ -110,6 +114,16 @@ class _SaleTotalCardState extends State<SaleTotalCard> {
                       label: 'Registrar venta',
                       icon: Icons.point_of_sale_rounded,
                     ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            OutlinedButton(
+              onPressed: widget.canRegisterPending && !widget.isRegistering
+                  ? widget.onRegisterPending
+                  : null,
+              child: const _ButtonContent(
+                label: 'Dejar pago pendiente',
+                icon: Icons.receipt_long_outlined,
+              ),
             ),
           ],
         ),

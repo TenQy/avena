@@ -13,3 +13,10 @@ final pendingPaymentsRepositoryProvider = Provider<PendingPaymentsRepository>((
 final pendingPaymentsProvider = StreamProvider<List<PendingPayment>>((ref) {
   return ref.watch(pendingPaymentsRepositoryProvider).watchPendingPayments();
 });
+
+final pendingPaymentEntriesProvider = StreamProvider.autoDispose
+    .family<List<PendingPaymentEntry>, String>((ref, pendingPaymentId) {
+      return ref
+          .watch(pendingPaymentsRepositoryProvider)
+          .watchEntriesByPendingPayment(pendingPaymentId);
+    });
