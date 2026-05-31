@@ -381,34 +381,83 @@ El admin puede calcular precios de productos nuevos sin afectar inventario.
 
 ## Objetivo
 
-Mostrar estadísticas útiles del día y la semana.
+Mostrar estadísticas útiles y fáciles de interpretar para ayudar en la toma de decisiones del negocio.
 
 ## Tareas
 
-- Crear dashboard diario.
-- Mostrar dinero actual en caja física.
-- Mostrar ingresos por método de pago.
-- Mostrar producto que generó más ingresos del día.
-- Mostrar producto más vendido del día.
-- Crear dashboard semanal.
-- Mostrar ingresos por día.
-- Mostrar comparación con semana anterior.
-- Mostrar producto con más ingresos.
+### Dashboard diario
+
+- Mostrar ventas realizadas.
+- Mostrar ingresos totales del día.
+- Mostrar ticket promedio.
+- Mostrar caja física actual.
+- Mostrar producto que generó más ingresos.
+- Mostrar producto más vendido.
+- Mostrar comparación de ingresos contra el día anterior.
+- Mostrar comparación de ventas contra el día anterior.
+- Mostrar comparación de ticket promedio contra el día anterior.
+
+### Dashboard semanal
+
+- Mostrar ingresos totales de la semana.
+- Mostrar cantidad total de ventas.
+- Mostrar ticket promedio semanal.
+- Mostrar ingresos por día de la semana.
+- Mostrar producto que generó más ingresos.
 - Mostrar producto más vendido por cantidad.
 - Mostrar producto más vendido por número de ventas.
-- Agregar gráficos simples.
+- Mostrar mejor día de la semana.
+- Mostrar peor día de la semana.
+- Mostrar comparación con la semana anterior.
+- Mostrar productos sin ventas durante la semana.
+
+### Dashboard mensual
+
+- Mostrar ingresos totales del mes.
+- Mostrar cantidad total de ventas.
+- Mostrar ticket promedio mensual.
+- Mostrar producto que generó más ingresos.
+- Mostrar producto más vendido.
+- Mostrar mejor semana del mes.
+- Mostrar peor semana del mes.
+- Mostrar comparación con el mes anterior.
+- Mostrar productos sin movimiento durante el mes.
+
+### Visualización
+
+- Implementar selector de vista:
+  - Día
+  - Semana
+  - Mes
+- Agregar gráfica de barras para ingresos semanales.
+- Agregar gráfica de dona para distribución de métodos de pago.
+- Agregar gráfica de líneas para evolución mensual de ingresos.
+- Mostrar indicadores visuales de crecimiento o disminución.
+
+### Cálculos
+
 - Recalcular métricas desde datos locales.
+- Excluir ventas canceladas.
+- Calcular estadísticas utilizando información histórica.
+- Calcular métricas por método de pago.
 
 ## Entregables
 
-- Dashboard funcional.
-- Métricas diarias.
-- Métricas semanales.
-- Gráficos básicos.
+- Dashboard diario funcional.
+- Dashboard semanal funcional.
+- Dashboard mensual funcional.
+- Gráficas básicas.
+- Métricas calculadas localmente.
 
 ## Estado esperado
 
-El admin puede revisar el estado del negocio rápidamente.
+El administrador puede conocer rápidamente:
+
+- cuánto vendió
+- cómo va el negocio respecto a periodos anteriores
+- qué productos generan más ingresos
+- qué productos tienen poco movimiento
+- cuáles son las tendencias de venta
 
 ---
 

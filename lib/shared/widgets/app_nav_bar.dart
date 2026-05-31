@@ -8,12 +8,14 @@ class AppNavBar extends StatelessWidget {
     required this.currentIndex,
     required this.onItemSelected,
     this.hasActiveItem = true,
+    this.showDashboard = true,
     this.showCash = true,
   });
 
   final int currentIndex;
   final ValueChanged<int> onItemSelected;
   final bool hasActiveItem;
+  final bool showDashboard;
   final bool showCash;
 
   @override
@@ -29,10 +31,11 @@ class AppNavBar extends StatelessWidget {
         fontWeight: hasActiveItem ? FontWeight.w600 : FontWeight.normal,
       ),
       items: [
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.dashboard_rounded),
-          label: 'Dashboard',
-        ),
+        if (showDashboard)
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard_rounded),
+            label: 'Dashboard',
+          ),
         const BottomNavigationBarItem(
           icon: Icon(Icons.point_of_sale_rounded),
           label: 'Ventas',

@@ -88,36 +88,120 @@ No puede:
 
 # Dashboard
 
-La pantalla se divide en estadísticas diarias y semanales.
+La pantalla se divide en tres vistas principales:
+
+- Día
+- Semana
+- Mes
+
+El objetivo del dashboard es mostrar información rápida y útil para la toma de decisiones.
+
+---
 
 ## Vista diaria
 
-Muestra información desde la apertura de caja actual:
+Muestra información desde la apertura de caja actual.
 
-- dinero actual en caja física
-- ingresos por efectivo
-- ingresos por transferencia
-- ingresos por terminal
-- ingresos por bonos
-- producto que generó más ingresos
-- producto más vendido
+### Resumen rápido
+
+- Ventas realizadas
+- Ingresos totales
+- Ticket promedio
+- Caja fisica actual
+
+### Productos
+
+- Producto que generó más ingresos
+- Producto más vendido
+
+### Comparación
+
+- Comparación de ingresos contra el día anterior
+- Comparación de ventas contra el día anterior
+- Comparación de ticket promedio contra el día anterior
+
+---
 
 ## Vista semanal
 
-Muestra:
+Muestra información acumulada de la semana actual.
 
-- ingresos totales de la semana
-- ingresos por día de la semana
-- producto que generó más ingresos
-- producto más vendido por cantidad
-- producto más vendido por número de ventas
-- comparación con la semana anterior
-- cantidad total de ventas por semana
+### Resumen general
+
+- Ingresos totales de la semana
+- Cantidad total de ventas
+- Ticket promedio semanal
+
+### Productos
+
+- Producto que generó más ingresos
+- Producto más vendido por cantidad
+- Producto más vendido por número de ventas
+
+### Rendimiento
+
+- Mejor día de la semana
+- Peor día de la semana
+- Comparación con la semana anterior
+
+### Inventario
+
+- Productos sin ventas durante la semana
+
+---
+
+## Vista mensual
+
+Muestra información acumulada del mes actual.
+
+### Resumen general
+
+- Ingresos totales del mes
+- Cantidad total de ventas
+- Ticket promedio mensual
+
+### Productos
+
+- Producto que generó más ingresos
+- Producto más vendido
+
+### Rendimiento
+
+- Comparación con el mes anterior
+- Mejor semana del mes
+- Peor semana del mes
+
+### Inventario
+
+- Productos sin movimiento durante el mes
+
+---
 
 ## Visualización
 
-- Las estadísticas semanales utilizarán gráficos de barras y pastel.
-- Los cálculos se recalcularán dinámicamente utilizando la información almacenada.
+### Vista diaria
+
+- Cards de resumen rápido
+- Indicadores de crecimiento o disminución respecto al día anterior
+
+### Vista semanal
+
+- Gráfica de barras para ingresos por día
+- Gráfica de dona para métodos de pago
+
+### Vista mensual
+
+- Gráfica de líneas para evolución de ingresos
+- Gráfica de barras para comparación entre semanas
+
+---
+
+## Reglas
+
+- Los cálculos se generan dinámicamente utilizando la información almacenada.
+- Las ventas canceladas no deben considerarse en estadísticas.
+- Las comisiones deben reflejarse correctamente en los ingresos mostrados.
+- Las estadísticas deben poder recalcularse en cualquier momento a partir de los datos históricos.
 
 ---
 

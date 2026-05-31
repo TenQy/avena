@@ -66,26 +66,49 @@ class _MainShellState extends ConsumerState<MainShell> {
     setState(() {});
   }
 
-  int _currentNavIndex({required bool canManageCash}) {
-    return switch (_selectedModule) {
-      MainModule.dashboard => 0,
-      MainModule.sales => 1,
-      MainModule.inventory => 2,
-      MainModule.cash => canManageCash ? 3 : 0,
-      _ => 0,
+  List<MainModule> _primaryModulesForRole(String? role) {
+    if (role != null && AppRoles.isAdminRole(role)) {
+      return const [
+        MainModule.dashboard,
+        MainModule.sales,
+        MainModule.inventory,
+        MainModule.cash,
+      ];
+    }
+
+    return const [MainModule.sales, MainModule.inventory];
+  }
+
+  bool _canAccessModule(String? role, MainModule module) {
+    if (role == null) {
+      return false;
+    }
+
+    return switch (module) {
+      MainModule.dashboard => AppRoles.isAdminRole(role),
+      MainModule.sales => AppRoles.canAccessSales(role),
+      MainModule.inventory => AppRoles.canReadInventory(role),
+      MainModule.cash => AppRoles.canManageCash(role),
+      MainModule.salesHistory => AppRoles.canAccessSales(role),
+      MainModule.users => AppRoles.canManageUsers(role),
+      MainModule.pendingPayments => AppRoles.canAccessPendingPayments(role),
+      MainModule.calculator => AppRoles.isAdminRole(role),
+      MainModule.logs => AppRoles.canViewLogs(role),
+      MainModule.settings => AppRoles.canModifySettings(role),
     };
   }
 
-  bool _hasActiveNavItem({required bool canManageCash}) {
-    return switch (_selectedModule) {
-      MainModule.dashboard || MainModule.sales || MainModule.inventory => true,
-      MainModule.cash => canManageCash,
-      _ => false,
-    };
+  MainModule _defaultModuleForRole(String? role) {
+    return _primaryModulesForRole(role).first;
   }
 
-  String get _title {
-    return switch (_selectedModule) {
+  int _currentNavIndex(List<MainModule> primaryModules) {
+    final index = primaryModules.indexOf(_selectedModule);
+    return index < 0 ? 0 : index;
+  }
+
+  String _titleFor(MainModule module) {
+    return switch (module) {
       MainModule.dashboard => 'Dashboard',
       MainModule.sales => 'Ventas',
       MainModule.inventory => _inventoryController.title,
@@ -99,8 +122,8 @@ class _MainShellState extends ConsumerState<MainShell> {
     };
   }
 
-  Widget get _screen {
-    return switch (_selectedModule) {
+  Widget _screenFor(MainModule module) {
+    return switch (module) {
       MainModule.dashboard => const DashboardScreen(),
       MainModule.sales => const SalesScreen(),
       MainModule.inventory => InventoryScreen(controller: _inventoryController),
@@ -114,18 +137,22 @@ class _MainShellState extends ConsumerState<MainShell> {
     };
   }
 
-  void _onNavSelected(int index, {required bool canManageCash}) {
+  void _onNavSelected(int index, List<MainModule> primaryModules) {
+    if (index < 0 || index >= primaryModules.length) {
+      return;
+    }
+
     setState(() {
-      _selectedModule = switch (index) {
-        0 => MainModule.dashboard,
-        1 => MainModule.sales,
-        2 => MainModule.inventory,
-        _ => canManageCash ? MainModule.cash : MainModule.dashboard,
-      };
+      _selectedModule = primaryModules[index];
     });
   }
 
-  void _selectOtherModule(MainModule module) {
+  void _selectOtherModule(MainModule module, String? role) {
+    if (!_canAccessModule(role, module)) {
+      Navigator.of(context).pop();
+      return;
+    }
+
     Navigator.of(context).pop();
     setState(() {
       _selectedModule = module;
@@ -154,6 +181,23 @@ class _MainShellState extends ConsumerState<MainShell> {
     final drawerWidth = MediaQuery.sizeOf(context).width * 0.84;
     final currentUser = ref.watch(currentUserProvider).valueOrNull;
     final currentRole = currentUser?.role;
+    final primaryModules = _primaryModulesForRole(currentRole);
+    final effectiveModule = _canAccessModule(currentRole, _selectedModule)
+        ? _selectedModule
+        : _defaultModuleForRole(currentRole);
+
+    if (effectiveModule != _selectedModule) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) {
+          return;
+        }
+
+        setState(() {
+          _selectedModule = effectiveModule;
+        });
+      });
+    }
+
     final canManageUsers =
         currentRole != null && AppRoles.canManageUsers(currentRole);
     final canViewLogs =
@@ -166,9 +210,9 @@ class _MainShellState extends ConsumerState<MainShell> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppHeader(
-        title: _title,
+        title: _titleFor(effectiveModule),
         leading:
-            _selectedModule == MainModule.inventory &&
+            effectiveModule == MainModule.inventory &&
                 _inventoryController.canGoBack
             ? IconButton(
                 tooltip: 'Volver a categorías',
@@ -235,44 +279,54 @@ class _MainShellState extends ConsumerState<MainShell> {
                 _OtherModuleTile(
                   icon: Icons.receipt_long_rounded,
                   label: 'Historial de ventas',
-                  selected: _selectedModule == MainModule.salesHistory,
-                  onTap: () => _selectOtherModule(MainModule.salesHistory),
+                  selected: effectiveModule == MainModule.salesHistory,
+                  onTap: () =>
+                      _selectOtherModule(MainModule.salesHistory, currentRole),
                 ),
                 if (canManageUsers)
                   _OtherModuleTile(
                     icon: Icons.group_rounded,
                     label: 'Usuarios',
-                    selected: _selectedModule == MainModule.users,
-                    onTap: () => _selectOtherModule(MainModule.users),
+                    selected: effectiveModule == MainModule.users,
+                    onTap: () =>
+                        _selectOtherModule(MainModule.users, currentRole),
                   ),
                 _OtherModuleTile(
                   icon: Icons.receipt_long_rounded,
                   label: 'Pagos pendientes',
-                  selected: _selectedModule == MainModule.pendingPayments,
-                  onTap: () => _selectOtherModule(MainModule.pendingPayments),
+                  selected: effectiveModule == MainModule.pendingPayments,
+                  onTap: () => _selectOtherModule(
+                    MainModule.pendingPayments,
+                    currentRole,
+                  ),
                 ),
                 if (canUseCalculator)
                   _OtherModuleTile(
                     icon: Icons.calculate_rounded,
                     label: 'Calculadora',
-                    selected: _selectedModule == MainModule.calculator,
-                    onTap: () => _selectOtherModule(MainModule.calculator),
+                    selected: effectiveModule == MainModule.calculator,
+                    onTap: () =>
+                        _selectOtherModule(MainModule.calculator, currentRole),
                   ),
                 if (canViewLogs)
                   _OtherModuleTile(
                     icon: Icons.history_rounded,
                     label: 'Logs',
-                    selected: _selectedModule == MainModule.logs,
-                    onTap: () => _selectOtherModule(MainModule.logs),
+                    selected: effectiveModule == MainModule.logs,
+                    onTap: () =>
+                        _selectOtherModule(MainModule.logs, currentRole),
                   ),
                 const Spacer(),
                 const _DrawerSeparator(),
-                _OtherModuleTile(
-                  icon: Icons.settings_rounded,
-                  label: 'Configuración',
-                  selected: _selectedModule == MainModule.settings,
-                  onTap: () => _selectOtherModule(MainModule.settings),
-                ),
+                if (currentRole != null &&
+                    AppRoles.canModifySettings(currentRole))
+                  _OtherModuleTile(
+                    icon: Icons.settings_rounded,
+                    label: 'Configuración',
+                    selected: effectiveModule == MainModule.settings,
+                    onTap: () =>
+                        _selectOtherModule(MainModule.settings, currentRole),
+                  ),
                 _DrawerActionTile(
                   icon: Icons.logout_rounded,
                   label: 'Cerrar sesión',
@@ -283,13 +337,13 @@ class _MainShellState extends ConsumerState<MainShell> {
           ),
         ),
       ),
-      body: _screen,
+      body: _screenFor(effectiveModule),
       bottomNavigationBar: AppNavBar(
-        currentIndex: _currentNavIndex(canManageCash: canManageCash),
-        hasActiveItem: _hasActiveNavItem(canManageCash: canManageCash),
+        currentIndex: _currentNavIndex(primaryModules),
+        hasActiveItem: primaryModules.contains(effectiveModule),
+        showDashboard: primaryModules.contains(MainModule.dashboard),
         showCash: canManageCash,
-        onItemSelected: (index) =>
-            _onNavSelected(index, canManageCash: canManageCash),
+        onItemSelected: (index) => _onNavSelected(index, primaryModules),
       ),
     );
   }
