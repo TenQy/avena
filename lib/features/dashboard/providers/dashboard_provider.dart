@@ -20,3 +20,7 @@ final dailyDashboardProvider = StreamProvider<DailyDashboardSummary>((ref) {
 final weeklyDashboardProvider = StreamProvider<WeeklyDashboardSummary>((ref) {
   return ref.watch(dashboardRepositoryProvider).watchWeeklySummary();
 });
+
+final monthlyDashboardProvider = StreamProvider<MonthlyDashboardSummary>((ref) {
+  return ref.watch(dashboardRepositoryProvider).watchMonthlySummary();
+});

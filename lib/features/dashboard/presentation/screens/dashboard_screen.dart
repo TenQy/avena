@@ -6,9 +6,10 @@ import '../../../../shared/widgets/empty_state.dart';
 import '../../data/dashboard_models.dart';
 import '../../providers/dashboard_provider.dart';
 import '../widgets/dashboard_daily_section.dart';
+import '../widgets/dashboard_monthly_section.dart';
 import '../widgets/dashboard_weekly_section.dart';
 
-enum _DashboardView { day, week }
+enum _DashboardView { day, week, month }
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -25,6 +26,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final summaryState = switch (_selectedView) {
       _DashboardView.day => ref.watch(dailyDashboardProvider),
       _DashboardView.week => ref.watch(weeklyDashboardProvider),
+      _DashboardView.month => ref.watch(monthlyDashboardProvider),
     };
 
     return summaryState.when(
@@ -73,7 +75,9 @@ class _DashboardContent extends StatelessWidget {
         Text(
           selectedView == _DashboardView.day
               ? 'Resumen del dia'
-              : 'Resumen de la semana',
+              : selectedView == _DashboardView.week
+              ? 'Resumen de la semana'
+              : 'Resumen del mes',
           style: textTheme.bodySmall,
         ),
         const SizedBox(height: AppSpacing.md),
@@ -93,13 +97,21 @@ class _DashboardContent extends StatelessWidget {
               showCheckmark: false,
               onSelected: (_) => onViewSelected(_DashboardView.week),
             ),
+            ChoiceChip(
+              label: const Text('Mes'),
+              selected: selectedView == _DashboardView.month,
+              showCheckmark: false,
+              onSelected: (_) => onViewSelected(_DashboardView.month),
+            ),
           ],
         ),
         const SizedBox(height: AppSpacing.lg),
         if (summary is DailyDashboardSummary)
           DashboardDailySection(summary: summary as DailyDashboardSummary)
+        else if (summary is WeeklyDashboardSummary)
+          DashboardWeeklySection(summary: summary as WeeklyDashboardSummary)
         else
-          DashboardWeeklySection(summary: summary as WeeklyDashboardSummary),
+          DashboardMonthlySection(summary: summary as MonthlyDashboardSummary),
       ],
     );
   }

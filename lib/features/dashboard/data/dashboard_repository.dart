@@ -150,4 +150,78 @@ class DashboardRepository {
           );
         });
   }
+
+  Stream<MonthlyDashboardSummary> watchMonthlySummary() {
+    final now = DateTime.now();
+    final monthStart = _calculator.startOfMonth(now);
+    final nextMonthStart = _calculator.startOfNextMonth(monthStart);
+    final previousMonthStart = monthStart.month == 1
+        ? DateTime(monthStart.year - 1, 12)
+        : DateTime(monthStart.year, monthStart.month - 1);
+
+    return _database.salesDao
+        .watchSalesBetween(monthStart, nextMonthStart)
+        .asyncMap((sales) async {
+          final previousSales = await _database.salesDao
+              .watchSalesBetween(previousMonthStart, monthStart)
+              .first;
+          final currentCompleted = _calculator.completedSales(sales);
+          final previousCompleted = _calculator.completedSales(previousSales);
+          final productMetrics = await _calculator.productMetrics(
+            _database,
+            currentCompleted,
+          );
+          final allProducts = await _database.inventoryDao
+              .watchProducts()
+              .first;
+          final totalIncome = _calculator.salesTotal(currentCompleted);
+          final previousIncome = _calculator.salesTotal(previousCompleted);
+          final averageTicket = _calculator.averageTicket(currentCompleted);
+          final previousAverageTicket = _calculator.averageTicket(
+            previousCompleted,
+          );
+          final monthlyPerformance = _calculator.monthlyPerformance(
+            currentCompleted,
+            monthStart,
+            nextMonthStart,
+          );
+          final soldProductIds = await _calculator.soldProductIds(
+            _database,
+            currentCompleted,
+          );
+
+          return MonthlyDashboardSummary(
+            periodStart: monthStart,
+            periodEnd: nextMonthStart.subtract(const Duration(days: 1)),
+            salesCount: currentCompleted.length,
+            totalIncome: totalIncome,
+            averageTicket: averageTicket,
+            bestWeek: _calculator.bestPeriod(monthlyPerformance),
+            worstWeek: _calculator.worstPeriod(monthlyPerformance),
+            incomeComparison: DashboardComparison(
+              current: totalIncome,
+              previous: previousIncome,
+            ),
+            salesComparison: DashboardComparison(
+              current: currentCompleted.length.toDouble(),
+              previous: previousCompleted.length.toDouble(),
+            ),
+            ticketComparison: DashboardComparison(
+              current: averageTicket,
+              previous: previousAverageTicket,
+            ),
+            topRevenueProducts: _calculator.topProductsByIncome(productMetrics),
+            topQuantityProducts: _calculator.topProductsByQuantity(
+              productMetrics,
+            ),
+            monthlyIncome: monthlyPerformance,
+            productsWithoutMovement: _calculator.productsWithoutSales(
+              allProducts: allProducts,
+              soldProductIds: soldProductIds,
+            ),
+            topRevenueProduct: _calculator.topByIncome(productMetrics),
+            topQuantityProduct: _calculator.topByQuantity(productMetrics),
+          );
+        });
+  }
 }

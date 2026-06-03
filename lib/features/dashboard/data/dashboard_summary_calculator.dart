@@ -11,6 +11,16 @@ class DashboardSummaryCalculator {
     return date.subtract(Duration(days: date.weekday - DateTime.monday));
   }
 
+  DateTime startOfMonth(DateTime value) {
+    return DateTime(value.year, value.month);
+  }
+
+  DateTime startOfNextMonth(DateTime value) {
+    return value.month == 12
+        ? DateTime(value.year + 1, 1)
+        : DateTime(value.year, value.month + 1);
+  }
+
   List<Sale> completedSales(List<Sale> sales) {
     return sales
         .where((sale) => sale.saleStatus != AppSaleStatuses.cancelled)
@@ -208,6 +218,52 @@ class DashboardSummaryCalculator {
         .toList(growable: false);
   }
 
+  List<DashboardPeriodPerformance> monthlyPerformance(
+    List<Sale> sales,
+    DateTime monthStart,
+    DateTime nextMonthStart,
+  ) {
+    final ranges = <_MonthRange>[
+      _MonthRange(
+        label: 'Semana 1',
+        start: monthStart,
+        end: monthStart.add(const Duration(days: 7)),
+      ),
+      _MonthRange(
+        label: 'Semana 2',
+        start: monthStart.add(const Duration(days: 7)),
+        end: monthStart.add(const Duration(days: 14)),
+      ),
+      _MonthRange(
+        label: 'Semana 3',
+        start: monthStart.add(const Duration(days: 14)),
+        end: monthStart.add(const Duration(days: 21)),
+      ),
+      _MonthRange(
+        label: 'Semana 4',
+        start: monthStart.add(const Duration(days: 21)),
+        end: nextMonthStart,
+      ),
+    ];
+
+    return ranges
+        .map((range) {
+          final rangeSales = sales
+              .where((sale) {
+                return !sale.createdAt.isBefore(range.start) &&
+                    sale.createdAt.isBefore(range.end);
+              })
+              .toList(growable: false);
+
+          return DashboardPeriodPerformance(
+            label: range.label,
+            income: salesTotal(rangeSales),
+            salesCount: rangeSales.length,
+          );
+        })
+        .toList(growable: false);
+  }
+
   DashboardDayPerformance bestDay(List<DashboardDayPerformance> performance) {
     return performance.reduce((current, next) {
       final incomeComparison = next.income.compareTo(current.income);
@@ -220,6 +276,32 @@ class DashboardSummaryCalculator {
   }
 
   DashboardDayPerformance worstDay(List<DashboardDayPerformance> performance) {
+    return performance.reduce((current, next) {
+      final incomeComparison = next.income.compareTo(current.income);
+      if (incomeComparison != 0) {
+        return incomeComparison < 0 ? next : current;
+      }
+
+      return next.salesCount < current.salesCount ? next : current;
+    });
+  }
+
+  DashboardPeriodPerformance bestPeriod(
+    List<DashboardPeriodPerformance> performance,
+  ) {
+    return performance.reduce((current, next) {
+      final incomeComparison = next.income.compareTo(current.income);
+      if (incomeComparison != 0) {
+        return incomeComparison > 0 ? next : current;
+      }
+
+      return next.salesCount > current.salesCount ? next : current;
+    });
+  }
+
+  DashboardPeriodPerformance worstPeriod(
+    List<DashboardPeriodPerformance> performance,
+  ) {
     return performance.reduce((current, next) {
       final incomeComparison = next.income.compareTo(current.income);
       if (incomeComparison != 0) {
@@ -293,4 +375,16 @@ class _ProductAccumulator {
   double quantity = 0;
   double income = 0;
   final Set<String> saleIds = {};
+}
+
+class _MonthRange {
+  const _MonthRange({
+    required this.label,
+    required this.start,
+    required this.end,
+  });
+
+  final String label;
+  final DateTime start;
+  final DateTime end;
 }

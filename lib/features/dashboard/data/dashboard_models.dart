@@ -78,6 +78,44 @@ class WeeklyDashboardSummary {
   final DashboardProductMetric? topSaleCountProduct;
 }
 
+class MonthlyDashboardSummary {
+  const MonthlyDashboardSummary({
+    required this.periodStart,
+    required this.periodEnd,
+    required this.salesCount,
+    required this.totalIncome,
+    required this.averageTicket,
+    required this.bestWeek,
+    required this.worstWeek,
+    required this.incomeComparison,
+    required this.salesComparison,
+    required this.ticketComparison,
+    required this.topRevenueProducts,
+    required this.topQuantityProducts,
+    required this.monthlyIncome,
+    required this.productsWithoutMovement,
+    this.topRevenueProduct,
+    this.topQuantityProduct,
+  });
+
+  final DateTime periodStart;
+  final DateTime periodEnd;
+  final int salesCount;
+  final double totalIncome;
+  final double averageTicket;
+  final DashboardPeriodPerformance bestWeek;
+  final DashboardPeriodPerformance worstWeek;
+  final DashboardComparison incomeComparison;
+  final DashboardComparison salesComparison;
+  final DashboardComparison ticketComparison;
+  final List<DashboardProductMetric> topRevenueProducts;
+  final List<DashboardProductMetric> topQuantityProducts;
+  final List<DashboardPeriodPerformance> monthlyIncome;
+  final List<String> productsWithoutMovement;
+  final DashboardProductMetric? topRevenueProduct;
+  final DashboardProductMetric? topQuantityProduct;
+}
+
 class DashboardDayPerformance {
   const DashboardDayPerformance({
     required this.date,
@@ -87,6 +125,18 @@ class DashboardDayPerformance {
   });
 
   final DateTime date;
+  final String label;
+  final double income;
+  final int salesCount;
+}
+
+class DashboardPeriodPerformance {
+  const DashboardPeriodPerformance({
+    required this.label,
+    required this.income,
+    required this.salesCount,
+  });
+
   final String label;
   final double income;
   final int salesCount;
