@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
-import '../../data/dashboard_repository.dart';
+import '../../data/dashboard_models.dart';
 
 class DashboardWeeklyIncomeChart extends StatelessWidget {
   const DashboardWeeklyIncomeChart({super.key, required this.items});
@@ -28,7 +28,7 @@ class DashboardWeeklyIncomeChart extends StatelessWidget {
             Text('Grafica de barras semanal', style: textTheme.bodySmall),
             const SizedBox(height: AppSpacing.lg),
             SizedBox(
-              height: 180,
+              height: 196,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -38,6 +38,7 @@ class DashboardWeeklyIncomeChart extends StatelessWidget {
                         label: _shortLabel(item.label),
                         value: item.income,
                         maxValue: maxIncome,
+                        isPeak: item.income == maxIncome && maxIncome > 0,
                       ),
                     ),
                 ],
@@ -63,17 +64,18 @@ class _IncomeBar extends StatelessWidget {
     required this.label,
     required this.value,
     required this.maxValue,
+    required this.isPeak,
   });
 
   final String label;
   final double value;
   final double maxValue;
+  final bool isPeak;
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final ratio = maxValue == 0 ? 0.0 : value / maxValue;
-    final barHeight = 120 * ratio;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
@@ -87,18 +89,26 @@ class _IncomeBar extends StatelessWidget {
             style: textTheme.labelSmall,
           ),
           const SizedBox(height: AppSpacing.sm),
-          Container(
-            height: 120,
-            alignment: Alignment.bottomCenter,
-            decoration: BoxDecoration(
-              color: AppColors.headerNav,
-              borderRadius: BorderRadius.circular(12),
-            ),
+          SizedBox(
+            height: 128,
             child: Container(
-              height: barHeight < 8 && value > 0 ? 8 : barHeight,
+              width: double.infinity,
               decoration: BoxDecoration(
-                color: AppColors.accent,
+                color: AppColors.headerNav,
                 borderRadius: BorderRadius.circular(12),
+              ),
+              alignment: Alignment.bottomCenter,
+              child: FractionallySizedBox(
+                heightFactor: ratio,
+                widthFactor: 1,
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  constraints: BoxConstraints(minHeight: value > 0 ? 10 : 0),
+                  decoration: BoxDecoration(
+                    color: isPeak ? AppColors.textPrimary : AppColors.accent,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
               ),
             ),
           ),

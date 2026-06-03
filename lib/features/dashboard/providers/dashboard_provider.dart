@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/database/database_provider.dart';
 import '../../cash/providers/cash_provider.dart';
+import '../data/dashboard_models.dart';
 import '../data/dashboard_repository.dart';
 
 final dashboardRepositoryProvider = Provider<DashboardRepository>((ref) {

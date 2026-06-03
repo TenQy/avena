@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
-import '../../data/dashboard_repository.dart';
+import '../../data/dashboard_models.dart';
 
 class DashboardPaymentDonutChart extends StatelessWidget {
   const DashboardPaymentDonutChart({super.key, required this.items});

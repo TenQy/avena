@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
-import '../../data/dashboard_repository.dart';
+import '../../data/dashboard_models.dart';
 
 class DashboardComparisonCard extends StatelessWidget {
   const DashboardComparisonCard({

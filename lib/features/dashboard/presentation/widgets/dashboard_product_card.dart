@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
-import '../../data/dashboard_repository.dart';
+import '../../data/dashboard_models.dart';
 
 class DashboardProductCard extends StatelessWidget {
   const DashboardProductCard({
@@ -30,7 +30,9 @@ class DashboardProductCard extends StatelessWidget {
     return Card(
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: topProducts.isEmpty ? null : () => _showTopProductsSheet(context),
+        onTap: topProducts.isEmpty
+            ? null
+            : () => _showTopProductsSheet(context),
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.md),
           child: Row(

@@ -10,12 +10,14 @@ class DashboardMetricCard extends StatelessWidget {
     required this.label,
     required this.value,
     this.detail,
+    this.compact = false,
   });
 
   final IconData icon;
   final String label;
   final String value;
   final String? detail;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -23,22 +25,26 @@ class DashboardMetricCard extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: EdgeInsets.all(compact ? AppSpacing.sm : AppSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Container(
-                  width: 36,
-                  height: 36,
+                  width: compact ? 30 : 36,
+                  height: compact ? 30 : 36,
                   decoration: BoxDecoration(
                     color: AppColors.headerNav,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(icon, color: AppColors.iconInactive, size: 21),
+                  child: Icon(
+                    icon,
+                    color: AppColors.iconInactive,
+                    size: compact ? 18 : 21,
+                  ),
                 ),
-                const SizedBox(width: AppSpacing.sm),
+                SizedBox(width: compact ? AppSpacing.xs : AppSpacing.sm),
                 Expanded(
                   child: Text(
                     label,
@@ -49,12 +55,12 @@ class DashboardMetricCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: AppSpacing.md),
+            SizedBox(height: compact ? AppSpacing.sm : AppSpacing.md),
             Text(
               value,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: textTheme.titleMedium,
+              style: compact ? textTheme.bodyLarge : textTheme.titleMedium,
             ),
             if (detail != null) ...[
               const SizedBox(height: AppSpacing.xs),
