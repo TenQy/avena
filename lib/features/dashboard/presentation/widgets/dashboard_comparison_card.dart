@@ -10,11 +10,13 @@ class DashboardComparisonCard extends StatelessWidget {
     required this.title,
     required this.comparison,
     this.isMoney = false,
+    this.previousLabel = 'Ayer',
   });
 
   final String title;
   final DashboardComparison comparison;
   final bool isMoney;
+  final String previousLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +56,7 @@ class DashboardComparisonCard extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   Text(
-                    'Ayer: ${_formatValue(comparison.previous)}',
+                    '$previousLabel: ${_formatValue(comparison.previous)}',
                     style: textTheme.labelSmall,
                   ),
                 ],

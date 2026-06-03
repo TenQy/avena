@@ -15,3 +15,7 @@ final dailyDashboardProvider = StreamProvider<DailyDashboardSummary>((ref) {
       .watch(dashboardRepositoryProvider)
       .watchDailySummary(openCashSession: cashSession);
 });
+
+final weeklyDashboardProvider = StreamProvider<WeeklyDashboardSummary>((ref) {
+  return ref.watch(dashboardRepositoryProvider).watchWeeklySummary();
+});
