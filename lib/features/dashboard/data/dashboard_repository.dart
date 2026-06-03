@@ -12,6 +12,9 @@ class DailyDashboardSummary {
     required this.incomeComparison,
     required this.salesComparison,
     required this.ticketComparison,
+    required this.topRevenueProducts,
+    required this.topQuantityProducts,
+    required this.topSaleCountProducts,
     this.topRevenueProduct,
     this.topQuantityProduct,
     this.topSaleCountProduct,
@@ -25,6 +28,9 @@ class DailyDashboardSummary {
   final DashboardComparison incomeComparison;
   final DashboardComparison salesComparison;
   final DashboardComparison ticketComparison;
+  final List<DashboardProductMetric> topRevenueProducts;
+  final List<DashboardProductMetric> topQuantityProducts;
+  final List<DashboardProductMetric> topSaleCountProducts;
   final DashboardProductMetric? topRevenueProduct;
   final DashboardProductMetric? topQuantityProduct;
   final DashboardProductMetric? topSaleCountProduct;
@@ -104,6 +110,9 @@ class DashboardRepository {
             totalIncome: totalIncome,
             averageTicket: averageTicket,
             physicalCash: openCashSession?.expectedCashAmount ?? 0,
+            topRevenueProducts: _topProductsByIncome(productMetrics),
+            topQuantityProducts: _topProductsByQuantity(productMetrics),
+            topSaleCountProducts: _topProductsBySaleCount(productMetrics),
             topRevenueProduct: _topByIncome(productMetrics),
             topQuantityProduct: _topByQuantity(productMetrics),
             topSaleCountProduct: _topBySaleCount(productMetrics),
@@ -176,35 +185,80 @@ class DashboardRepository {
   }
 
   DashboardProductMetric? _topByIncome(List<DashboardProductMetric> metrics) {
-    if (metrics.isEmpty) {
+    final topProducts = _topProductsByIncome(metrics);
+    if (topProducts.isEmpty) {
       return null;
     }
 
-    return metrics.reduce(
-      (current, next) => next.income > current.income ? next : current,
-    );
+    return topProducts.first;
   }
 
   DashboardProductMetric? _topByQuantity(List<DashboardProductMetric> metrics) {
-    if (metrics.isEmpty) {
+    final topProducts = _topProductsByQuantity(metrics);
+    if (topProducts.isEmpty) {
       return null;
     }
 
-    return metrics.reduce(
-      (current, next) => next.quantity > current.quantity ? next : current,
-    );
+    return topProducts.first;
   }
 
   DashboardProductMetric? _topBySaleCount(
     List<DashboardProductMetric> metrics,
   ) {
-    if (metrics.isEmpty) {
+    final topProducts = _topProductsBySaleCount(metrics);
+    if (topProducts.isEmpty) {
       return null;
     }
 
-    return metrics.reduce(
-      (current, next) => next.saleCount > current.saleCount ? next : current,
-    );
+    return topProducts.first;
+  }
+
+  List<DashboardProductMetric> _topProductsByIncome(
+    List<DashboardProductMetric> metrics,
+  ) {
+    final sorted = [...metrics]
+      ..sort((a, b) {
+        final incomeComparison = b.income.compareTo(a.income);
+        if (incomeComparison != 0) {
+          return incomeComparison;
+        }
+
+        return b.quantity.compareTo(a.quantity);
+      });
+
+    return sorted.take(5).toList(growable: false);
+  }
+
+  List<DashboardProductMetric> _topProductsByQuantity(
+    List<DashboardProductMetric> metrics,
+  ) {
+    final sorted = [...metrics]
+      ..sort((a, b) {
+        final quantityComparison = b.quantity.compareTo(a.quantity);
+        if (quantityComparison != 0) {
+          return quantityComparison;
+        }
+
+        return b.income.compareTo(a.income);
+      });
+
+    return sorted.take(5).toList(growable: false);
+  }
+
+  List<DashboardProductMetric> _topProductsBySaleCount(
+    List<DashboardProductMetric> metrics,
+  ) {
+    final sorted = [...metrics]
+      ..sort((a, b) {
+        final saleCountComparison = b.saleCount.compareTo(a.saleCount);
+        if (saleCountComparison != 0) {
+          return saleCountComparison;
+        }
+
+        return b.quantity.compareTo(a.quantity);
+      });
+
+    return sorted.take(5).toList(growable: false);
   }
 
   double _roundMoney(double value) => double.parse(value.toStringAsFixed(2));

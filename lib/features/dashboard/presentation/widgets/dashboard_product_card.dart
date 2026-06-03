@@ -11,6 +11,7 @@ class DashboardProductCard extends StatelessWidget {
     required this.title,
     required this.emptyText,
     required this.metric,
+    required this.topProducts,
     this.showSaleCount = false,
   });
 
@@ -18,6 +19,7 @@ class DashboardProductCard extends StatelessWidget {
   final String title;
   final String emptyText;
   final DashboardProductMetric? metric;
+  final List<DashboardProductMetric> topProducts;
   final bool showSaleCount;
 
   @override
@@ -26,49 +28,139 @@ class DashboardProductCard extends StatelessWidget {
     final product = metric;
 
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Row(
-          children: [
-            Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: AppColors.headerNav,
-                borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: topProducts.isEmpty ? null : () => _showTopProductsSheet(context),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Row(
+            children: [
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: AppColors.headerNav,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: AppColors.iconInactive),
               ),
-              child: Icon(icon, color: AppColors.iconInactive),
-            ),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: textTheme.bodySmall),
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    product?.name ?? emptyText,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: textTheme.titleMedium,
-                  ),
-                  if (product != null) ...[
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: textTheme.bodySmall),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      showSaleCount
-                          ? 'Aparece en ${product.saleCount} ventas · ${_quantity(product)} vendidos'
-                          : '${_money(product.income)} · ${_quantity(product)} vendidos',
+                      product?.name ?? emptyText,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: textTheme.labelSmall,
+                      style: textTheme.titleMedium,
                     ),
+                    if (product != null) ...[
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        _metricSummary(product),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: textTheme.labelSmall,
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
-            ),
-          ],
+              if (topProducts.isNotEmpty)
+                const Padding(
+                  padding: EdgeInsets.only(left: AppSpacing.sm),
+                  child: Icon(Icons.chevron_right_rounded),
+                ),
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  Future<void> _showTopProductsSheet(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              0,
+              AppSpacing.lg,
+              AppSpacing.lg,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: textTheme.titleMedium),
+                const SizedBox(height: AppSpacing.md),
+                for (var index = 0; index < topProducts.length; index++) ...[
+                  _TopProductRow(
+                    position: index + 1,
+                    product: topProducts[index],
+                    summary: _metricSummary(topProducts[index]),
+                  ),
+                  if (index < topProducts.length - 1)
+                    const Divider(height: AppSpacing.lg),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  String _metricSummary(DashboardProductMetric product) {
+    if (showSaleCount) {
+      return 'Aparece en ${product.saleCount} ventas - ${_quantity(product)} vendidos';
+    }
+
+    return '${_money(product.income)} - ${_quantity(product)} vendidos';
+  }
+}
+
+class _TopProductRow extends StatelessWidget {
+  const _TopProductRow({
+    required this.position,
+    required this.product,
+    required this.summary,
+  });
+
+  final int position;
+  final DashboardProductMetric product;
+  final String summary;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 28,
+          child: Text('$position.', style: textTheme.labelLarge),
+        ),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(product.name, style: textTheme.titleSmall),
+              const SizedBox(height: AppSpacing.xs),
+              Text(summary, style: textTheme.bodySmall),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
