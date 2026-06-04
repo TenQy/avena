@@ -34,7 +34,9 @@ class AuthRepository {
     required String username,
     required String password,
   }) async {
-    final user = await _database.usersDao.getUserByUsername(username.trim());
+    final user = await _database.usersDao.getVisibleUserByUsername(
+      username.trim(),
+    );
 
     if (user == null || user.passwordHash != password) {
       return const LoginResponse(LoginResult.invalidCredentials);

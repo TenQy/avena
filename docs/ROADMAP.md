@@ -525,37 +525,59 @@ La app puede trabajar offline y sincronizar al recuperar conexión.
 
 ---
 
-# Fase 13: Configuración
+# Fase 13: Configuración y mantenimiento
 
 ## Objetivo
 
-Implementar una pantalla de configuración para agrupar información administrativa, estado del sistema y herramientas de mantenimiento.
+Implementar una pantalla de configuración para agrupar preferencias personales, ajustes administrativos, estado del sistema y herramientas de mantenimiento antes de iniciar la sincronización cloud.
 
 ## Tareas
 
-- Crear pantalla de configuración.
+### Configuración personal
+
 - Mostrar datos del usuario actual.
-- Mostrar información del negocio.
-- Mostrar información de la app.
-- Mostrar versión de app.
-- Mostrar estado de sincronización.
-- Mostrar información de caja actual.
 - Implementar tema claro/oscuro.
-- Implementar exportación de respaldo.
-- Implementar restauración de base local.
-- Preparar configuración de impresión para tickets futuros.
-- Restringir acciones según rol.
+- Mostrar versión de app.
+- Mostrar estado básico de conexión.
+- Permitir cerrar sesión.
+
+### Configuración administrativa
+
+- Mostrar información del negocio.
+- Permitir editar información del negocio.
+- Configurar porcentaje de comisión para tarjeta.
+- Configurar porcentaje de comisión para bonos.
+- Mostrar información resumida de caja actual.
+- Mostrar estado de sincronización local.
+
+### Mantenimiento superadmin
+
+- Exportar respaldo local.
+- Restaurar respaldo local.
+- Reiniciar datos operativos conservando inventario.
+- Limpiar logs.
+- Limpiar cola de sincronización.
+- Proteger acciones destructivas con confirmación doble.
+- Restringir herramientas de mantenimiento sólo a superadmin.
+
+### Preparación futura
+
+- Preparar sección de impresión de tickets.
+- Preparar estructura para configuración de Supabase.
+- Preparar estructura para configuración avanzada de sync.
 
 ## Entregables
 
 - Pantalla de configuración funcional.
-- Información de sistema visible.
-- Acciones administrativas protegidas.
-- Herramientas básicas de respaldo y restauración.
+- Preferencias personales.
+- Ajustes administrativos.
+- Configuración de comisiones.
+- Herramientas de mantenimiento protegidas.
+- Limpieza de datos de prueba conservando inventario.
 
 ## Estado esperado
 
-El admin puede consultar y administrar configuraciones básicas sin mezclar estos flujos con los módulos operativos.
+El sistema queda listo para iniciar sincronización cloud con una base local limpia, configuración editable y herramientas administrativas separadas por rol.
 
 ---
 

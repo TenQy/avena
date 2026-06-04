@@ -5,6 +5,7 @@ import '../../../../core/constants/app_roles.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
+import '../../../../shared/widgets/app_snack_bar.dart';
 import '../../data/users_repository.dart';
 import '../../providers/users_provider.dart';
 import 'user_result_messages.dart';
@@ -232,37 +233,50 @@ class _UserFormSheetState extends ConsumerState<UserFormSheet> {
       _isSaving = true;
     });
 
-    final repository = ref.read(usersRepositoryProvider);
-    final result = _isEditing
-        ? await repository.updateUser(
-            actor: widget.actor,
-            target: widget.user!,
-            username: _usernameController.text,
-            password: _passwordController.text,
-            phone: _phoneController.text,
-            role: _role,
-          )
-        : await repository.createUser(
-            actor: widget.actor,
-            username: _usernameController.text,
-            password: _passwordController.text,
-            phone: _phoneController.text,
-            role: _role,
-          );
+    try {
+      final repository = ref.read(usersRepositoryProvider);
+      final result = _isEditing
+          ? await repository.updateUser(
+              actor: widget.actor,
+              target: widget.user!,
+              username: _usernameController.text,
+              password: _passwordController.text,
+              phone: _phoneController.text,
+              role: _role,
+            )
+          : await repository.createUser(
+              actor: widget.actor,
+              username: _usernameController.text,
+              password: _passwordController.text,
+              phone: _phoneController.text,
+              role: _role,
+            );
 
-    if (!mounted) {
-      return;
+      if (!mounted) {
+        return;
+      }
+
+      if (result == UserSaveResult.success) {
+        Navigator.of(context).pop(result);
+        return;
+      }
+
+      showUserSaveResult(context, result);
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      showAppSnackBar(
+        context,
+        'No se pudo guardar el usuario. Intenta nuevamente.',
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
     }
-
-    setState(() {
-      _isSaving = false;
-    });
-
-    if (result == UserSaveResult.success) {
-      Navigator.of(context).pop(result);
-      return;
-    }
-
-    showUserSaveResult(context, result);
   }
 }

@@ -241,7 +241,9 @@ class UsersRepository {
     String username, {
     String? excludingUserId,
   }) async {
-    final existingUser = await _database.usersDao.getUserByUsername(username);
+    final existingUser = await _database.usersDao.getVisibleUserByUsername(
+      username,
+    );
 
     return existingUser != null &&
         !existingUser.isDeleted &&
