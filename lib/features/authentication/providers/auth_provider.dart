@@ -59,7 +59,8 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
   }
 
   Future<void> logout() async {
-    await _repository.logout();
+    final actor = state.valueOrNull?.user;
+    await _repository.logout(actor: actor);
     state = const AsyncValue.data(AuthState());
   }
 }

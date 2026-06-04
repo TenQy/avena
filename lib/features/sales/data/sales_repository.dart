@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../../../core/constants/app_activity_logs.dart';
 import '../../../core/constants/app_pending_payments.dart';
 import '../../../core/constants/app_products.dart';
 import '../../../core/constants/app_roles.dart';
@@ -574,8 +575,8 @@ class SalesRepository {
             userId: Value(actor.id),
             userNameSnapshot: actor.username,
             userRoleSnapshot: actor.role,
-            action: AppPendingPaymentLogActions.createPaymentEntry,
-            entityType: AppPendingPaymentLogEntities.pendingPayment,
+            action: AppActivityLogActions.createPaymentEntry,
+            entityType: AppActivityLogEntities.pendingPayment,
             entityId: Value(pendingPaymentId),
             description: Value(
               'Abono inicial para $customerName por '
@@ -612,8 +613,8 @@ class SalesRepository {
           userId: Value(actor.id),
           userNameSnapshot: actor.username,
           userRoleSnapshot: actor.role,
-          action: AppPendingPaymentLogActions.createPendingPayment,
-          entityType: AppPendingPaymentLogEntities.pendingPayment,
+          action: AppActivityLogActions.createPendingPayment,
+          entityType: AppActivityLogEntities.pendingPayment,
           entityId: Value(pendingPaymentId),
           description: Value(
             'Pago pendiente creado desde venta para $customerName por '

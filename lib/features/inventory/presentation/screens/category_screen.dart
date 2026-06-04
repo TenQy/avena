@@ -298,9 +298,14 @@ class _InventoryCategoryScreenState
       return;
     }
 
+    final actor = ref.read(currentUserProvider).valueOrNull;
+    if (actor == null) {
+      return;
+    }
+
     final result = await ref
         .read(inventoryRepositoryProvider)
-        .deleteSubcategory(subcategory);
+        .deleteSubcategory(actor, subcategory);
 
     if (!mounted) {
       return;
@@ -328,9 +333,14 @@ class _InventoryCategoryScreenState
       return;
     }
 
+    final actor = ref.read(currentUserProvider).valueOrNull;
+    if (actor == null) {
+      return;
+    }
+
     final result = await ref
         .read(inventoryRepositoryProvider)
-        .deleteProduct(product);
+        .deleteProduct(actor: actor, product: product);
 
     if (!mounted) {
       return;

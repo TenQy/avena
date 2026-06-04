@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../../../core/constants/app_roles.dart';
+import '../../../core/constants/app_activity_logs.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/utils/id_generator.dart';
 
@@ -42,10 +43,11 @@ class UsersRepository {
     }
 
     final now = DateTime.now();
+    final userId = IdGenerator.create();
 
     await _database.usersDao.insertUser(
       UsersCompanion.insert(
-        id: IdGenerator.create(),
+        id: userId,
         username: cleanUsername,
         passwordHash: password.trim(),
         role: role,
@@ -54,6 +56,21 @@ class UsersRepository {
         ),
         createdAt: now,
         updatedAt: now,
+        syncStatus: _pendingSync,
+      ),
+    );
+
+    await _database.activityLogsDao.insertActivityLog(
+      ActivityLogsCompanion.insert(
+        id: IdGenerator.create(),
+        userId: Value(actor.id),
+        userNameSnapshot: actor.username,
+        userRoleSnapshot: actor.role,
+        action: AppActivityLogActions.createUser,
+        entityType: AppActivityLogEntities.user,
+        entityId: Value(userId),
+        description: Value('Usuario creado: $cleanUsername ($role)'),
+        createdAt: now,
         syncStatus: _pendingSync,
       ),
     );
@@ -85,6 +102,8 @@ class UsersRepository {
 
     final cleanUsername = username.trim();
     final cleanPhone = phone?.trim();
+    final roleChanged = currentTarget.role != role;
+    final usernameChanged = currentTarget.username != cleanUsername;
 
     if (await _isUsernameTaken(cleanUsername, excludingUserId: target.id)) {
       return UserSaveResult.usernameTaken;
@@ -103,6 +122,25 @@ class UsersRepository {
           cleanPhone == null || cleanPhone.isEmpty ? null : cleanPhone,
         ),
         updatedAt: DateTime.now(),
+        syncStatus: _pendingSync,
+      ),
+    );
+
+    await _database.activityLogsDao.insertActivityLog(
+      ActivityLogsCompanion.insert(
+        id: IdGenerator.create(),
+        userId: Value(actor.id),
+        userNameSnapshot: actor.username,
+        userRoleSnapshot: actor.role,
+        action: AppActivityLogActions.updateUser,
+        entityType: AppActivityLogEntities.user,
+        entityId: Value(currentTarget.id),
+        description: Value(
+          'Usuario actualizado: ${currentTarget.username}'
+          '${usernameChanged ? ' -> $cleanUsername' : ''}'
+          '${roleChanged ? ' ($role)' : ''}',
+        ),
+        createdAt: DateTime.now(),
         syncStatus: _pendingSync,
       ),
     );
@@ -133,6 +171,25 @@ class UsersRepository {
       ),
     );
 
+    await _database.activityLogsDao.insertActivityLog(
+      ActivityLogsCompanion.insert(
+        id: IdGenerator.create(),
+        userId: Value(actor.id),
+        userNameSnapshot: actor.username,
+        userRoleSnapshot: actor.role,
+        action: AppActivityLogActions.setUserActive,
+        entityType: AppActivityLogEntities.user,
+        entityId: Value(currentTarget.id),
+        description: Value(
+          isActive
+              ? 'Usuario habilitado: ${currentTarget.username}'
+              : 'Usuario inhabilitado: ${currentTarget.username}',
+        ),
+        createdAt: DateTime.now(),
+        syncStatus: _pendingSync,
+      ),
+    );
+
     return UserActionResult.success;
   }
 
@@ -158,6 +215,21 @@ class UsersRepository {
         isDeleted: true,
         deletedAt: Value(now),
         updatedAt: now,
+        syncStatus: _pendingSync,
+      ),
+    );
+
+    await _database.activityLogsDao.insertActivityLog(
+      ActivityLogsCompanion.insert(
+        id: IdGenerator.create(),
+        userId: Value(actor.id),
+        userNameSnapshot: actor.username,
+        userRoleSnapshot: actor.role,
+        action: AppActivityLogActions.deleteUser,
+        entityType: AppActivityLogEntities.user,
+        entityId: Value(currentTarget.id),
+        description: Value('Usuario eliminado: ${currentTarget.username}'),
+        createdAt: now,
         syncStatus: _pendingSync,
       ),
     );

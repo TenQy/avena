@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../../../core/constants/app_cash.dart';
+import '../../../core/constants/app_activity_logs.dart';
 import '../../../core/constants/app_roles.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/utils/id_generator.dart';
@@ -61,15 +62,33 @@ class CashRepository {
       }
 
       final now = DateTime.now();
+      final sessionId = IdGenerator.create();
 
       await _database.cashDao.insertCashSession(
         CashSessionsCompanion.insert(
-          id: IdGenerator.create(),
+          id: sessionId,
           openedByUserId: actor.id,
           openingCashAmount: openingCashAmount,
           expectedCashAmount: openingCashAmount,
           status: AppCashSessionStatuses.open,
           openedAt: now,
+          syncStatus: _pendingSync,
+        ),
+      );
+
+      await _database.activityLogsDao.insertActivityLog(
+        ActivityLogsCompanion.insert(
+          id: IdGenerator.create(),
+          userId: Value(actor.id),
+          userNameSnapshot: actor.username,
+          userRoleSnapshot: actor.role,
+          action: AppActivityLogActions.openCash,
+          entityType: AppActivityLogEntities.cashSession,
+          entityId: Value(sessionId),
+          description: Value(
+            'Caja abierta con \$${openingCashAmount.toStringAsFixed(2)} iniciales',
+          ),
+          createdAt: now,
           syncStatus: _pendingSync,
         ),
       );
@@ -92,11 +111,12 @@ class CashRepository {
       return CloseCashResult.notFound;
     }
 
+    final now = DateTime.now();
     final updated = await _database.cashDao.updateCashSession(
       currentOpenSession.copyWith(
         closedByUserId: Value(actor.id),
         status: AppCashSessionStatuses.closed,
-        closedAt: Value(DateTime.now()),
+        closedAt: Value(now),
         syncStatus: _pendingSync,
       ),
     );
@@ -104,6 +124,23 @@ class CashRepository {
     if (!updated) {
       return CloseCashResult.notFound;
     }
+
+    await _database.activityLogsDao.insertActivityLog(
+      ActivityLogsCompanion.insert(
+        id: IdGenerator.create(),
+        userId: Value(actor.id),
+        userNameSnapshot: actor.username,
+        userRoleSnapshot: actor.role,
+        action: AppActivityLogActions.closeCash,
+        entityType: AppActivityLogEntities.cashSession,
+        entityId: Value(currentOpenSession.id),
+        description: Value(
+          'Caja cerrada con esperado de \$${currentOpenSession.expectedCashAmount.toStringAsFixed(2)}',
+        ),
+        createdAt: now,
+        syncStatus: _pendingSync,
+      ),
+    );
 
     return CloseCashResult.success;
   }
@@ -137,10 +174,11 @@ class CashRepository {
 
       final signedAmount = type == CashMovementType.deposit ? amount : -amount;
       final now = DateTime.now();
+      final movementId = IdGenerator.create();
 
       await _database.cashDao.insertCashMovement(
         CashMovementsCompanion.insert(
-          id: IdGenerator.create(),
+          id: movementId,
           cashSessionId: currentOpenSession.id,
           createdByUserId: actor.id,
           type: type.value,
@@ -163,7 +201,29 @@ class CashRepository {
         return CashMovementResult.sessionNotFound;
       }
 
+      await _database.activityLogsDao.insertActivityLog(
+        ActivityLogsCompanion.insert(
+          id: IdGenerator.create(),
+          userId: Value(actor.id),
+          userNameSnapshot: actor.username,
+          userRoleSnapshot: actor.role,
+          action: AppActivityLogActions.createCashMovement,
+          entityType: AppActivityLogEntities.cashMovement,
+          entityId: Value(movementId),
+          description: Value(
+            '${_movementLabel(type)} registrado por \$${amount.toStringAsFixed(2)}. '
+            'Motivo: $cleanReason',
+          ),
+          createdAt: now,
+          syncStatus: _pendingSync,
+        ),
+      );
+
       return CashMovementResult.success;
     });
+  }
+
+  String _movementLabel(CashMovementType type) {
+    return type == CashMovementType.deposit ? 'Deposito' : 'Retiro';
   }
 }

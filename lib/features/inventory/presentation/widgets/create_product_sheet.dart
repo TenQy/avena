@@ -7,6 +7,7 @@ import '../../../../core/database/app_database.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
 import '../../../../shared/widgets/empty_state.dart';
+import '../../../authentication/providers/auth_provider.dart';
 import '../../data/inventory_repository.dart';
 import '../../providers/inventory_provider.dart';
 import '../utils/number_parser.dart';
@@ -274,6 +275,18 @@ class _CreateProductSheetState extends ConsumerState<CreateProductSheet> {
       _isSaving = true;
     });
 
+    final actor = ref.read(currentUserProvider).valueOrNull;
+    if (actor == null) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isSaving = false;
+      });
+      Navigator.of(context).pop(ProductSaveResult.categoryNotFound);
+      return;
+    }
+
     final draft = ProductDraft(
       name: _nameController.text,
       brand: _brandController.text,
@@ -288,8 +301,8 @@ class _CreateProductSheetState extends ConsumerState<CreateProductSheet> {
     final repository = ref.read(inventoryRepositoryProvider);
     final product = widget.product;
     final result = product == null
-        ? await repository.createProduct(draft)
-        : await repository.updateProduct(product, draft);
+        ? await repository.createProduct(actor: actor, draft: draft)
+        : await repository.updateProduct(actor, product, draft);
 
     if (!mounted) {
       return;

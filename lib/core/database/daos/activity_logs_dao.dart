@@ -11,7 +11,12 @@ class ActivityLogsDao extends DatabaseAccessor<AppDatabase>
   ActivityLogsDao(super.db);
 
   Stream<List<ActivityLog>> watchActivityLogs() {
-    return select(activityLogs).watch();
+    return (select(activityLogs)
+          ..orderBy([
+            (table) => OrderingTerm.desc(table.createdAt),
+            (table) => OrderingTerm.desc(table.id),
+          ]))
+        .watch();
   }
 
   Future<void> insertActivityLog(ActivityLogsCompanion log) {

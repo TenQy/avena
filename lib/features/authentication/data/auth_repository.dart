@@ -1,4 +1,8 @@
+import 'package:drift/drift.dart';
+
+import '../../../core/constants/app_activity_logs.dart';
 import '../../../core/database/app_database.dart';
+import '../../../core/utils/id_generator.dart';
 import 'auth_local_source.dart';
 
 enum LoginResult { success, invalidCredentials, inactiveUser }
@@ -42,11 +46,44 @@ class AuthRepository {
     }
 
     await _localSource.saveCurrentUserId(user.id);
+    final now = DateTime.now();
+    await _database.activityLogsDao.insertActivityLog(
+      ActivityLogsCompanion.insert(
+        id: IdGenerator.create(),
+        userId: Value(user.id),
+        userNameSnapshot: user.username,
+        userRoleSnapshot: user.role,
+        action: AppActivityLogActions.login,
+        entityType: AppActivityLogEntities.session,
+        description: const Value('Inicio de sesion exitoso'),
+        createdAt: now,
+        syncStatus: 'pending',
+      ),
+    );
 
     return LoginResponse(LoginResult.success, user: user);
   }
 
-  Future<void> logout() => _localSource.clearCurrentUserId();
+  Future<void> logout({required User? actor}) async {
+    if (actor != null) {
+      final now = DateTime.now();
+      await _database.activityLogsDao.insertActivityLog(
+        ActivityLogsCompanion.insert(
+          id: IdGenerator.create(),
+          userId: Value(actor.id),
+          userNameSnapshot: actor.username,
+          userRoleSnapshot: actor.role,
+          action: AppActivityLogActions.logout,
+          entityType: AppActivityLogEntities.session,
+          description: const Value('Cierre de sesion manual'),
+          createdAt: now,
+          syncStatus: 'pending',
+        ),
+      );
+    }
+
+    await _localSource.clearCurrentUserId();
+  }
 
   bool _canUseSession(User? user) {
     return user != null && user.isActive && !user.isDeleted;

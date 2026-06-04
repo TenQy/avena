@@ -5,16 +5,3 @@ class AppPendingPaymentStatuses {
   static const partial = 'partial';
   static const completed = 'completed';
 }
-
-class AppPendingPaymentLogActions {
-  const AppPendingPaymentLogActions._();
-
-  static const createPendingPayment = 'create_pending_payment';
-  static const createPaymentEntry = 'create_payment_entry';
-}
-
-class AppPendingPaymentLogEntities {
-  const AppPendingPaymentLogEntities._();
-
-  static const pendingPayment = 'pending_payment';
-}

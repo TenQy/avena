@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../../../core/constants/app_products.dart';
+import '../../../core/constants/app_activity_logs.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/utils/id_generator.dart';
 
@@ -71,7 +72,10 @@ class InventoryRepository {
     return _database.inventoryDao.watchVisibleProductsByCategory(categoryId);
   }
 
-  Future<CategorySaveResult> createCategory(String name) async {
+  Future<CategorySaveResult> createCategory({
+    required User actor,
+    required String name,
+  }) async {
     final cleanName = name.trim();
 
     if (cleanName.isEmpty) {
@@ -90,6 +94,7 @@ class InventoryRepository {
     }
 
     final now = DateTime.now();
+    final categoryId = IdGenerator.create();
     final nextSortOrder = categories.isEmpty
         ? 0
         : categories
@@ -101,7 +106,7 @@ class InventoryRepository {
 
     await _database.inventoryDao.insertCategory(
       CategoriesCompanion.insert(
-        id: IdGenerator.create(),
+        id: categoryId,
         name: cleanName,
         sortOrder: Value(nextSortOrder),
         createdAt: now,
@@ -110,10 +115,26 @@ class InventoryRepository {
       ),
     );
 
+    await _database.activityLogsDao.insertActivityLog(
+      ActivityLogsCompanion.insert(
+        id: IdGenerator.create(),
+        userId: Value(actor.id),
+        userNameSnapshot: actor.username,
+        userRoleSnapshot: actor.role,
+        action: AppActivityLogActions.createCategory,
+        entityType: AppActivityLogEntities.category,
+        entityId: Value(categoryId),
+        description: Value('Categoria creada: $cleanName'),
+        createdAt: now,
+        syncStatus: _pendingSync,
+      ),
+    );
+
     return CategorySaveResult.success;
   }
 
   Future<SubcategorySaveResult> createSubcategory({
+    required User actor,
     required Category category,
     required String name,
   }) async {
@@ -145,6 +166,7 @@ class InventoryRepository {
     }
 
     final now = DateTime.now();
+    final subcategoryId = IdGenerator.create();
     final nextSortOrder = subcategories.isEmpty
         ? 0
         : subcategories
@@ -156,7 +178,7 @@ class InventoryRepository {
 
     await _database.inventoryDao.insertSubcategory(
       SubcategoriesCompanion.insert(
-        id: IdGenerator.create(),
+        id: subcategoryId,
         categoryId: category.id,
         name: cleanName,
         sortOrder: Value(nextSortOrder),
@@ -166,10 +188,30 @@ class InventoryRepository {
       ),
     );
 
+    await _database.activityLogsDao.insertActivityLog(
+      ActivityLogsCompanion.insert(
+        id: IdGenerator.create(),
+        userId: Value(actor.id),
+        userNameSnapshot: actor.username,
+        userRoleSnapshot: actor.role,
+        action: AppActivityLogActions.createSubcategory,
+        entityType: AppActivityLogEntities.subcategory,
+        entityId: Value(subcategoryId),
+        description: Value(
+          'Subcategoria creada: $cleanName en ${category.name}',
+        ),
+        createdAt: now,
+        syncStatus: _pendingSync,
+      ),
+    );
+
     return SubcategorySaveResult.success;
   }
 
-  Future<ProductSaveResult> createProduct(ProductDraft draft) async {
+  Future<ProductSaveResult> createProduct({
+    required User actor,
+    required ProductDraft draft,
+  }) async {
     final validationResult = await _validateProductDraft(draft);
     if (validationResult != null) {
       return validationResult;
@@ -179,13 +221,14 @@ class InventoryRepository {
     final cleanBrand = draft.brand?.trim();
     final cleanDescription = draft.description?.trim();
     final now = DateTime.now();
+    final productId = IdGenerator.create();
     final priceUnit = draft.productType == AppProductTypes.bulk
         ? AppProductPriceUnits.kilogram
         : AppProductPriceUnits.unit;
 
     await _database.inventoryDao.insertProduct(
       ProductsCompanion.insert(
-        id: IdGenerator.create(),
+        id: productId,
         name: cleanName,
         brand: Value(
           cleanBrand == null || cleanBrand.isEmpty ? null : cleanBrand,
@@ -208,10 +251,28 @@ class InventoryRepository {
       ),
     );
 
+    await _database.activityLogsDao.insertActivityLog(
+      ActivityLogsCompanion.insert(
+        id: IdGenerator.create(),
+        userId: Value(actor.id),
+        userNameSnapshot: actor.username,
+        userRoleSnapshot: actor.role,
+        action: AppActivityLogActions.createProduct,
+        entityType: AppActivityLogEntities.product,
+        entityId: Value(productId),
+        description: Value(
+          'Producto creado: $cleanName por \$${draft.price.toStringAsFixed(2)}',
+        ),
+        createdAt: now,
+        syncStatus: _pendingSync,
+      ),
+    );
+
     return ProductSaveResult.success;
   }
 
   Future<ProductSaveResult> updateProduct(
+    User actor,
     Product product,
     ProductDraft draft,
   ) async {
@@ -255,10 +316,32 @@ class InventoryRepository {
       return ProductSaveResult.categoryNotFound;
     }
 
+    final priceChanged = product.price != draft.price;
+    await _database.activityLogsDao.insertActivityLog(
+      ActivityLogsCompanion.insert(
+        id: IdGenerator.create(),
+        userId: Value(actor.id),
+        userNameSnapshot: actor.username,
+        userRoleSnapshot: actor.role,
+        action: AppActivityLogActions.updateProduct,
+        entityType: AppActivityLogEntities.product,
+        entityId: Value(product.id),
+        description: Value(
+          'Producto actualizado: $cleanName'
+          '${priceChanged ? ' | nuevo precio \$${draft.price.toStringAsFixed(2)}' : ''}',
+        ),
+        createdAt: now,
+        syncStatus: _pendingSync,
+      ),
+    );
+
     return ProductSaveResult.success;
   }
 
-  Future<ProductActionResult> deleteProduct(Product product) async {
+  Future<ProductActionResult> deleteProduct({
+    required User actor,
+    required Product product,
+  }) async {
     final now = DateTime.now();
     final updated = await _database.inventoryDao.updateProduct(
       product.copyWith(
@@ -273,6 +356,21 @@ class InventoryRepository {
     if (!updated) {
       return ProductActionResult.notFound;
     }
+
+    await _database.activityLogsDao.insertActivityLog(
+      ActivityLogsCompanion.insert(
+        id: IdGenerator.create(),
+        userId: Value(actor.id),
+        userNameSnapshot: actor.username,
+        userRoleSnapshot: actor.role,
+        action: AppActivityLogActions.deleteProduct,
+        entityType: AppActivityLogEntities.product,
+        entityId: Value(product.id),
+        description: Value('Producto eliminado: ${product.name}'),
+        createdAt: now,
+        syncStatus: _pendingSync,
+      ),
+    );
 
     return ProductActionResult.success;
   }
@@ -325,6 +423,7 @@ class InventoryRepository {
   }
 
   Future<SubcategoryActionResult> deleteSubcategory(
+    User actor,
     Subcategory subcategory,
   ) async {
     final now = DateTime.now();
@@ -349,10 +448,28 @@ class InventoryRepository {
       return SubcategoryActionResult.notFound;
     }
 
+    await _database.activityLogsDao.insertActivityLog(
+      ActivityLogsCompanion.insert(
+        id: IdGenerator.create(),
+        userId: Value(actor.id),
+        userNameSnapshot: actor.username,
+        userRoleSnapshot: actor.role,
+        action: AppActivityLogActions.deleteSubcategory,
+        entityType: AppActivityLogEntities.subcategory,
+        entityId: Value(subcategory.id),
+        description: Value(
+          'Subcategoria eliminada: ${subcategory.name}',
+        ),
+        createdAt: now,
+        syncStatus: _pendingSync,
+      ),
+    );
+
     return SubcategoryActionResult.success;
   }
 
   Future<CategoryActionResult> setMainCategory(
+    User actor,
     Category selectedCategory,
   ) async {
     final categories = await _database.inventoryDao
@@ -393,10 +510,30 @@ class InventoryRepository {
 
     await _database.inventoryDao.updateCategories(updatedCategories);
 
+    await _database.activityLogsDao.insertActivityLog(
+      ActivityLogsCompanion.insert(
+        id: IdGenerator.create(),
+        userId: Value(actor.id),
+        userNameSnapshot: actor.username,
+        userRoleSnapshot: actor.role,
+        action: AppActivityLogActions.setMainCategory,
+        entityType: AppActivityLogEntities.category,
+        entityId: Value(selectedCategory.id),
+        description: Value(
+          'Categoria principal actualizada: ${selectedCategory.name}',
+        ),
+        createdAt: now,
+        syncStatus: _pendingSync,
+      ),
+    );
+
     return CategoryActionResult.success;
   }
 
-  Future<CategoryActionResult> deleteCategory(Category category) async {
+  Future<CategoryActionResult> deleteCategory({
+    required User actor,
+    required Category category,
+  }) async {
     final productCount = await _database.inventoryDao.countProductsByCategory(
       category.id,
     );
@@ -419,6 +556,21 @@ class InventoryRepository {
     if (!updated) {
       return CategoryActionResult.notFound;
     }
+
+    await _database.activityLogsDao.insertActivityLog(
+      ActivityLogsCompanion.insert(
+        id: IdGenerator.create(),
+        userId: Value(actor.id),
+        userNameSnapshot: actor.username,
+        userRoleSnapshot: actor.role,
+        action: AppActivityLogActions.deleteCategory,
+        entityType: AppActivityLogEntities.category,
+        entityId: Value(category.id),
+        description: Value('Categoria eliminada: ${category.name}'),
+        createdAt: now,
+        syncStatus: _pendingSync,
+      ),
+    );
 
     return CategoryActionResult.success;
   }

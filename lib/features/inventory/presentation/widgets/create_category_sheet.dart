@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
+import '../../../authentication/providers/auth_provider.dart';
+import '../../data/inventory_repository.dart';
 import '../../providers/inventory_provider.dart';
 
 class CreateCategorySheet extends ConsumerStatefulWidget {
@@ -112,9 +114,21 @@ class _CreateCategorySheetState extends ConsumerState<CreateCategorySheet> {
       _isSaving = true;
     });
 
+    final actor = ref.read(currentUserProvider).valueOrNull;
+    if (actor == null) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isSaving = false;
+      });
+      Navigator.of(context).pop(CategorySaveResult.nameTaken);
+      return;
+    }
+
     final result = await ref
         .read(inventoryRepositoryProvider)
-        .createCategory(_nameController.text);
+        .createCategory(actor: actor, name: _nameController.text);
 
     if (!mounted) {
       return;

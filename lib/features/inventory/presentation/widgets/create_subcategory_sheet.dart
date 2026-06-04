@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
+import '../../../authentication/providers/auth_provider.dart';
+import '../../data/inventory_repository.dart';
 import '../../providers/inventory_provider.dart';
 
 class CreateSubcategorySheet extends ConsumerStatefulWidget {
@@ -116,9 +118,22 @@ class _CreateSubcategorySheetState
       _isSaving = true;
     });
 
+    final actor = ref.read(currentUserProvider).valueOrNull;
+    if (actor == null) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isSaving = false;
+      });
+      Navigator.of(context).pop(SubcategorySaveResult.categoryNotFound);
+      return;
+    }
+
     final result = await ref
         .read(inventoryRepositoryProvider)
         .createSubcategory(
+          actor: actor,
           category: widget.category,
           name: _nameController.text,
         );

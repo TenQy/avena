@@ -338,9 +338,14 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
   }
 
   Future<void> _setMainCategory(Category category) async {
+    final actor = ref.read(currentUserProvider).valueOrNull;
+    if (actor == null) {
+      return;
+    }
+
     final result = await ref
         .read(inventoryRepositoryProvider)
-        .setMainCategory(category);
+        .setMainCategory(actor, category);
 
     if (!mounted) {
       return;
@@ -366,9 +371,14 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
       return;
     }
 
+    final actor = ref.read(currentUserProvider).valueOrNull;
+    if (actor == null) {
+      return;
+    }
+
     final result = await ref
         .read(inventoryRepositoryProvider)
-        .deleteCategory(category);
+        .deleteCategory(actor: actor, category: category);
 
     if (!mounted) {
       return;

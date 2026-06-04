@@ -376,48 +376,15 @@ Construir una app:
 - Fase 2 completada
 - Fase 3 completada 
 - Fase 4 completada
-- Fase 5 completada:
-  - caja funcional local
-  - apertura/cierre
-  - movimientos
-  - ingresos separados
-- Fase 6 completada:
-  - pantalla principal de Ventas implementada
-  - buscador funcional de productos locales por nombre o marca
-  - venta actual persistente entre pantallas con `currentSaleProvider`
-  - productos por unidad se pueden agregar, incrementar, disminuir y quitar
-  - productos a granel se pueden modificar por monto o peso
-  - productos a granel soportan entrada en kg o gr
-  - porciones rapidas reutilizables para granel: 1 kg, 1/2 kg y 100 g
-  - metodos de pago seleccionables: efectivo, transferencia, debito/credito, bonos y mixto
-  - pago mixto permite capturar montos por metodo sin guardar venta
-  - comisiones calculadas: debito/credito 5% y bonos 6.5%
-  - total de venta calcula subtotal + comision
-  - registro local de ventas, items y metodos de pago
-  - validacion de caja abierta y stock disponible
-  - actualizacion de caja fisica e ingresos digitales segun metodo de pago
-  - descuento de stock controlado y log de venta
-- Fase 7 completada:
-  - modulo independiente de Historial de ventas
-  - consulta de ventas por fecha seleccionada
-  - filtro por metodo de pago, incluyendo pagos mixtos
-  - cards con productos, cantidades, usuario, total, estado y hora AM/PM
-  - cancelacion por pulsacion prolongada disponible solo para admin/superadmin
-  - motivo de cancelacion obligatorio
-  - reversion de caja, ingresos y stock controlado al cancelar
-  - venta cancelada permanece auditable y genera log
-- Fase 8 completada:
-  - pantalla funcional de pagos pendientes con filtros para activos y completados
-  - creacion manual de pagos pendientes con datos basicos del cliente
-  - registro de abonos por metodo de pago con comisiones aplicables
-  - actualizacion automatica de saldo y estado pendiente/parcial/completado
-  - historial de abonos visible por pago pendiente
-  - creacion de pago pendiente desde una venta con productos asociados
-  - abono inicial opcional al registrar venta pendiente
-  - logs locales para creacion de pagos pendientes y registro de abonos
-- Fase 9 completada:
-  - pantalla funcional de Calculadora accesible para admin/superadmin
-  - calculos temporales sin persistencia para precio por kg y gramos
-  - calculo de precio por unidad desde caja, paquete o pieza individual
-  - porcentaje de ganancia configurable
-  - resultados claros para porciones de granel y venta por unidad
+- Fase 5 completada
+- Fase 6 completada
+- Fase 7 completada
+- Fase 8 completada
+- Fase 9 completada
+- Fase 10 completada
+- Fase 11 completada
+  - pantalla de logs funcional para admin/superadmin
+  - filtros por usuario, fecha y accion
+  - consulta de detalles por evento desde la interfaz
+  - auditoria local de login, logout, caja, usuarios, inventario, ventas y pagos pendientes
+  - mensajes descriptivos por cada accion importante registrada
