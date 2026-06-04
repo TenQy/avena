@@ -345,23 +345,6 @@ class SalesRepository {
         );
       }
 
-      await _database.activityLogsDao.insertActivityLog(
-        ActivityLogsCompanion.insert(
-          id: IdGenerator.create(),
-          userId: Value(actor.id),
-          userNameSnapshot: actor.username,
-          userRoleSnapshot: actor.role,
-          action: AppActivityLogActions.createSale,
-          entityType: AppActivityLogEntities.sale,
-          entityId: Value(saleId),
-          description: Value(
-            'Venta registrada por \$${total.toStringAsFixed(2)}',
-          ),
-          createdAt: now,
-          syncStatus: _pendingSync,
-        ),
-      );
-
       return SaleRegisterResult.success;
     });
   }
@@ -588,24 +571,6 @@ class SalesRepository {
           ),
         );
       }
-
-      await _database.activityLogsDao.insertActivityLog(
-        ActivityLogsCompanion.insert(
-          id: IdGenerator.create(),
-          userId: Value(actor.id),
-          userNameSnapshot: actor.username,
-          userRoleSnapshot: actor.role,
-          action: AppActivityLogActions.createSale,
-          entityType: AppActivityLogEntities.sale,
-          entityId: Value(saleId),
-          description: Value(
-            'Venta con pago pendiente registrada por '
-            '\$${subtotal.toStringAsFixed(2)}',
-          ),
-          createdAt: now,
-          syncStatus: _pendingSync,
-        ),
-      );
 
       await _database.activityLogsDao.insertActivityLog(
         ActivityLogsCompanion.insert(

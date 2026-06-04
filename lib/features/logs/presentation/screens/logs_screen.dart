@@ -100,100 +100,198 @@ class _LogsFiltersBar extends ConsumerWidget {
         AppSpacing.lg,
         AppSpacing.md,
       ),
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Column(
-            children: [
-              Row(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final useVerticalFilters = constraints.maxWidth < 560;
+
+          return Card(
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: Column(
                 children: [
-                  Expanded(
-                    child: DropdownButtonFormField<String?>(
-                      initialValue: filters.userId,
-                      decoration: const InputDecoration(
-                        labelText: 'Usuario',
-                        prefixIcon: Icon(Icons.person_rounded),
-                      ),
-                      items: [
-                        const DropdownMenuItem<String?>(
-                          value: null,
-                          child: Text('Todos'),
+                  if (useVerticalFilters)
+                    Column(
+                      children: [
+                        _UserFilterField(
+                          filters: filters,
+                          sortedUsers: sortedUsers,
                         ),
-                        for (final userLog in sortedUsers)
-                          DropdownMenuItem<String?>(
-                            value: userLog.userId,
-                            child: Text(userLog.userNameSnapshot),
-                          ),
-                      ],
-                      onChanged: (value) {
-                        ref.read(logsFiltersProvider.notifier).setUserId(value);
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: DropdownButtonFormField<String?>(
-                      initialValue: filters.action,
-                      decoration: const InputDecoration(
-                        labelText: 'Accion',
-                        prefixIcon: Icon(Icons.tune_rounded),
-                      ),
-                      items: [
-                        const DropdownMenuItem<String?>(
-                          value: null,
-                          child: Text('Todas'),
+                        const SizedBox(height: AppSpacing.md),
+                        _ActionFilterField(
+                          filters: filters,
+                          sortedActions: sortedActions,
                         ),
-                        for (final action in sortedActions)
-                          DropdownMenuItem<String?>(
-                            value: action,
-                            child: Text(_actionLabel(action)),
-                          ),
                       ],
-                      onChanged: (value) {
-                        ref.read(logsFiltersProvider.notifier).setAction(value);
-                      },
+                    )
+                  else
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _UserFilterField(
+                            filters: filters,
+                            sortedUsers: sortedUsers,
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.md),
+                        Expanded(
+                          child: _ActionFilterField(
+                            filters: filters,
+                            sortedActions: sortedActions,
+                          ),
+                        ),
+                      ],
                     ),
+                  const SizedBox(height: AppSpacing.md),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _DateFilterButton(filters: filters),
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      TextButton(
+                        onPressed: () {
+                          ref.read(logsFiltersProvider.notifier).clear();
+                        },
+                        child: const Text('Limpiar'),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              const SizedBox(height: AppSpacing.md),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () async {
-                        final currentDate = DateTime.now();
-                        final picked = await showDatePicker(
-                          context: context,
-                          firstDate: DateTime(currentDate.year - 2),
-                          lastDate: currentDate,
-                          initialDate: filters.selectedDate ?? currentDate,
-                        );
-                        if (!context.mounted) {
-                          return;
-                        }
-                        ref.read(logsFiltersProvider.notifier).setDate(picked);
-                      },
-                      icon: const Icon(Icons.calendar_today_rounded, size: 18),
-                      label: Text(
-                        filters.selectedDate == null
-                            ? 'Filtrar por fecha'
-                            : _dateLabel(filters.selectedDate!),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  TextButton(
-                    onPressed: () {
-                      ref.read(logsFiltersProvider.notifier).clear();
-                    },
-                    child: const Text('Limpiar'),
-                  ),
-                ],
-              ),
-            ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _UserFilterField extends ConsumerWidget {
+  const _UserFilterField({
+    required this.filters,
+    required this.sortedUsers,
+  });
+
+  final LogsFilters filters;
+  final List<ActivityLog> sortedUsers;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return DropdownButtonFormField<String?>(
+      initialValue: filters.userId,
+      isExpanded: true,
+      decoration: const InputDecoration(
+        labelText: 'Usuario',
+        prefixIcon: Icon(Icons.person_rounded),
+      ),
+      items: [
+        const DropdownMenuItem<String?>(
+          value: null,
+          child: Text(
+            'Todos',
+            overflow: TextOverflow.ellipsis,
           ),
         ),
+        for (final userLog in sortedUsers)
+          DropdownMenuItem<String?>(
+            value: userLog.userId,
+            child: Text(
+              userLog.userNameSnapshot,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+      ],
+      onChanged: (value) {
+        ref.read(logsFiltersProvider.notifier).setUserId(value);
+      },
+    );
+  }
+}
+
+class _ActionFilterField extends ConsumerWidget {
+  const _ActionFilterField({
+    required this.filters,
+    required this.sortedActions,
+  });
+
+  final LogsFilters filters;
+  final List<String> sortedActions;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final labels = ['Todas', ...sortedActions.map(_actionLabel)];
+
+    return DropdownButtonFormField<String?>(
+      initialValue: filters.action,
+      isExpanded: true,
+      decoration: const InputDecoration(
+        labelText: 'Accion',
+        prefixIcon: Icon(Icons.tune_rounded),
+      ),
+      selectedItemBuilder: (context) {
+        return [
+          for (final label in labels)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+        ];
+      },
+      items: [
+        const DropdownMenuItem<String?>(
+          value: null,
+          child: Text(
+            'Todas',
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        for (final action in sortedActions)
+          DropdownMenuItem<String?>(
+            value: action,
+            child: Text(
+              _actionLabel(action),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+      ],
+      onChanged: (value) {
+        ref.read(logsFiltersProvider.notifier).setAction(value);
+      },
+    );
+  }
+}
+
+class _DateFilterButton extends ConsumerWidget {
+  const _DateFilterButton({required this.filters});
+
+  final LogsFilters filters;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return OutlinedButton.icon(
+      onPressed: () async {
+        final currentDate = DateTime.now();
+        final picked = await showDatePicker(
+          context: context,
+          firstDate: DateTime(currentDate.year - 2),
+          lastDate: currentDate,
+          initialDate: filters.selectedDate ?? currentDate,
+        );
+        if (!context.mounted) {
+          return;
+        }
+        ref.read(logsFiltersProvider.notifier).setDate(picked);
+      },
+      icon: const Icon(Icons.calendar_today_rounded, size: 18),
+      label: Text(
+        filters.selectedDate == null
+            ? 'Filtrar por fecha'
+            : _dateLabel(filters.selectedDate!),
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }
