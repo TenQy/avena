@@ -26,7 +26,7 @@ class ProductSearchResults extends StatelessWidget {
       return const EmptyState(
         icon: Icons.search_off_rounded,
         message: 'Sin resultados',
-        description: 'No se encontraron productos con esa búsqueda.',
+        description: 'No se encontraron productos con esa bÃƒÂºsqueda.',
       );
     }
 

@@ -17,11 +17,11 @@ class CashIconHeader extends StatelessWidget {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: AppColors.headerNav,
+            color: AppColors.headerNavFor(context),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.border, width: 0.5),
+            border: Border.all(color: AppColors.borderFor(context), width: 0.5),
           ),
-          child: Icon(icon, color: AppColors.textPrimary),
+          child: Icon(icon, color: AppColors.textPrimaryFor(context)),
         ),
         const SizedBox(width: AppSpacing.md),
         Expanded(

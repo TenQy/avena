@@ -48,7 +48,7 @@ class _PendingPaymentCardState extends ConsumerState<PendingPaymentCard> {
                   child: Text(
                     payment.customerName,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: AppColors.textPrimary,
+                      color: AppColors.textPrimaryFor(context),
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -63,7 +63,7 @@ class _PendingPaymentCardState extends ConsumerState<PendingPaymentCard> {
                 payment.customerPhone!,
                 style: Theme.of(
                   context,
-                ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+                ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryFor(context)),
               ),
             ],
             if (payment.description != null) ...[
@@ -71,7 +71,7 @@ class _PendingPaymentCardState extends ConsumerState<PendingPaymentCard> {
               Text(
                 payment.description!,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textSecondary,
+                  color: AppColors.textSecondaryFor(context),
                 ),
               ),
             ],
@@ -104,15 +104,15 @@ class _PendingPaymentCardState extends ConsumerState<PendingPaymentCard> {
               value: progress,
               minHeight: 6,
               borderRadius: BorderRadius.circular(8),
-              backgroundColor: AppColors.bodyBg,
-              color: AppColors.textSecondary,
+              backgroundColor: AppColors.bodyBgFor(context),
+              color: AppColors.textSecondaryFor(context),
             ),
             const SizedBox(height: AppSpacing.md),
             Text(
               'Creado: ${_dateTime(payment.createdAt)}',
               style: Theme.of(
                 context,
-              ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+              ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryFor(context)),
             ),
             const SizedBox(height: AppSpacing.md),
             Row(
@@ -142,12 +142,12 @@ class _PendingPaymentCardState extends ConsumerState<PendingPaymentCard> {
             ),
             if (_showEntries) ...[
               const SizedBox(height: AppSpacing.md),
-              const Divider(height: 1, thickness: 0.5, color: AppColors.border),
+              Divider(height: 1, thickness: 0.5, color: AppColors.borderFor(context)),
               const SizedBox(height: AppSpacing.md),
               Text(
                 'Historial de abonos',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textPrimary,
+                  color: AppColors.textPrimaryFor(context),
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -163,7 +163,7 @@ class _PendingPaymentCardState extends ConsumerState<PendingPaymentCard> {
                 error: (_, _) => Text(
                   'No se pudo cargar el historial.',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: AppColors.textSecondaryFor(context),
                   ),
                 ),
               ),
@@ -187,7 +187,7 @@ class _EntriesList extends StatelessWidget {
         'Aun no hay abonos registrados.',
         style: Theme.of(
           context,
-        ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+        ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryFor(context)),
       );
     }
 
@@ -212,7 +212,7 @@ class _PaymentEntryRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.sm),
       decoration: BoxDecoration(
-        color: AppColors.bodyBg,
+        color: AppColors.bodyBgFor(context),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
@@ -225,7 +225,7 @@ class _PaymentEntryRow extends StatelessWidget {
                 Text(
                   _paymentMethodLabel(entry.paymentMethod),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textPrimary,
+                    color: AppColors.textPrimaryFor(context),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -234,7 +234,7 @@ class _PaymentEntryRow extends StatelessWidget {
                   Text(
                     entry.note!,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondary,
+                      color: AppColors.textSecondaryFor(context),
                     ),
                   ),
                 ],
@@ -242,7 +242,7 @@ class _PaymentEntryRow extends StatelessWidget {
                 Text(
                   _dateTime(entry.createdAt),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: AppColors.textSecondaryFor(context),
                   ),
                 ),
                 if (AppPaymentCommissions.rateFor(entry.paymentMethod) > 0) ...[
@@ -251,7 +251,7 @@ class _PaymentEntryRow extends StatelessWidget {
                     'Cubre ${_money(entry.amount)} + comision '
                     '${_money(_entryCommission(entry))}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondary,
+                      color: AppColors.textSecondaryFor(context),
                     ),
                   ),
                 ],
@@ -262,7 +262,7 @@ class _PaymentEntryRow extends StatelessWidget {
           Text(
             _money(_entryChargedAmount(entry)),
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppColors.textPrimary,
+              color: AppColors.textPrimaryFor(context),
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -292,13 +292,13 @@ class _AmountColumn extends StatelessWidget {
           label,
           style: Theme.of(
             context,
-          ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+          ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryFor(context)),
         ),
         const SizedBox(height: AppSpacing.xs),
         Text(
           value,
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: AppColors.textPrimary,
+            color: AppColors.textPrimaryFor(context),
             fontWeight: emphasized ? FontWeight.w700 : FontWeight.w600,
           ),
         ),
@@ -320,14 +320,14 @@ class _PendingPaymentStatusChip extends StatelessWidget {
         vertical: AppSpacing.xs,
       ),
       decoration: BoxDecoration(
-        color: AppColors.headerNav,
+        color: AppColors.headerNavFor(context),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.border, width: 0.5),
+        border: Border.all(color: AppColors.borderFor(context), width: 0.5),
       ),
       child: Text(
         _statusLabel(status),
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-          color: AppColors.textPrimary,
+          color: AppColors.textPrimaryFor(context),
           fontWeight: FontWeight.w600,
         ),
       ),

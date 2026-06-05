@@ -47,7 +47,7 @@ class _OpenCashSheetState extends ConsumerState<OpenCashSheet> {
                 width: 36,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.border,
+                  color: AppColors.borderFor(context),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -63,7 +63,7 @@ class _OpenCashSheetState extends ConsumerState<OpenCashSheet> {
               'Registra el efectivo inicial disponible.',
               style: Theme.of(
                 context,
-              ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+              ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondaryFor(context)),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.xl),

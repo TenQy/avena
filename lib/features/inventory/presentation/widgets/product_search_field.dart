@@ -21,8 +21,8 @@ class ProductSearchField extends StatelessWidget {
             }
 
             return IconButton(
-              tooltip: 'Limpiar búsqueda',
-              icon: const Icon(Icons.close_rounded),
+              tooltip: 'Limpiar bÃƒÂºsqueda',
+              icon: Icon(Icons.close_rounded),
               onPressed: controller.clear,
             );
           },

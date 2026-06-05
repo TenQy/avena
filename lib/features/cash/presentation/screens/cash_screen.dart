@@ -109,7 +109,7 @@ class _CashContent extends ConsumerWidget {
     final result = await showModalBottomSheet<OpenCashResult>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.cardSurface,
+      backgroundColor: AppColors.cardSurfaceFor(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -133,7 +133,7 @@ class _CashContent extends ConsumerWidget {
     final result = await showModalBottomSheet<CashMovementResult>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.cardSurface,
+      backgroundColor: AppColors.cardSurfaceFor(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),

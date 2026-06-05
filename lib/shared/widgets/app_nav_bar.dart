@@ -24,8 +24,8 @@ class AppNavBar extends StatelessWidget {
       currentIndex: currentIndex,
       onTap: onItemSelected,
       selectedItemColor: hasActiveItem
-          ? AppColors.textPrimary
-          : AppColors.iconInactive,
+          ? AppColors.textPrimaryFor(context)
+          : AppColors.iconInactiveFor(context),
       selectedLabelStyle: TextStyle(
         fontSize: 11,
         fontWeight: hasActiveItem ? FontWeight.w600 : FontWeight.normal,

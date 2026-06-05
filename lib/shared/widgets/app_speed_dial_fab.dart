@@ -135,7 +135,7 @@ class _SpeedDialActionButton extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Material(
-          color: AppColors.cardSurface,
+          color: AppColors.cardSurfaceFor(context),
           borderRadius: BorderRadius.circular(10),
           child: Padding(
             padding: const EdgeInsets.symmetric(
@@ -146,7 +146,9 @@ class _SpeedDialActionButton extends StatelessWidget {
               action.label,
               style: Theme.of(
                 context,
-              ).textTheme.bodyMedium?.copyWith(color: AppColors.textPrimary),
+              ).textTheme.bodyMedium?.copyWith(
+                color: AppColors.textPrimaryFor(context),
+              ),
             ),
           ),
         ),
@@ -158,8 +160,10 @@ class _SpeedDialActionButton extends StatelessWidget {
             heroTag: null,
             mini: true,
             tooltip: action.label,
-            backgroundColor: AppColors.accent,
-            foregroundColor: AppColors.textPrimary,
+            backgroundColor: AppColors.accentFor(context),
+            foregroundColor: AppColors.isDark(context)
+                ? const Color(0xFF2B1D14)
+                : AppColors.textPrimaryFor(context),
             onPressed: onPressed,
             child: Icon(action.icon, size: 20),
           ),

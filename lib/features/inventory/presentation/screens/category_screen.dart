@@ -127,7 +127,7 @@ class _InventoryCategoryScreenState
                   loading: () => const InventoryLoadingBlock(),
                   error: (_, _) => const EmptyState(
                     icon: Icons.error_outline_rounded,
-                    message: 'No se pudieron cargar las subcategorías',
+                    message: 'No se pudieron cargar las subcategorÃƒÂ­as',
                     description: 'Intenta nuevamente.',
                   ),
                 ),
@@ -143,7 +143,7 @@ class _InventoryCategoryScreenState
                 actions: [
                   AppSpeedDialAction(
                     icon: Icons.create_new_folder_rounded,
-                    label: 'Crear subcategoría',
+                    label: 'Crear subcategorÃƒÂ­a',
                     onPressed: _showCreateSubcategoryForm,
                   ),
                   AppSpeedDialAction(
@@ -162,7 +162,7 @@ class _InventoryCategoryScreenState
     final result = await showModalBottomSheet<SubcategorySaveResult>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.cardSurface,
+      backgroundColor: AppColors.cardSurfaceFor(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -182,7 +182,7 @@ class _InventoryCategoryScreenState
     final result = await showModalBottomSheet<ProductSaveResult>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.cardSurface,
+      backgroundColor: AppColors.cardSurfaceFor(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -202,7 +202,7 @@ class _InventoryCategoryScreenState
     final result = await showModalBottomSheet<ProductSaveResult>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.cardSurface,
+      backgroundColor: AppColors.cardSurfaceFor(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -225,7 +225,7 @@ class _InventoryCategoryScreenState
   Future<void> _showProductActions(Product product) async {
     await showModalBottomSheet<void>(
       context: context,
-      backgroundColor: AppColors.cardSurface,
+      backgroundColor: AppColors.cardSurfaceFor(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -245,7 +245,7 @@ class _InventoryCategoryScreenState
                   width: 36,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.border,
+                    color: AppColors.borderFor(context),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -287,9 +287,9 @@ class _InventoryCategoryScreenState
   Future<void> _deleteSubcategory(Subcategory subcategory) async {
     final shouldDelete = await ConfirmDialog.show(
       context,
-      title: 'Eliminar subcategoría',
+      title: 'Eliminar subcategorÃƒÂ­a',
       message:
-          'La subcategoría se quitará y sus productos pasarán a Sin subcategoría.',
+          'La subcategorÃƒÂ­a se quitarÃƒÂ¡ y sus productos pasarÃƒÂ¡n a Sin subcategorÃƒÂ­a.',
       confirmLabel: 'Eliminar',
       icon: Icons.delete_rounded,
     );
@@ -324,7 +324,7 @@ class _InventoryCategoryScreenState
     final shouldDelete = await ConfirmDialog.show(
       context,
       title: 'Eliminar producto',
-      message: 'El producto se quitará del inventario.',
+      message: 'El producto se quitarÃƒÂ¡ del inventario.',
       confirmLabel: 'Eliminar',
       icon: Icons.delete_rounded,
     );
@@ -376,16 +376,16 @@ class _ProductActionTile extends StatelessWidget {
         width: 36,
         height: 36,
         decoration: BoxDecoration(
-          color: AppColors.bodyBg,
+          color: AppColors.bodyBgFor(context),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.border, width: 0.5),
+          border: Border.all(color: AppColors.borderFor(context), width: 0.5),
         ),
-        child: Icon(icon, color: AppColors.iconInactive, size: 22),
+        child: Icon(icon, color: AppColors.iconInactiveFor(context), size: 22),
       ),
       title: Text(label, style: Theme.of(context).textTheme.bodyLarge),
-      trailing: const Icon(
+      trailing: Icon(
         Icons.chevron_right_rounded,
-        color: AppColors.iconInactive,
+        color: AppColors.iconInactiveFor(context),
       ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       onTap: onTap,

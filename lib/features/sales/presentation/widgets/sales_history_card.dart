@@ -39,7 +39,7 @@ class SalesHistoryCard extends ConsumerWidget {
                           _formatTime(sale.createdAt),
                           style: Theme.of(context).textTheme.bodyLarge
                               ?.copyWith(
-                                color: AppColors.textPrimary,
+                                color: AppColors.textPrimaryFor(context),
                                 fontWeight: FontWeight.w600,
                               ),
                         ),
@@ -47,7 +47,7 @@ class SalesHistoryCard extends ConsumerWidget {
                         Text(
                           'Atendio: ${sale.userNameSnapshot}',
                           style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(color: AppColors.textSecondary),
+                              ?.copyWith(color: AppColors.textSecondaryFor(context)),
                         ),
                       ],
                     ),
@@ -59,7 +59,7 @@ class SalesHistoryCard extends ConsumerWidget {
                       Text(
                         _money(sale.total),
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: AppColors.textPrimary,
+                          color: AppColors.textPrimaryFor(context),
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -81,7 +81,7 @@ class SalesHistoryCard extends ConsumerWidget {
                           '${_quantity(item.quantity)} ${_unit(item.quantityUnit)} '
                           '${item.productNameSnapshot}  ${_money(item.subtotal)}',
                           style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(color: AppColors.textSecondary),
+                              ?.copyWith(color: AppColors.textSecondaryFor(context)),
                         ),
                       ),
                   ],
@@ -96,7 +96,7 @@ class SalesHistoryCard extends ConsumerWidget {
                 data: (payments) => Text(
                   'Pago: ${payments.isEmpty ? 'Pendiente' : payments.map((payment) => paymentMethodLabel(payment.paymentMethod)).join(' + ')}',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: AppColors.textSecondaryFor(context),
                   ),
                 ),
                 loading: () => const LinearProgressIndicator(),
@@ -108,7 +108,7 @@ class SalesHistoryCard extends ConsumerWidget {
                 Text(
                   'Pendiente: ${_money(sale.pendingAmount)}',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textPrimary,
+                    color: AppColors.textPrimaryFor(context),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -119,7 +119,7 @@ class SalesHistoryCard extends ConsumerWidget {
                 Text(
                   'Motivo de cancelacion: ${sale.cancelReason}',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: AppColors.textSecondaryFor(context),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -149,14 +149,14 @@ class SalesHistoryMessageCard extends StatelessWidget {
         padding: const EdgeInsets.all(AppSpacing.xl),
         child: Column(
           children: [
-            Icon(icon, size: 40, color: AppColors.iconInactive),
+            Icon(icon, size: 40, color: AppColors.iconInactiveFor(context)),
             const SizedBox(height: AppSpacing.sm),
             Text(
               message,
               textAlign: TextAlign.center,
               style: Theme.of(
                 context,
-              ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+              ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondaryFor(context)),
             ),
           ],
         ),
@@ -180,14 +180,14 @@ class _StatusChip extends StatelessWidget {
         vertical: AppSpacing.xs,
       ),
       decoration: BoxDecoration(
-        color: isCancelled ? AppColors.bodyBg : AppColors.headerNav,
+        color: isCancelled ? AppColors.bodyBgFor(context) : AppColors.headerNavFor(context),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.border, width: 0.5),
+        border: Border.all(color: AppColors.borderFor(context), width: 0.5),
       ),
       child: Text(
         isCancelled ? 'Cancelada' : 'Completada',
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-          color: isCancelled ? AppColors.textSecondary : AppColors.textPrimary,
+          color: isCancelled ? AppColors.textSecondaryFor(context) : AppColors.textPrimaryFor(context),
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -206,7 +206,7 @@ class _InlineUnavailable extends StatelessWidget {
       message,
       style: Theme.of(
         context,
-      ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+      ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryFor(context)),
     );
   }
 }

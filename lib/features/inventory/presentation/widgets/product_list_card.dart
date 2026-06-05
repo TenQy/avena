@@ -23,6 +23,11 @@ class ProductListCard extends StatelessWidget {
     final priceUnitLabel = product.productType == AppProductTypes.bulk
         ? 'kg'
         : 'unidad';
+    final headerNav = AppColors.headerNavFor(context);
+    final border = AppColors.borderFor(context);
+    final iconInactive = AppColors.iconInactiveFor(context);
+    final textPrimary = AppColors.textPrimaryFor(context);
+    final textSecondary = AppColors.textSecondaryFor(context);
 
     return GestureDetector(
       onTap: onTap,
@@ -36,13 +41,13 @@ class ProductListCard extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppColors.headerNav,
+                  color: headerNav,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.border, width: 0.5),
+                  border: Border.all(color: border, width: 0.5),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.inventory_2_rounded,
-                  color: AppColors.iconInactive,
+                  color: iconInactive,
                   size: 22,
                 ),
               ),
@@ -56,7 +61,7 @@ class ProductListCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: AppColors.textPrimary,
+                        color: textPrimary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -66,7 +71,7 @@ class ProductListCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
+                          color: textSecondary,
                         ),
                       ),
                   ],
@@ -76,7 +81,7 @@ class ProductListCard extends StatelessWidget {
               RichText(
                 text: TextSpan(
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: AppColors.textPrimary,
+                    color: textPrimary,
                     fontWeight: FontWeight.w700,
                   ),
                   children: [
@@ -84,7 +89,7 @@ class ProductListCard extends StatelessWidget {
                     TextSpan(
                       text: ' x $priceUnitLabel',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: textSecondary,
                         fontWeight: FontWeight.w500,
                       ),
                     ),

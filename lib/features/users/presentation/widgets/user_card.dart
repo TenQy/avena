@@ -64,13 +64,13 @@ class UserCard extends ConsumerWidget {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: AppColors.headerNav,
+                    color: AppColors.headerNavFor(context),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.border, width: 0.5),
+                    border: Border.all(color: AppColors.borderFor(context), width: 0.5),
                   ),
                   child: Icon(
                     userRoleIcon(user.role),
-                    color: AppColors.iconInactive,
+                    color: AppColors.iconInactiveFor(context),
                   ),
                 ),
                 const SizedBox(width: AppSpacing.md),
@@ -97,9 +97,9 @@ class UserCard extends ConsumerWidget {
               const SizedBox(height: AppSpacing.md),
               Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.phone_rounded,
-                    color: AppColors.iconInactive,
+                    color: AppColors.iconInactiveFor(context),
                     size: 18,
                   ),
                   const SizedBox(width: AppSpacing.sm),
@@ -164,8 +164,8 @@ class UserCard extends ConsumerWidget {
       context,
       title: user.isActive ? 'Inhabilitar usuario' : 'Habilitar usuario',
       message: user.isActive
-          ? 'El usuario no podrá iniciar sesión mientras esté inhabilitado.'
-          : 'El usuario podrá iniciar sesión nuevamente.',
+          ? 'El usuario no podrÃƒÂ¡ iniciar sesiÃƒÂ³n mientras estÃƒÂ© inhabilitado.'
+          : 'El usuario podrÃƒÂ¡ iniciar sesiÃƒÂ³n nuevamente.',
       confirmLabel: user.isActive ? 'Inhabilitar' : 'Habilitar',
       icon: user.isActive ? Icons.person_off_rounded : Icons.person_rounded,
     );
@@ -199,7 +199,7 @@ class UserCard extends ConsumerWidget {
     final shouldContinue = await ConfirmDialog.show(
       context,
       title: 'Eliminar usuario',
-      message: 'El usuario se eliminará de la lista y no podrá iniciar sesión.',
+      message: 'El usuario se eliminarÃƒÂ¡ de la lista y no podrÃƒÂ¡ iniciar sesiÃƒÂ³n.',
       confirmLabel: 'Eliminar',
       icon: Icons.delete_rounded,
     );
@@ -236,8 +236,8 @@ class _UserActionButton extends StatelessWidget {
     return OutlinedButton(
       onPressed: onPressed,
       style: OutlinedButton.styleFrom(
-        foregroundColor: AppColors.textSecondary,
-        side: const BorderSide(color: AppColors.border, width: 0.5),
+        foregroundColor: AppColors.textSecondaryFor(context),
+        side: BorderSide(color: AppColors.borderFor(context), width: 0.5),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       child: Row(
@@ -265,9 +265,9 @@ class _StatusBadge extends StatelessWidget {
         vertical: AppSpacing.xs,
       ),
       decoration: BoxDecoration(
-        color: isActive ? AppColors.headerNav : AppColors.bodyBg,
+        color: isActive ? AppColors.headerNavFor(context) : AppColors.bodyBgFor(context),
         borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: AppColors.border, width: 0.5),
+        border: Border.all(color: AppColors.borderFor(context), width: 0.5),
       ),
       child: Text(
         isActive ? 'Activo' : 'Inhabilitado',

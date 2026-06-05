@@ -45,21 +45,25 @@ class ConfirmDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cardSurface = AppColors.cardSurfaceFor(context);
+
     return AlertDialog(
-      backgroundColor: AppColors.cardSurface,
-      surfaceTintColor: AppColors.cardSurface,
+      backgroundColor: cardSurface,
+      surfaceTintColor: cardSurface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
-        side: const BorderSide(color: AppColors.border, width: 0.5),
+        side: BorderSide(color: AppColors.borderFor(context), width: 0.5),
       ),
-      icon: Icon(icon, color: AppColors.iconInactive, size: 32),
+      icon: Icon(icon, color: AppColors.iconInactiveFor(context), size: 32),
       title: Text(title, textAlign: TextAlign.center),
       content: Text(
         message,
         textAlign: TextAlign.center,
         style: Theme.of(
           context,
-        ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+        ).textTheme.bodyMedium?.copyWith(
+          color: AppColors.textSecondaryFor(context),
+        ),
       ),
       actionsPadding: const EdgeInsets.fromLTRB(
         AppSpacing.lg,

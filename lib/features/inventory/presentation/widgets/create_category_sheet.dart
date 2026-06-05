@@ -49,24 +49,24 @@ class _CreateCategorySheetState extends ConsumerState<CreateCategorySheet> {
                   width: 36,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.border,
+                    color: AppColors.borderFor(context),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
               ),
               const SizedBox(height: AppSpacing.lg),
               Text(
-                'Nueva categoría',
+                'Nueva categorÃƒÂ­a',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: AppSpacing.md),
-              const Divider(height: 1, thickness: 0.5, color: AppColors.border),
+              Divider(height: 1, thickness: 0.5, color: AppColors.borderFor(context)),
               const SizedBox(height: AppSpacing.lg),
               TextFormField(
                 controller: _nameController,
                 textInputAction: TextInputAction.done,
                 decoration: const InputDecoration(
-                  labelText: 'Nombre de categoría',
+                  labelText: 'Nombre de categorÃƒÂ­a',
                   prefixIcon: Icon(Icons.category_rounded),
                 ),
                 validator: (value) {
@@ -85,7 +85,7 @@ class _CreateCategorySheetState extends ConsumerState<CreateCategorySheet> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('Crear categoría'),
+                    const Text('Crear categorÃƒÂ­a'),
                     const SizedBox(width: AppSpacing.sm),
                     if (_isSaving)
                       const SizedBox(
@@ -94,7 +94,7 @@ class _CreateCategorySheetState extends ConsumerState<CreateCategorySheet> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     else
-                      const Icon(Icons.save_rounded),
+                      Icon(Icons.save_rounded),
                   ],
                 ),
               ),

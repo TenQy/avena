@@ -94,12 +94,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           width: 140,
                           height: 140,
                           decoration: BoxDecoration(
-                            color: AppColors.headerNav,
+                            color: AppColors.headerNavFor(context),
                             borderRadius: BorderRadius.circular(24),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.storefront_rounded,
-                            color: AppColors.textPrimary,
+                            color: AppColors.textPrimaryFor(context),
                             size: 72,
                           ),
                         ),
@@ -115,7 +115,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         'Inicia sesion para continuar',
                         textAlign: TextAlign.center,
                         style: textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
+                          color: AppColors.textSecondaryFor(context),
                         ),
                       ),
                       const SizedBox(height: 44),
@@ -158,7 +158,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   ? Icons.visibility_rounded
                                   : Icons.visibility_off_rounded,
                             ),
-                            color: AppColors.iconInactive,
+                            color: AppColors.iconInactiveFor(context),
                             onPressed: () {
                               setState(() {
                                 _obscurePassword = !_obscurePassword;
@@ -213,7 +213,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                       ),
                                     )
                                   else
-                                    const Icon(Icons.login_rounded),
+                                    Icon(Icons.login_rounded),
                                 ],
                               ),
                             ),
@@ -273,21 +273,21 @@ class _LoginInput extends StatelessWidget {
             children: [
               SizedBox(
                 width: 52,
-                child: Icon(icon, color: AppColors.iconInactive),
+                child: Icon(icon, color: AppColors.iconInactiveFor(context)),
               ),
-              const VerticalDivider(
+              VerticalDivider(
                 width: 1,
                 thickness: 0.5,
-                color: AppColors.border,
+                color: AppColors.borderFor(context),
               ),
               const SizedBox(width: AppSpacing.sm),
             ],
           ),
         ),
         suffixIcon: trailing,
-        border: _inputBorder(AppColors.border),
-        enabledBorder: _inputBorder(AppColors.border),
-        focusedBorder: _inputBorder(AppColors.accent),
+        border: _inputBorder(AppColors.borderFor(context)),
+        enabledBorder: _inputBorder(AppColors.borderFor(context)),
+        focusedBorder: _inputBorder(AppColors.accentFor(context)),
         errorBorder: _inputBorder(Theme.of(context).colorScheme.error),
         focusedErrorBorder: _inputBorder(Theme.of(context).colorScheme.error),
       ),

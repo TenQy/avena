@@ -25,7 +25,7 @@ class UserFormSheet extends ConsumerStatefulWidget {
     return showModalBottomSheet<UserSaveResult>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.cardSurface,
+      backgroundColor: AppColors.cardSurfaceFor(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -100,7 +100,7 @@ class _UserFormSheetState extends ConsumerState<UserFormSheet> {
                   width: 36,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.border,
+                    color: AppColors.borderFor(context),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -111,7 +111,7 @@ class _UserFormSheetState extends ConsumerState<UserFormSheet> {
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: AppSpacing.md),
-              const Divider(height: 1, thickness: 0.5, color: AppColors.border),
+              Divider(height: 1, thickness: 0.5, color: AppColors.borderFor(context)),
               const SizedBox(height: AppSpacing.lg),
               TextFormField(
                 controller: _usernameController,
@@ -135,13 +135,13 @@ class _UserFormSheetState extends ConsumerState<UserFormSheet> {
                 textInputAction: TextInputAction.next,
                 decoration: InputDecoration(
                   labelText: _isEditing
-                      ? 'Nueva contraseña opcional'
-                      : 'Contraseña',
+                      ? 'Nueva contraseÃƒÂ±a opcional'
+                      : 'ContraseÃƒÂ±a',
                   prefixIcon: const Icon(Icons.lock_rounded),
                   suffixIcon: IconButton(
                     tooltip: _obscurePassword
-                        ? 'Mostrar contraseña'
-                        : 'Ocultar contraseña',
+                        ? 'Mostrar contraseÃƒÂ±a'
+                        : 'Ocultar contraseÃƒÂ±a',
                     icon: Icon(
                       _obscurePassword
                           ? Icons.visibility_rounded
@@ -156,7 +156,7 @@ class _UserFormSheetState extends ConsumerState<UserFormSheet> {
                 ),
                 validator: (value) {
                   if (!_isEditing && (value == null || value.trim().isEmpty)) {
-                    return 'Ingresa una contraseña.';
+                    return 'Ingresa una contraseÃƒÂ±a.';
                   }
 
                   return null;
@@ -168,7 +168,7 @@ class _UserFormSheetState extends ConsumerState<UserFormSheet> {
                 keyboardType: TextInputType.phone,
                 textInputAction: TextInputAction.next,
                 decoration: const InputDecoration(
-                  labelText: 'Teléfono opcional',
+                  labelText: 'TelÃƒÂ©fono opcional',
                   prefixIcon: Icon(Icons.phone_rounded),
                 ),
               ),
@@ -213,7 +213,7 @@ class _UserFormSheetState extends ConsumerState<UserFormSheet> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     else
-                      const Icon(Icons.save_rounded),
+                      Icon(Icons.save_rounded),
                   ],
                 ),
               ),

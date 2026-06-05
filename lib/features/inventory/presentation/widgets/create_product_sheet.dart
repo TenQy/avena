@@ -86,8 +86,8 @@ class _CreateProductSheetState extends ConsumerState<CreateProductSheet> {
             if (categories.isEmpty) {
               return const EmptyState(
                 icon: Icons.category_rounded,
-                message: 'Sin categorías aún',
-                description: 'Crea una categoría antes de agregar productos.',
+                message: 'Sin categorÃƒÂ­as aÃƒÂºn',
+                description: 'Crea una categorÃƒÂ­a antes de agregar productos.',
               );
             }
 
@@ -110,7 +110,7 @@ class _CreateProductSheetState extends ConsumerState<CreateProductSheet> {
                       width: 36,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: AppColors.border,
+                        color: AppColors.borderFor(context),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -123,10 +123,10 @@ class _CreateProductSheetState extends ConsumerState<CreateProductSheet> {
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: AppSpacing.md),
-                  const Divider(
+                  Divider(
                     height: 1,
                     thickness: 0.5,
-                    color: AppColors.border,
+                    color: AppColors.borderFor(context),
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   _ProductTextFields(
@@ -138,7 +138,7 @@ class _CreateProductSheetState extends ConsumerState<CreateProductSheet> {
                     key: ValueKey('category-$_selectedCategoryId'),
                     initialValue: _selectedCategoryId,
                     decoration: const InputDecoration(
-                      labelText: 'Categoría',
+                      labelText: 'CategorÃƒÂ­a',
                       prefixIcon: Icon(Icons.category_rounded),
                     ),
                     items: [
@@ -150,7 +150,7 @@ class _CreateProductSheetState extends ConsumerState<CreateProductSheet> {
                     ],
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Selecciona una categoría.';
+                        return 'Selecciona una categorÃƒÂ­a.';
                       }
 
                       return null;
@@ -197,7 +197,7 @@ class _CreateProductSheetState extends ConsumerState<CreateProductSheet> {
                     maxLines: 3,
                     textInputAction: TextInputAction.newline,
                     decoration: const InputDecoration(
-                      labelText: 'Descripción opcional',
+                      labelText: 'DescripciÃƒÂ³n opcional',
                       prefixIcon: Icon(Icons.notes_rounded),
                     ),
                   ),
@@ -241,7 +241,7 @@ class _CreateProductSheetState extends ConsumerState<CreateProductSheet> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         else
-                          const Icon(Icons.save_rounded),
+                          Icon(Icons.save_rounded),
                       ],
                     ),
                   ),
@@ -252,7 +252,7 @@ class _CreateProductSheetState extends ConsumerState<CreateProductSheet> {
           loading: () => const InventoryLoadingBlock(),
           error: (_, _) => const EmptyState(
             icon: Icons.error_outline_rounded,
-            message: 'No se pudieron cargar las categorías',
+            message: 'No se pudieron cargar las categorÃƒÂ­as',
             description: 'Intenta nuevamente.',
           ),
         ),
@@ -421,7 +421,7 @@ class _PriceField extends StatelessWidget {
       validator: (value) {
         final price = parseNumber(value);
         if (price == null || price <= 0) {
-          return 'Ingresa un precio válido.';
+          return 'Ingresa un precio vÃƒÂ¡lido.';
         }
 
         return null;
@@ -451,7 +451,7 @@ class _StockField extends StatelessWidget {
       validator: (value) {
         final stock = parseNumber(value);
         if (stock == null || stock < 0) {
-          return 'Ingresa un stock válido.';
+          return 'Ingresa un stock vÃƒÂ¡lido.';
         }
 
         return null;

@@ -35,12 +35,12 @@ class DashboardMetricCard extends StatelessWidget {
                   width: compact ? 30 : 36,
                   height: compact ? 30 : 36,
                   decoration: BoxDecoration(
-                    color: AppColors.headerNav,
+                    color: AppColors.headerNavFor(context),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
                     icon,
-                    color: AppColors.iconInactive,
+                    color: AppColors.iconInactiveFor(context),
                     size: compact ? 18 : 21,
                   ),
                 ),

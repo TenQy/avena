@@ -78,7 +78,7 @@ class _BulkSaleItemSheetState extends State<BulkSaleItemSheet> {
                 width: 36,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.border,
+                  color: AppColors.borderFor(context),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -92,11 +92,11 @@ class _BulkSaleItemSheetState extends State<BulkSaleItemSheet> {
             const SizedBox(height: AppSpacing.sm),
             Text(
               _tracksStock
-                  ? '${_money(_pricePerKilogram)} por kg · Stock: ${_formatDecimal(_availableStock)} kg'
+                  ? '${_money(_pricePerKilogram)} por kg Ã‚Â· Stock: ${_formatDecimal(_availableStock)} kg'
                   : '${_money(_pricePerKilogram)} por kg',
               style: Theme.of(
                 context,
-              ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+              ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondaryFor(context)),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.xl),

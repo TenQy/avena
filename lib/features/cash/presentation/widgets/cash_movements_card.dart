@@ -25,14 +25,14 @@ class CashMovementsCard extends StatelessWidget {
               Text(
                 'Aun no hay retiros ni depositos.',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textSecondary,
+                  color: AppColors.textSecondaryFor(context),
                 ),
               )
             else
               for (final movement in movements) ...[
                 _MovementTile(movement: movement),
                 if (movement != movements.last)
-                  const Divider(height: AppSpacing.lg, color: AppColors.border),
+                  Divider(height: AppSpacing.lg, color: AppColors.borderFor(context)),
               ],
           ],
         ),
@@ -60,15 +60,15 @@ class _MovementTile extends StatelessWidget {
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: AppColors.bodyBg,
+            color: AppColors.bodyBgFor(context),
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: AppColors.border, width: 0.5),
+            border: Border.all(color: AppColors.borderFor(context), width: 0.5),
           ),
           child: Icon(
             _isDeposit
                 ? Icons.add_circle_outline_rounded
                 : Icons.remove_circle_outline_rounded,
-            color: AppColors.iconInactive,
+            color: AppColors.iconInactiveFor(context),
             size: 22,
           ),
         ),
@@ -83,14 +83,14 @@ class _MovementTile extends StatelessWidget {
                 movement.reason,
                 style: Theme.of(
                   context,
-                ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+                ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryFor(context)),
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(
                 formatCashDateTime(movement.createdAt),
                 style: Theme.of(
                   context,
-                ).textTheme.labelSmall?.copyWith(color: AppColors.iconInactive),
+                ).textTheme.labelSmall?.copyWith(color: AppColors.iconInactiveFor(context)),
               ),
             ],
           ),
@@ -99,7 +99,7 @@ class _MovementTile extends StatelessWidget {
         Text(
           '$prefix${formatMoney(movement.amount)}',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: AppColors.textPrimary,
+            color: AppColors.textPrimaryFor(context),
             fontWeight: FontWeight.w600,
           ),
         ),

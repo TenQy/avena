@@ -98,7 +98,7 @@ class SettingsScreen extends ConsumerWidget {
             children: [
               FilledButton.icon(
                 onPressed: () => _logout(context, ref),
-                icon: const Icon(Icons.logout_rounded),
+                icon: Icon(Icons.logout_rounded),
                 label: const Text('Cerrar sesion'),
               ),
             ],
@@ -147,6 +147,8 @@ class _SectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = _SettingsPalette.of(context);
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
@@ -159,11 +161,11 @@ class _SectionCard extends StatelessWidget {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: AppColors.headerNav,
+                    color: palette.iconBackground,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.border, width: 0.5),
+                    border: Border.all(color: palette.border, width: 0.5),
                   ),
-                  child: Icon(icon, color: AppColors.textPrimary, size: 22),
+                  child: Icon(icon, color: palette.icon, size: 22),
                 ),
                 const SizedBox(width: AppSpacing.md),
                 Expanded(
@@ -191,6 +193,8 @@ class _InfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = _SettingsPalette.of(context);
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
       child: Row(
@@ -200,7 +204,7 @@ class _InfoRow extends StatelessWidget {
             child: Text(
               label,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.textSecondary,
+                color: palette.secondaryText,
               ),
             ),
           ),
@@ -237,9 +241,11 @@ class _SettingsSwitchRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = _SettingsPalette.of(context);
+
     return SwitchListTile(
       contentPadding: EdgeInsets.zero,
-      secondary: Icon(icon, color: AppColors.iconInactive),
+      secondary: Icon(icon, color: palette.secondaryText),
       title: Text(title, style: Theme.of(context).textTheme.bodyLarge),
       subtitle: Text(
         description,
@@ -247,6 +253,40 @@ class _SettingsSwitchRow extends StatelessWidget {
       ),
       value: value,
       onChanged: onChanged,
+    );
+  }
+}
+
+class _SettingsPalette {
+  const _SettingsPalette({
+    required this.iconBackground,
+    required this.icon,
+    required this.border,
+    required this.secondaryText,
+  });
+
+  final Color iconBackground;
+  final Color icon;
+  final Color border;
+  final Color secondaryText;
+
+  static _SettingsPalette of(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    if (isDark) {
+      return _SettingsPalette(
+        iconBackground: Color(0xFF3A2F26),
+        icon: Color(0xFFE8D2B0),
+        border: Color(0xFF5B4635),
+        secondaryText: Color(0xFFD4BFA0),
+      );
+    }
+
+    return _SettingsPalette(
+      iconBackground: AppColors.headerNavFor(context),
+      icon: AppColors.textPrimaryFor(context),
+      border: AppColors.borderFor(context),
+      secondaryText: AppColors.textSecondaryFor(context),
     );
   }
 }

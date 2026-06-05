@@ -127,7 +127,7 @@ class _SalesScreenState extends ConsumerState<SalesScreen> {
     final result = await showModalBottomSheet<BulkSaleItemDraft>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.cardSurface,
+      backgroundColor: AppColors.cardSurfaceFor(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),

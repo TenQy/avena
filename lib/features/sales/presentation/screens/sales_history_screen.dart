@@ -157,7 +157,7 @@ class _SalesHistoryFiltersCard extends StatelessWidget {
               'Consulta ventas por fecha y metodo de pago.',
               style: Theme.of(
                 context,
-              ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+              ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryFor(context)),
             ),
             const SizedBox(height: AppSpacing.lg),
             OutlinedButton(
@@ -166,7 +166,7 @@ class _SalesHistoryFiltersCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(_formatDate(selectedDate)),
-                  const Icon(Icons.calendar_today_rounded),
+                  Icon(Icons.calendar_today_rounded),
                 ],
               ),
             ),
@@ -174,7 +174,7 @@ class _SalesHistoryFiltersCard extends StatelessWidget {
             Text(
               'Metodo de pago',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.textPrimary,
+                color: AppColors.textPrimaryFor(context),
                 fontWeight: FontWeight.w600,
               ),
             ),

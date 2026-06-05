@@ -22,7 +22,7 @@ class HomeScreen extends StatelessWidget {
         child: EmptyState(
           icon: Icons.storefront_rounded,
           message: 'Base del proyecto lista',
-          description: 'Las funciones se agregarán en fases posteriores.',
+          description: 'Las funciones se agregarÃƒÂ¡n en fases posteriores.',
         ),
       ),
     );

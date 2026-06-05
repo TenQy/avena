@@ -47,7 +47,7 @@ class SaleItemsCard extends StatelessWidget {
                   onRemoveItem: onRemoveItem,
                 ),
                 if (item != items.last)
-                  const Divider(height: AppSpacing.lg, color: AppColors.border),
+                  Divider(height: AppSpacing.lg, color: AppColors.borderFor(context)),
               ],
           ],
         ),
@@ -94,7 +94,7 @@ class _SaleItemTile extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: AppColors.textPrimary,
+                  color: AppColors.textPrimaryFor(context),
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -103,7 +103,7 @@ class _SaleItemTile extends StatelessWidget {
             Text(
               _money(item.subtotal),
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppColors.textPrimary,
+                color: AppColors.textPrimaryFor(context),
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -114,7 +114,7 @@ class _SaleItemTile extends StatelessWidget {
           '${_quantity(item.quantity)} $unitLabel x ${_money(product.price)}',
           style: Theme.of(
             context,
-          ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+          ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryFor(context)),
         ),
         if (product.trackStock) ...[
           const SizedBox(height: AppSpacing.xs),
@@ -123,7 +123,7 @@ class _SaleItemTile extends StatelessWidget {
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: item.quantity > stockQuantity
                   ? Theme.of(context).colorScheme.error
-                  : AppColors.textSecondary,
+                  : AppColors.textSecondaryFor(context),
               fontWeight: item.quantity > stockQuantity
                   ? FontWeight.w600
                   : FontWeight.normal,
@@ -142,9 +142,9 @@ class _SaleItemTile extends StatelessWidget {
                   for (final portion in AppBulkPortions.salesQuick)
                     ActionChip(
                       label: Text(portion.label),
-                      backgroundColor: AppColors.bodyBg,
-                      side: const BorderSide(
-                        color: AppColors.border,
+                      backgroundColor: AppColors.bodyBgFor(context),
+                      side: BorderSide(
+                        color: AppColors.borderFor(context),
                         width: 0.5,
                       ),
                       onPressed:
@@ -169,7 +169,7 @@ class _SaleItemTile extends StatelessWidget {
                   IconButton(
                     tooltip: 'Quitar',
                     onPressed: () => onRemoveItem(item),
-                    icon: const Icon(Icons.close_rounded),
+                    icon: Icon(Icons.close_rounded),
                   ),
                 ],
               ),
@@ -181,7 +181,7 @@ class _SaleItemTile extends StatelessWidget {
               IconButton(
                 tooltip: 'Restar',
                 onPressed: () => onDecreaseQuantity(item),
-                icon: const Icon(Icons.remove_circle_outline_rounded),
+                icon: Icon(Icons.remove_circle_outline_rounded),
               ),
               SizedBox(
                 width: 32,
@@ -194,13 +194,13 @@ class _SaleItemTile extends StatelessWidget {
               IconButton(
                 tooltip: 'Sumar',
                 onPressed: canAddUnit ? () => onIncreaseQuantity(item) : null,
-                icon: const Icon(Icons.add_circle_outline_rounded),
+                icon: Icon(Icons.add_circle_outline_rounded),
               ),
               const Spacer(),
               IconButton(
                 tooltip: 'Quitar',
                 onPressed: () => onRemoveItem(item),
-                icon: const Icon(Icons.close_rounded),
+                icon: Icon(Icons.close_rounded),
               ),
             ],
           ),
@@ -237,15 +237,15 @@ class _EmptySaleItems extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: AppColors.bodyBg,
+        color: AppColors.bodyBgFor(context),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border, width: 0.5),
+        border: Border.all(color: AppColors.borderFor(context), width: 0.5),
       ),
       child: Column(
         children: [
-          const Icon(
+          Icon(
             Icons.shopping_cart_outlined,
-            color: AppColors.iconInactive,
+            color: AppColors.iconInactiveFor(context),
             size: 36,
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -253,7 +253,7 @@ class _EmptySaleItems extends StatelessWidget {
             'Sin productos agregados.',
             style: Theme.of(
               context,
-            ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+            ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondaryFor(context)),
             textAlign: TextAlign.center,
           ),
         ],

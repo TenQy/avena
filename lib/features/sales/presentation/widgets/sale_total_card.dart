@@ -69,12 +69,12 @@ class _SaleTotalCardState extends State<SaleTotalCard> {
             _TotalRow(label: 'Subtotal', value: _money(widget.subtotal)),
             const SizedBox(height: AppSpacing.md),
             _TotalRow(label: 'Comision', value: _money(widget.commission)),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
               child: Divider(
                 height: 1,
                 thickness: 0.5,
-                color: AppColors.border,
+                color: AppColors.borderFor(context),
               ),
             ),
             _TotalRow(
@@ -156,8 +156,8 @@ class _TotalRow extends StatelessWidget {
             label,
             style: textStyle?.copyWith(
               color: emphasized
-                  ? AppColors.textPrimary
-                  : AppColors.textSecondary,
+                  ? AppColors.textPrimaryFor(context)
+                  : AppColors.textSecondaryFor(context),
               fontWeight: emphasized ? FontWeight.w700 : FontWeight.normal,
             ),
           ),
@@ -165,7 +165,7 @@ class _TotalRow extends StatelessWidget {
         Text(
           value,
           style: textStyle?.copyWith(
-            color: AppColors.textPrimary,
+            color: AppColors.textPrimaryFor(context),
             fontWeight: emphasized ? FontWeight.w700 : FontWeight.w600,
           ),
         ),

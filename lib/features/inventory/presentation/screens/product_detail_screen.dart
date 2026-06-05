@@ -74,7 +74,7 @@ class ProductDetailScreen extends ConsumerWidget {
 
   String _subcategoryName(AsyncValue<List<Subcategory>> state) {
     if (product.subcategoryId == null) {
-      return 'Sin subcategoría';
+      return 'Sin subcategorÃƒÂ­a';
     }
 
     return state.maybeWhen(
@@ -112,13 +112,13 @@ class _ProductSummary extends StatelessWidget {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: AppColors.headerNav,
+                color: AppColors.headerNavFor(context),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.border, width: 0.5),
+                border: Border.all(color: AppColors.borderFor(context), width: 0.5),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.inventory_2_rounded,
-                color: AppColors.iconInactive,
+                color: AppColors.iconInactiveFor(context),
               ),
             ),
             const SizedBox(width: AppSpacing.md),
@@ -129,7 +129,7 @@ class _ProductSummary extends StatelessWidget {
                   Text(
                     product.name,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: AppColors.textPrimary,
+                      color: AppColors.textPrimaryFor(context),
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -137,7 +137,7 @@ class _ProductSummary extends StatelessWidget {
                     Text(
                       product.brand!,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: AppColors.textSecondaryFor(context),
                       ),
                     ),
                 ],
@@ -147,7 +147,7 @@ class _ProductSummary extends StatelessWidget {
             RichText(
               text: TextSpan(
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: AppColors.textPrimary,
+                  color: AppColors.textPrimaryFor(context),
                   fontWeight: FontWeight.w700,
                 ),
                 children: [
@@ -155,7 +155,7 @@ class _ProductSummary extends StatelessWidget {
                   TextSpan(
                     text: ' x $unitLabel',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondary,
+                      color: AppColors.textSecondaryFor(context),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -183,10 +183,10 @@ class _ProductInfoSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _DetailSection(
-      title: 'Información',
+      title: 'InformaciÃƒÂ³n',
       children: [
-        _DetailRow(label: 'Categoría', value: categoryName),
-        _DetailRow(label: 'Subcategoría', value: subcategoryName),
+        _DetailRow(label: 'CategorÃƒÂ­a', value: categoryName),
+        _DetailRow(label: 'SubcategorÃƒÂ­a', value: subcategoryName),
         _DetailRow(
           label: 'Tipo',
           value: product.productType == AppProductTypes.bulk
@@ -194,7 +194,7 @@ class _ProductInfoSection extends StatelessWidget {
               : 'Unidad',
         ),
         if (product.description != null && product.description!.isNotEmpty)
-          _DetailRow(label: 'Descripción', value: product.description!),
+          _DetailRow(label: 'DescripciÃƒÂ³n', value: product.description!),
       ],
     );
   }
@@ -269,7 +269,7 @@ class _DetailSection extends StatelessWidget {
     if (children.isEmpty) {
       return const EmptyState(
         icon: Icons.info_outline_rounded,
-        message: 'Sin información',
+        message: 'Sin informaciÃƒÂ³n',
       );
     }
 
@@ -307,7 +307,9 @@ class _DetailRow extends StatelessWidget {
               label,
               style: Theme.of(
                 context,
-              ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+              ).textTheme.bodyMedium?.copyWith(
+                color: AppColors.textSecondaryFor(context),
+              ),
             ),
           ),
           const SizedBox(width: AppSpacing.md),
@@ -316,7 +318,7 @@ class _DetailRow extends StatelessWidget {
               value,
               textAlign: TextAlign.right,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.textPrimary,
+                color: AppColors.textPrimaryFor(context),
                 fontWeight: FontWeight.w600,
               ),
             ),

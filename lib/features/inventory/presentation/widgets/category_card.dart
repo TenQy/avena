@@ -21,6 +21,10 @@ class CategoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final headerNav = AppColors.headerNavFor(context);
+    final iconInactive = AppColors.iconInactiveFor(context);
+    final textPrimary = AppColors.textPrimaryFor(context);
+
     return GestureDetector(
       onTap: onTap,
       onLongPress: onLongPress,
@@ -30,13 +34,15 @@ class CategoryCard extends StatelessWidget {
           children: [
             Expanded(
               child: Container(
-                decoration: const BoxDecoration(
-                  color: AppColors.headerNav,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(14)),
+                decoration: BoxDecoration(
+                  color: headerNav,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(14),
+                  ),
                 ),
                 child: Icon(
                   categoryIcon(category.name),
-                  color: AppColors.iconInactive,
+                  color: iconInactive,
                   size: isMain ? 36 : 32,
                 ),
               ),
@@ -52,7 +58,7 @@ class CategoryCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.left,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textPrimary,
+                  color: textPrimary,
                   fontWeight: FontWeight.w500,
                   letterSpacing: 0.6,
                 ),

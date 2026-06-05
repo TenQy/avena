@@ -18,9 +18,9 @@ class CalculatorResultCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.bodyBg,
+        color: AppColors.bodyBgFor(context),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border, width: 0.5),
+        border: Border.all(color: AppColors.borderFor(context), width: 0.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -28,7 +28,7 @@ class CalculatorResultCard extends StatelessWidget {
           Text(
             title,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppColors.textPrimary,
+              color: AppColors.textPrimaryFor(context),
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -69,7 +69,7 @@ class _CalculatorResultRowView extends StatelessWidget {
           child: Text(
             row.label,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppColors.textSecondary,
+              color: AppColors.textSecondaryFor(context),
               fontWeight: row.emphasized ? FontWeight.w600 : FontWeight.normal,
             ),
           ),
@@ -78,7 +78,7 @@ class _CalculatorResultRowView extends StatelessWidget {
         Text(
           row.value,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: AppColors.textPrimary,
+            color: AppColors.textPrimaryFor(context),
             fontWeight: row.emphasized ? FontWeight.w700 : FontWeight.w600,
           ),
         ),

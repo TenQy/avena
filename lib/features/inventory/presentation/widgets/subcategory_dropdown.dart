@@ -26,7 +26,7 @@ class SubcategoryDropdown extends ConsumerWidget {
         key: const ValueKey('subcategory-disabled'),
         initialValue: null,
         decoration: const InputDecoration(
-          labelText: 'Subcategoría opcional',
+          labelText: 'SubcategorÃƒÂ­a opcional',
           prefixIcon: Icon(Icons.folder_rounded),
         ),
         items: const [],
@@ -51,13 +51,13 @@ class SubcategoryDropdown extends ConsumerWidget {
           key: ValueKey('subcategory-$categoryId-$value'),
           initialValue: value,
           decoration: const InputDecoration(
-            labelText: 'Subcategoría opcional',
+            labelText: 'SubcategorÃƒÂ­a opcional',
             prefixIcon: Icon(Icons.folder_rounded),
           ),
           items: [
             const DropdownMenuItem(
               value: null,
-              child: Text('Sin subcategoría'),
+              child: Text('Sin subcategorÃƒÂ­a'),
             ),
             for (final subcategory in subcategories)
               DropdownMenuItem(
@@ -72,7 +72,7 @@ class SubcategoryDropdown extends ConsumerWidget {
         key: ValueKey('subcategory-loading-$categoryId'),
         initialValue: null,
         decoration: const InputDecoration(
-          labelText: 'Subcategoría opcional',
+          labelText: 'SubcategorÃƒÂ­a opcional',
           prefixIcon: Icon(Icons.folder_rounded),
         ),
         items: const [],
@@ -82,7 +82,7 @@ class SubcategoryDropdown extends ConsumerWidget {
         key: ValueKey('subcategory-error-$categoryId'),
         initialValue: null,
         decoration: const InputDecoration(
-          labelText: 'Subcategoría opcional',
+          labelText: 'SubcategorÃƒÂ­a opcional',
           prefixIcon: Icon(Icons.folder_rounded),
         ),
         items: const [],

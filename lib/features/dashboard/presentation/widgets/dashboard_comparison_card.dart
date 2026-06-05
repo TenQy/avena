@@ -36,10 +36,10 @@ class DashboardComparisonCard extends StatelessWidget {
               width: 38,
               height: 38,
               decoration: BoxDecoration(
-                color: AppColors.headerNav,
+                color: AppColors.headerNavFor(context),
                 borderRadius: BorderRadius.circular(11),
               ),
-              child: Icon(icon, color: AppColors.iconInactive),
+              child: Icon(icon, color: AppColors.iconInactiveFor(context)),
             ),
             const SizedBox(width: AppSpacing.md),
             Expanded(

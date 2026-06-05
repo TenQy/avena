@@ -63,7 +63,7 @@ class _CashMovementSheetState extends ConsumerState<CashMovementSheet> {
                 width: 36,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.border,
+                  color: AppColors.borderFor(context),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -79,7 +79,7 @@ class _CashMovementSheetState extends ConsumerState<CashMovementSheet> {
               description,
               style: Theme.of(
                 context,
-              ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+              ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondaryFor(context)),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.xl),

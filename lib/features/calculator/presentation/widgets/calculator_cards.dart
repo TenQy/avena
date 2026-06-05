@@ -275,7 +275,7 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, color: AppColors.iconInactive),
+        Icon(icon, color: AppColors.iconInactiveFor(context)),
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: Text(title, style: Theme.of(context).textTheme.titleMedium),
@@ -296,7 +296,7 @@ class _SubsectionLabel extends StatelessWidget {
     return Text(
       label,
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-        color: AppColors.textPrimary,
+        color: AppColors.textPrimaryFor(context),
         fontWeight: FontWeight.w600,
       ),
     );

@@ -21,7 +21,7 @@ class SaleCancelSheet extends ConsumerStatefulWidget {
     return showModalBottomSheet<SaleCancelResult>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.cardSurface,
+      backgroundColor: AppColors.cardSurfaceFor(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -67,7 +67,7 @@ class _SaleCancelSheetState extends ConsumerState<SaleCancelSheet> {
                   width: 36,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.border,
+                    color: AppColors.borderFor(context),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -83,7 +83,7 @@ class _SaleCancelSheetState extends ConsumerState<SaleCancelSheet> {
                 'La venta se marcara como cancelada y se revertiran los '
                 'ingresos y existencias correspondientes.',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textSecondary,
+                  color: AppColors.textSecondaryFor(context),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -123,7 +123,7 @@ class _SaleCancelSheetState extends ConsumerState<SaleCancelSheet> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     else
-                      const Icon(Icons.cancel_outlined),
+                      Icon(Icons.cancel_outlined),
                   ],
                 ),
               ),

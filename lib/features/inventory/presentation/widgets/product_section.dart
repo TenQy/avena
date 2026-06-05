@@ -22,7 +22,9 @@ class ProductSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final title = section.subcategory?.name ?? 'Sin subcategoría';
+    final border = AppColors.borderFor(context);
+    final iconInactive = AppColors.iconInactiveFor(context);
+    final title = section.subcategory?.name ?? 'Sin subcategorÃƒÂ­a';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -34,19 +36,19 @@ class ProductSection extends StatelessWidget {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(width: AppSpacing.md),
-            const Expanded(
+            Expanded(
               child: Divider(
                 height: 1,
                 thickness: 0.5,
-                color: AppColors.border,
+                color: border,
               ),
             ),
             if (onDeleteSubcategory != null) ...[
               const SizedBox(width: AppSpacing.xs),
               IconButton(
-                tooltip: 'Eliminar subcategoría',
-                icon: const Icon(Icons.delete_outline_rounded),
-                color: AppColors.iconInactive,
+                tooltip: 'Eliminar subcategorÃƒÂ­a',
+                icon: Icon(Icons.delete_outline_rounded),
+                color: iconInactive,
                 onPressed: onDeleteSubcategory,
               ),
             ],
@@ -80,10 +82,12 @@ class EmptyProductCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Text(
-          'Sin productos en esta subcategoría.',
+          'Sin productos en esta subcategorÃƒÂ­a.',
           style: Theme.of(
             context,
-          ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+          ).textTheme.bodyMedium?.copyWith(
+            color: AppColors.textSecondaryFor(context),
+          ),
         ),
       ),
     );

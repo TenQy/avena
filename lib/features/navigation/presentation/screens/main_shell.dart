@@ -179,6 +179,10 @@ class _MainShellState extends ConsumerState<MainShell> {
   @override
   Widget build(BuildContext context) {
     final drawerWidth = MediaQuery.sizeOf(context).width * 0.84;
+    final cardSurface = AppColors.cardSurfaceFor(context);
+    final headerNav = AppColors.headerNavFor(context);
+    final textPrimary = AppColors.textPrimaryFor(context);
+    final border = AppColors.borderFor(context);
     final currentUser = ref.watch(currentUserProvider).valueOrNull;
     final currentRole = currentUser?.role;
     final primaryModules = _primaryModulesForRole(currentRole);
@@ -216,21 +220,21 @@ class _MainShellState extends ConsumerState<MainShell> {
                 _inventoryController.canGoBack
             ? IconButton(
                 tooltip: 'Volver a categorías',
-                icon: const Icon(Icons.arrow_back_rounded),
+                icon: Icon(Icons.arrow_back_rounded),
                 onPressed: _inventoryController.closeCategory,
               )
             : null,
         actions: [
           IconButton(
             tooltip: 'Mas modulos',
-            icon: const Icon(Icons.menu_rounded),
+            icon: Icon(Icons.menu_rounded),
             onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
           ),
         ],
       ),
       endDrawer: Drawer(
         width: drawerWidth,
-        backgroundColor: AppColors.cardSurface,
+        backgroundColor: cardSurface,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.horizontal(left: Radius.circular(20)),
         ),
@@ -251,26 +255,26 @@ class _MainShellState extends ConsumerState<MainShell> {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: AppColors.headerNav,
+                        color: headerNav,
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: AppColors.border, width: 0.5),
+                        border: Border.all(color: border, width: 0.5),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.apps_rounded,
-                        color: AppColors.textPrimary,
+                        color: textPrimary,
                       ),
                     ),
                     const SizedBox(width: AppSpacing.md),
                     Expanded(
                       child: Text(
-                        'Más modulos',
+                        'Más módulos',
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                     ),
                     IconButton(
                       tooltip: 'Cerrar',
-                      icon: const Icon(Icons.close_rounded),
-                      color: AppColors.textPrimary,
+                      icon: Icon(Icons.close_rounded),
+                      color: textPrimary,
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                   ],
@@ -353,9 +357,13 @@ class _DrawerSeparator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
+    return Padding(
       padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
-      child: Divider(height: 1, thickness: 0.5, color: AppColors.border),
+      child: Divider(
+        height: 1,
+        thickness: 0.5,
+        color: AppColors.borderFor(context),
+      ),
     );
   }
 }
@@ -375,6 +383,14 @@ class _OtherModuleTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final headerNav = AppColors.headerNavFor(context);
+    final bodyBg = AppColors.bodyBgFor(context);
+    final cardSurface = AppColors.cardSurfaceFor(context);
+    final border = AppColors.borderFor(context);
+    final textPrimary = AppColors.textPrimaryFor(context);
+    final textSecondary = AppColors.textSecondaryFor(context);
+    final iconInactive = AppColors.iconInactiveFor(context);
+
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.md,
@@ -384,29 +400,29 @@ class _OtherModuleTile extends StatelessWidget {
         width: 36,
         height: 36,
         decoration: BoxDecoration(
-          color: selected ? AppColors.headerNav : AppColors.bodyBg,
+          color: selected ? headerNav : bodyBg,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.border, width: 0.5),
+          border: Border.all(color: border, width: 0.5),
         ),
         child: Icon(
           icon,
-          color: selected ? AppColors.textPrimary : AppColors.iconInactive,
+          color: selected ? textPrimary : iconInactive,
           size: 22,
         ),
       ),
       title: Text(
         label,
         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-          color: selected ? AppColors.textPrimary : AppColors.textSecondary,
+          color: selected ? textPrimary : textSecondary,
           fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
         ),
       ),
-      trailing: const Icon(
+      trailing: Icon(
         Icons.chevron_right_rounded,
-        color: AppColors.iconInactive,
+        color: iconInactive,
       ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      tileColor: selected ? AppColors.headerNav : AppColors.cardSurface,
+      tileColor: selected ? headerNav : cardSurface,
       onTap: onTap,
     );
   }
@@ -425,6 +441,12 @@ class _DrawerActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bodyBg = AppColors.bodyBgFor(context);
+    final cardSurface = AppColors.cardSurfaceFor(context);
+    final border = AppColors.borderFor(context);
+    final textSecondary = AppColors.textSecondaryFor(context);
+    final iconInactive = AppColors.iconInactiveFor(context);
+
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.md,
@@ -434,20 +456,20 @@ class _DrawerActionTile extends StatelessWidget {
         width: 36,
         height: 36,
         decoration: BoxDecoration(
-          color: AppColors.bodyBg,
+          color: bodyBg,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.border, width: 0.5),
+          border: Border.all(color: border, width: 0.5),
         ),
-        child: Icon(icon, color: AppColors.iconInactive, size: 22),
+        child: Icon(icon, color: iconInactive, size: 22),
       ),
       title: Text(
         label,
         style: Theme.of(
           context,
-        ).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
+        ).textTheme.bodyLarge?.copyWith(color: textSecondary),
       ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      tileColor: AppColors.cardSurface,
+      tileColor: cardSurface,
       onTap: onTap,
     );
   }

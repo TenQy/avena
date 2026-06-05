@@ -50,13 +50,13 @@ class SalePaymentMethodsCard extends StatelessWidget {
                     selected: selectedMethod == method,
                     showCheckmark: false,
                     onSelected: (_) => onMethodSelected(method),
-                    backgroundColor: AppColors.bodyBg,
-                    selectedColor: AppColors.headerNav,
-                    side: const BorderSide(color: AppColors.border, width: 0.5),
+                    backgroundColor: AppColors.bodyBgFor(context),
+                    selectedColor: AppColors.headerNavFor(context),
+                    side: BorderSide(color: AppColors.borderFor(context), width: 0.5),
                     labelStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: selectedMethod == method
-                          ? AppColors.textPrimary
-                          : AppColors.textSecondary,
+                          ? AppColors.textPrimaryFor(context)
+                          : AppColors.textSecondaryFor(context),
                       fontWeight: selectedMethod == method
                           ? FontWeight.w600
                           : FontWeight.normal,
@@ -79,7 +79,7 @@ class SalePaymentMethodsCard extends StatelessWidget {
               'Comisiones: debito/credito 5%, bonos 6.5%.',
               style: Theme.of(
                 context,
-              ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+              ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryFor(context)),
             ),
           ],
         ),
@@ -121,7 +121,7 @@ class _MixedPaymentInputs extends StatelessWidget {
                   labelText: _paymentLabel(method),
                   hintText: _money(remainingCharge),
                   hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppColors.textSecondary.withValues(alpha: 0.55),
+                    color: AppColors.textSecondaryFor(context).withValues(alpha: 0.55),
                   ),
                   prefixIcon: const Icon(Icons.attach_money_rounded),
                 ),
@@ -138,7 +138,7 @@ class _MixedPaymentInputs extends StatelessWidget {
           'Debito/credito y bonos agregan comision al total cobrado.',
           style: Theme.of(
             context,
-          ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+          ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryFor(context)),
         ),
       ],
     );
@@ -173,9 +173,9 @@ class _MixedPaymentSummary extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.bodyBg,
+        color: AppColors.bodyBgFor(context),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border, width: 0.5),
+        border: Border.all(color: AppColors.borderFor(context), width: 0.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -206,13 +206,13 @@ class _SummaryRow extends StatelessWidget {
             label,
             style: Theme.of(
               context,
-            ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+            ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryFor(context)),
           ),
         ),
         Text(
           value,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: AppColors.textPrimary,
+            color: AppColors.textPrimaryFor(context),
             fontWeight: FontWeight.w600,
           ),
         ),

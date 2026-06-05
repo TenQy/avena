@@ -286,7 +286,7 @@ class _DateFilterButton extends ConsumerWidget {
         }
         ref.read(logsFiltersProvider.notifier).setDate(picked);
       },
-      icon: const Icon(Icons.calendar_today_rounded, size: 18),
+      icon: Icon(Icons.calendar_today_rounded, size: 18),
       label: Text(
         filters.selectedDate == null
             ? 'Filtrar por fecha'
@@ -322,13 +322,13 @@ class _LogCard extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: AppColors.headerNav,
+                      color: AppColors.headerNavFor(context),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.border, width: 0.5),
+                      border: Border.all(color: AppColors.borderFor(context), width: 0.5),
                     ),
                     child: Icon(
                       _iconFor(log.action),
-                      color: AppColors.iconInactive,
+                      color: AppColors.iconInactiveFor(context),
                     ),
                   ),
                   const SizedBox(width: AppSpacing.md),
@@ -344,7 +344,7 @@ class _LogCard extends StatelessWidget {
                         Text(
                           '${log.userNameSnapshot} | ${_entityLabel(log.entityType)}',
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.textSecondary,
+                            color: AppColors.textSecondaryFor(context),
                           ),
                         ),
                       ],
@@ -354,7 +354,7 @@ class _LogCard extends StatelessWidget {
                   Text(
                     _timeLabel(log.createdAt),
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: AppColors.iconInactive,
+                      color: AppColors.iconInactiveFor(context),
                     ),
                   ),
                 ],
@@ -376,7 +376,7 @@ class _LogCard extends StatelessWidget {
   Future<void> _showDetails(BuildContext context) async {
     await showModalBottomSheet<void>(
       context: context,
-      backgroundColor: AppColors.cardSurface,
+      backgroundColor: AppColors.cardSurfaceFor(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -398,7 +398,7 @@ class _LogCard extends StatelessWidget {
                     width: 36,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: AppColors.border,
+                      color: AppColors.borderFor(context),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -409,7 +409,7 @@ class _LogCard extends StatelessWidget {
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: AppSpacing.md),
-                const Divider(height: 1, thickness: 0.5, color: AppColors.border),
+                Divider(height: 1, thickness: 0.5, color: AppColors.borderFor(context)),
                 const SizedBox(height: AppSpacing.lg),
                 _DetailRow(label: 'Usuario', value: log.userNameSnapshot),
                 _DetailRow(label: 'Rol', value: log.userRoleSnapshot),
@@ -444,7 +444,7 @@ class _DetailRow extends StatelessWidget {
           Text(
             label,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: AppColors.iconInactive,
+              color: AppColors.iconInactiveFor(context),
             ),
           ),
           const SizedBox(height: AppSpacing.xs),

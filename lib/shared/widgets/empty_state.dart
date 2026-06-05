@@ -18,6 +18,8 @@ class EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final iconColor = AppColors.iconInactiveFor(context);
+    final secondaryText = AppColors.textSecondaryFor(context);
 
     return Center(
       child: Padding(
@@ -25,13 +27,13 @@ class EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 48, color: AppColors.iconInactive),
+            Icon(icon, size: 48, color: iconColor),
             const SizedBox(height: AppSpacing.md),
             Text(
               message,
               textAlign: TextAlign.center,
               style: textTheme.bodyLarge?.copyWith(
-                color: AppColors.textSecondary,
+                color: secondaryText,
               ),
             ),
             if (description != null) ...[
@@ -40,7 +42,7 @@ class EmptyState extends StatelessWidget {
                 description!,
                 textAlign: TextAlign.center,
                 style: textTheme.bodySmall?.copyWith(
-                  color: AppColors.iconInactive,
+                  color: iconColor,
                 ),
               ),
             ],

@@ -30,7 +30,7 @@ class PendingSaleSheet extends ConsumerStatefulWidget {
     return showModalBottomSheet<SaleRegisterResult>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.cardSurface,
+      backgroundColor: AppColors.cardSurfaceFor(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -106,7 +106,7 @@ class _PendingSaleSheetState extends ConsumerState<PendingSaleSheet> {
                   width: 36,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.border,
+                    color: AppColors.borderFor(context),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -121,10 +121,10 @@ class _PendingSaleSheetState extends ConsumerState<PendingSaleSheet> {
                 'Total de productos: ${_money(widget.subtotal)}',
                 style: Theme.of(
                   context,
-                ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+                ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryFor(context)),
               ),
               const SizedBox(height: AppSpacing.md),
-              const Divider(height: 1, thickness: 0.5, color: AppColors.border),
+              Divider(height: 1, thickness: 0.5, color: AppColors.borderFor(context)),
               const SizedBox(height: AppSpacing.lg),
               TextFormField(
                 controller: _customerNameController,
@@ -199,7 +199,7 @@ class _PendingSaleSheetState extends ConsumerState<PendingSaleSheet> {
                 Text(
                   'Metodo del abono inicial',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textPrimary,
+                    color: AppColors.textPrimaryFor(context),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -245,7 +245,7 @@ class _PendingSaleSheetState extends ConsumerState<PendingSaleSheet> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     else
-                      const Icon(Icons.receipt_long_outlined),
+                      Icon(Icons.receipt_long_outlined),
                   ],
                 ),
               ),
@@ -305,9 +305,9 @@ class _PendingSaleSummary extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.bodyBg,
+        color: AppColors.bodyBgFor(context),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border, width: 0.5),
+        border: Border.all(color: AppColors.borderFor(context), width: 0.5),
       ),
       child: Column(
         children: [
@@ -347,7 +347,7 @@ class _SummaryRow extends StatelessWidget {
           child: Text(
             label,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppColors.textSecondary,
+              color: AppColors.textSecondaryFor(context),
               fontWeight: emphasized ? FontWeight.w600 : FontWeight.normal,
             ),
           ),
@@ -355,7 +355,7 @@ class _SummaryRow extends StatelessWidget {
         Text(
           value,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: AppColors.textPrimary,
+            color: AppColors.textPrimaryFor(context),
             fontWeight: emphasized ? FontWeight.w700 : FontWeight.w600,
           ),
         ),

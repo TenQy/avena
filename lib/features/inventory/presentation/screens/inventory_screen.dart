@@ -148,7 +148,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (_, _) => const EmptyState(
             icon: Icons.error_outline_rounded,
-            message: 'No se pudieron cargar las categorías',
+            message: 'No se pudieron cargar las categorÃƒÂ­as',
             description: 'Intenta nuevamente.',
           ),
         ),
@@ -160,7 +160,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                 actions: [
                   AppSpeedDialAction(
                     icon: Icons.category_rounded,
-                    label: 'Crear categoría',
+                    label: 'Crear categorÃƒÂ­a',
                     onPressed: _showCreateCategoryForm,
                   ),
                   AppSpeedDialAction(
@@ -215,7 +215,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
             hasScrollBody: false,
             child: EmptyState(
               icon: Icons.category_rounded,
-              message: 'Sin categorías aún',
+              message: 'Sin categorÃƒÂ­as aÃƒÂºn',
               description: 'Toca + para agregar una.',
             ),
           )
@@ -249,7 +249,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
     final result = await showModalBottomSheet<ProductSaveResult>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.cardSurface,
+      backgroundColor: AppColors.cardSurfaceFor(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -269,7 +269,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
     final result = await showModalBottomSheet<CategorySaveResult>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.cardSurface,
+      backgroundColor: AppColors.cardSurfaceFor(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -288,7 +288,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
   Future<void> _showCategoryActions(Category category) async {
     await showModalBottomSheet<void>(
       context: context,
-      backgroundColor: AppColors.cardSurface,
+      backgroundColor: AppColors.cardSurfaceFor(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -308,7 +308,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                   width: 36,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.border,
+                    color: AppColors.borderFor(context),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -323,7 +323,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                 ),
                 InventoryOptionTile(
                   icon: Icons.delete_rounded,
-                  label: 'Eliminar categoría',
+                  label: 'Eliminar categorÃƒÂ­a',
                   onTap: () {
                     Navigator.of(context).pop();
                     _deleteCategory(category);
@@ -354,15 +354,15 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
     showCategoryActionResult(
       context,
       result,
-      successMessage: 'Categoría principal actualizada.',
+      successMessage: 'CategorÃƒÂ­a principal actualizada.',
     );
   }
 
   Future<void> _deleteCategory(Category category) async {
     final shouldDelete = await ConfirmDialog.show(
       context,
-      title: 'Eliminar categoría',
-      message: 'La categoría se quitará del inventario si no tiene productos.',
+      title: 'Eliminar categorÃƒÂ­a',
+      message: 'La categorÃƒÂ­a se quitarÃƒÂ¡ del inventario si no tiene productos.',
       confirmLabel: 'Eliminar',
       icon: Icons.delete_rounded,
     );
@@ -387,7 +387,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
     showCategoryActionResult(
       context,
       result,
-      successMessage: 'Categoría eliminada.',
+      successMessage: 'CategorÃƒÂ­a eliminada.',
     );
   }
 }

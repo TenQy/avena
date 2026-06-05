@@ -31,10 +31,10 @@ class DashboardTextListCard extends StatelessWidget {
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                color: AppColors.headerNav,
+                color: AppColors.headerNavFor(context),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(icon, color: AppColors.iconInactive),
+              child: Icon(icon, color: AppColors.iconInactiveFor(context)),
             ),
             const SizedBox(width: AppSpacing.md),
             Expanded(

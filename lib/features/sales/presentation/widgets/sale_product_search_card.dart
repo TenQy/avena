@@ -43,7 +43,7 @@ class SaleProductSearchCard extends StatelessWidget {
                     ? null
                     : IconButton(
                         tooltip: 'Limpiar busqueda',
-                        icon: const Icon(Icons.close_rounded),
+                        icon: Icon(Icons.close_rounded),
                         onPressed: controller.clear,
                       ),
               ),
@@ -54,7 +54,7 @@ class SaleProductSearchCard extends StatelessWidget {
                 Text(
                   'Sin resultados.',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: AppColors.textSecondaryFor(context),
                   ),
                 )
               else
@@ -64,9 +64,9 @@ class SaleProductSearchCard extends StatelessWidget {
                     onAddProduct: onAddProduct,
                   ),
                   if (product != filteredProducts.take(6).last)
-                    const Divider(
+                    Divider(
                       height: AppSpacing.lg,
-                      color: AppColors.border,
+                      color: AppColors.borderFor(context),
                     ),
                 ],
             ],
@@ -100,7 +100,7 @@ class _ProductSearchTile extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: AppColors.textPrimary,
+                  color: AppColors.textPrimaryFor(context),
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -109,7 +109,7 @@ class _ProductSearchTile extends StatelessWidget {
                 '${_money(product.price)} x $unitLabel',
                 style: Theme.of(
                   context,
-                ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+                ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryFor(context)),
               ),
             ],
           ),
@@ -118,7 +118,7 @@ class _ProductSearchTile extends StatelessWidget {
         IconButton(
           tooltip: 'Agregar producto',
           onPressed: () => onAddProduct(product),
-          icon: const Icon(Icons.add_circle_outline_rounded),
+          icon: Icon(Icons.add_circle_outline_rounded),
         ),
       ],
     );

@@ -20,7 +20,7 @@ class CreatePendingPaymentSheet extends ConsumerStatefulWidget {
     return showModalBottomSheet<PendingPaymentCreateResult>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.cardSurface,
+      backgroundColor: AppColors.cardSurfaceFor(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -74,7 +74,7 @@ class _CreatePendingPaymentSheetState
                   width: 36,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.border,
+                    color: AppColors.borderFor(context),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -85,7 +85,7 @@ class _CreatePendingPaymentSheetState
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: AppSpacing.md),
-              const Divider(height: 1, thickness: 0.5, color: AppColors.border),
+              Divider(height: 1, thickness: 0.5, color: AppColors.borderFor(context)),
               const SizedBox(height: AppSpacing.lg),
               TextFormField(
                 controller: _customerNameController,
@@ -164,7 +164,7 @@ class _CreatePendingPaymentSheetState
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     else
-                      const Icon(Icons.save_rounded),
+                      Icon(Icons.save_rounded),
                   ],
                 ),
               ),
