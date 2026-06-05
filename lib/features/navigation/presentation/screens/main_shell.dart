@@ -94,7 +94,7 @@ class _MainShellState extends ConsumerState<MainShell> {
       MainModule.pendingPayments => AppRoles.canAccessPendingPayments(role),
       MainModule.calculator => AppRoles.isAdminRole(role),
       MainModule.logs => AppRoles.canViewLogs(role),
-      MainModule.settings => AppRoles.canModifySettings(role),
+      MainModule.settings => true,
     };
   }
 
@@ -318,8 +318,7 @@ class _MainShellState extends ConsumerState<MainShell> {
                   ),
                 const Spacer(),
                 const _DrawerSeparator(),
-                if (currentRole != null &&
-                    AppRoles.canModifySettings(currentRole))
+                if (currentRole != null)
                   _OtherModuleTile(
                     icon: Icons.settings_rounded,
                     label: 'Configuración',
