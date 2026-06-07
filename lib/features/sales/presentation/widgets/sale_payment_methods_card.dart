@@ -13,6 +13,7 @@ class SalePaymentMethodsCard extends StatelessWidget {
     required this.subtotal,
     required this.total,
     required this.mixedTotal,
+    required this.commissionRates,
     required this.onMethodSelected,
     required this.onMixedPaymentChanged,
   });
@@ -22,6 +23,7 @@ class SalePaymentMethodsCard extends StatelessWidget {
   final double subtotal;
   final double total;
   final double mixedTotal;
+  final PaymentCommissionRates commissionRates;
   final ValueChanged<String> onMethodSelected;
   final void Function(String method, double amount) onMixedPaymentChanged;
 
@@ -69,6 +71,7 @@ class SalePaymentMethodsCard extends StatelessWidget {
               _MixedPaymentInputs(
                 payments: mixedPayments,
                 subtotal: subtotal,
+                commissionRates: commissionRates,
                 onChanged: onMixedPaymentChanged,
               ),
               const SizedBox(height: AppSpacing.md),
@@ -76,7 +79,7 @@ class SalePaymentMethodsCard extends StatelessWidget {
             ],
             const SizedBox(height: AppSpacing.md),
             Text(
-              'Comisiones: debito/credito 5%, bonos 6.5%.',
+              'Comisiones: debito/credito ${_percent(commissionRates.terminalCard)}, bonos ${_percent(commissionRates.terminalBonus)}.',
               style: Theme.of(
                 context,
               ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryFor(context)),
@@ -92,11 +95,13 @@ class _MixedPaymentInputs extends StatelessWidget {
   const _MixedPaymentInputs({
     required this.payments,
     required this.subtotal,
+    required this.commissionRates,
     required this.onChanged,
   });
 
   final Map<String, double> payments;
   final double subtotal;
+  final PaymentCommissionRates commissionRates;
   final void Function(String method, double amount) onChanged;
 
   @override
@@ -156,7 +161,7 @@ class _MixedPaymentInputs extends StatelessWidget {
         .clamp(0.0, double.infinity)
         .toDouble();
 
-    return remainingBase * (1 + AppPaymentCommissions.rateFor(method));
+    return remainingBase * (1 + commissionRates.rateFor(method));
   }
 }
 
@@ -234,6 +239,13 @@ String _paymentLabel(String method) {
 
 String _money(double value) {
   return '\$${value.toStringAsFixed(2)}';
+}
+
+String _percent(double rate) {
+  final value = rate * 100;
+  return value == value.roundToDouble()
+      ? '${value.toStringAsFixed(0)}%'
+      : '${value.toStringAsFixed(1)}%';
 }
 
 String _initialValue(double? value) {

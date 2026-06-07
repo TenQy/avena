@@ -3,11 +3,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_products.dart';
 import '../../../core/constants/payment_methods.dart';
 import '../../../core/database/app_database.dart';
+import '../../settings/providers/settings_provider.dart';
 import '../presentation/models/sale_draft_item.dart';
 
 final currentSaleProvider =
     StateNotifierProvider<CurrentSaleController, CurrentSaleState>((ref) {
-      return CurrentSaleController();
+      final controller = CurrentSaleController();
+      ref.listen(administrativeSettingsProvider, (_, next) {
+        final settings = next.valueOrNull;
+        if (settings != null) {
+          controller.updateCommissionRates(settings.commissionRates);
+        }
+      }, fireImmediately: true);
+
+      return controller;
     });
 
 class CurrentSaleState {
@@ -15,11 +24,13 @@ class CurrentSaleState {
     this.items = const [],
     this.paymentMethod = AppPaymentMethods.cash,
     this.mixedPayments = const {},
+    this.commissionRates = AppPaymentCommissions.defaults,
   });
 
   final List<SaleDraftItem> items;
   final String paymentMethod;
   final Map<String, double> mixedPayments;
+  final PaymentCommissionRates commissionRates;
 
   double get subtotal {
     return items.fold(0, (total, item) => total + item.subtotal);
@@ -28,11 +39,11 @@ class CurrentSaleState {
   double get commission {
     if (paymentMethod == AppPaymentMethods.mixed) {
       return mixedPayments.entries.fold(0, (total, entry) {
-        return total + entry.value * AppPaymentCommissions.rateFor(entry.key);
+        return total + entry.value * commissionRates.rateFor(entry.key);
       });
     }
 
-    return subtotal * AppPaymentCommissions.rateFor(paymentMethod);
+    return subtotal * commissionRates.rateFor(paymentMethod);
   }
 
   double get total => subtotal + commission;
@@ -40,7 +51,7 @@ class CurrentSaleState {
   double get mixedTotal {
     return mixedPayments.entries.fold(0, (total, entry) {
       return total +
-          entry.value * (1 + AppPaymentCommissions.rateFor(entry.key));
+          entry.value * (1 + commissionRates.rateFor(entry.key));
     });
   }
 
@@ -64,11 +75,13 @@ class CurrentSaleState {
     List<SaleDraftItem>? items,
     String? paymentMethod,
     Map<String, double>? mixedPayments,
+    PaymentCommissionRates? commissionRates,
   }) {
     return CurrentSaleState(
       items: items ?? this.items,
       paymentMethod: paymentMethod ?? this.paymentMethod,
       mixedPayments: mixedPayments ?? this.mixedPayments,
+      commissionRates: commissionRates ?? this.commissionRates,
     );
   }
 }
@@ -196,7 +209,11 @@ class CurrentSaleController extends StateNotifier<CurrentSaleState> {
   }
 
   void reset() {
-    state = const CurrentSaleState();
+    state = CurrentSaleState(commissionRates: state.commissionRates);
+  }
+
+  void updateCommissionRates(PaymentCommissionRates commissionRates) {
+    state = state.copyWith(commissionRates: commissionRates);
   }
 
   void syncProducts(List<Product> products) {

@@ -47,11 +47,13 @@ class SaleRegisterDraft {
     required this.items,
     required this.paymentMethod,
     required this.mixedPayments,
+    this.commissionRates = AppPaymentCommissions.defaults,
   });
 
   final List<SaleRegisterItem> items;
   final String paymentMethod;
   final Map<String, double> mixedPayments;
+  final PaymentCommissionRates commissionRates;
 }
 
 class PendingSaleInput {
@@ -397,6 +399,7 @@ class SalesRepository {
               _SalePaymentDraft.fromBase(
                 pendingInput.initialPaymentMethod,
                 initialPaidAmount,
+                draft.commissionRates,
               ),
             ]
           : <_SalePaymentDraft>[];
@@ -650,12 +653,24 @@ class SalesRepository {
     double subtotal,
   ) {
     if (draft.paymentMethod != AppPaymentMethods.mixed) {
-      return [_SalePaymentDraft.fromBase(draft.paymentMethod, subtotal)];
+      return [
+        _SalePaymentDraft.fromBase(
+          draft.paymentMethod,
+          subtotal,
+          draft.commissionRates,
+        ),
+      ];
     }
 
     return draft.mixedPayments.entries
         .where((entry) => entry.value > 0)
-        .map((entry) => _SalePaymentDraft.fromBase(entry.key, entry.value))
+        .map(
+          (entry) => _SalePaymentDraft.fromBase(
+            entry.key,
+            entry.value,
+            draft.commissionRates,
+          ),
+        )
         .toList();
   }
 
@@ -754,14 +769,18 @@ class SalesRepository {
 }
 
 class _SalePaymentDraft {
-  _SalePaymentDraft.fromBase(this.method, double amount)
+  _SalePaymentDraft.fromBase(
+    this.method,
+    double amount,
+    PaymentCommissionRates commissionRates,
+  )
     : baseAmount = double.parse(amount.toStringAsFixed(2)),
-      commissionRate = AppPaymentCommissions.rateFor(method),
+      commissionRate = commissionRates.rateFor(method),
       commissionAmount = double.parse(
-        (amount * AppPaymentCommissions.rateFor(method)).toStringAsFixed(2),
+        (amount * commissionRates.rateFor(method)).toStringAsFixed(2),
       ),
       totalCharged = double.parse(
-        (amount * (1 + AppPaymentCommissions.rateFor(method))).toStringAsFixed(
+        (amount * (1 + commissionRates.rateFor(method))).toStringAsFixed(
           2,
         ),
       );

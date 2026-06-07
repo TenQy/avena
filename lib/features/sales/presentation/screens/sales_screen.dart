@@ -96,6 +96,7 @@ class _SalesScreenState extends ConsumerState<SalesScreen> {
               subtotal: currentSale.subtotal,
               total: currentSale.total,
               mixedTotal: currentSale.mixedTotal,
+              commissionRates: currentSale.commissionRates,
               onMethodSelected: saleController.selectPaymentMethod,
               onMixedPaymentChanged: saleController.updateMixedPayment,
             ),
@@ -172,6 +173,7 @@ class _SalesScreenState extends ConsumerState<SalesScreen> {
       ],
       paymentMethod: currentSale.paymentMethod,
       mixedPayments: currentSale.mixedPayments,
+      commissionRates: currentSale.commissionRates,
     );
     final shouldRegister = await ConfirmDialog.show(
       context,
@@ -233,6 +235,7 @@ class _SalesScreenState extends ConsumerState<SalesScreen> {
       ],
       paymentMethod: currentSale.paymentMethod,
       mixedPayments: currentSale.mixedPayments,
+      commissionRates: currentSale.commissionRates,
     );
 
     final result = await PendingSaleSheet.show(

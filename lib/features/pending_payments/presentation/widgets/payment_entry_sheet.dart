@@ -6,6 +6,7 @@ import '../../../../core/constants/payment_methods.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
+import '../../../settings/providers/settings_provider.dart';
 import '../../data/pending_payments_repository.dart';
 import '../../providers/pending_payments_provider.dart';
 
@@ -48,8 +49,15 @@ class _PaymentEntrySheetState extends ConsumerState<PaymentEntrySheet> {
 
   double get _amount => double.tryParse(_amountController.text.trim()) ?? 0;
 
-  double get _commission =>
-      _amount * AppPaymentCommissions.rateFor(_paymentMethod);
+  PaymentCommissionRates get _commissionRates {
+    return ref
+            .read(administrativeSettingsProvider)
+            .valueOrNull
+            ?.commissionRates ??
+        AppPaymentCommissions.defaults;
+  }
+
+  double get _commission => _amount * _commissionRates.rateFor(_paymentMethod);
 
   double get _chargedTotal => _amount + _commission;
 
@@ -74,6 +82,7 @@ class _PaymentEntrySheetState extends ConsumerState<PaymentEntrySheet> {
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+    ref.watch(administrativeSettingsProvider);
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -227,6 +236,7 @@ class _PaymentEntrySheetState extends ConsumerState<PaymentEntrySheet> {
           payment: widget.payment,
           amount: double.parse(_amountController.text.trim()),
           paymentMethod: _paymentMethod,
+          commissionRates: _commissionRates,
           note: _noteController.text,
         );
 

@@ -56,7 +56,7 @@ class _PendingSaleSheetState extends ConsumerState<PendingSaleSheet> {
       double.tryParse(_paidAmountController.text.trim()) ?? 0;
 
   double get _commission =>
-      _paidAmount * AppPaymentCommissions.rateFor(_paymentMethod);
+      _paidAmount * widget.draft.commissionRates.rateFor(_paymentMethod);
 
   double get _chargedTotal => _paidAmount + _commission;
 

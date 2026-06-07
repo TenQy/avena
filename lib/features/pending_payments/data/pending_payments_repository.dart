@@ -119,6 +119,7 @@ class PendingPaymentsRepository {
     required PendingPayment payment,
     required double amount,
     required String paymentMethod,
+    PaymentCommissionRates commissionRates = AppPaymentCommissions.defaults,
     String? note,
   }) async {
     if (!AppRoles.canAccessPendingPayments(actor.role)) {
@@ -163,7 +164,11 @@ class PendingPaymentsRepository {
         (currentPayment.totalAmount - paidAmount).toStringAsFixed(2),
       );
       final isCompleted = remainingAmount <= 0;
-      final chargedAmount = _chargedAmount(roundedAmount, paymentMethod);
+      final chargedAmount = _chargedAmount(
+        roundedAmount,
+        paymentMethod,
+        commissionRates,
+      );
       final now = DateTime.now();
 
       await _database.pendingPaymentsDao.insertPendingPaymentEntry(
@@ -216,9 +221,13 @@ class PendingPaymentsRepository {
     });
   }
 
-  double _chargedAmount(double baseAmount, String paymentMethod) {
+  double _chargedAmount(
+    double baseAmount,
+    String paymentMethod,
+    PaymentCommissionRates commissionRates,
+  ) {
     return double.parse(
-      (baseAmount * (1 + AppPaymentCommissions.rateFor(paymentMethod)))
+      (baseAmount * (1 + commissionRates.rateFor(paymentMethod)))
           .toStringAsFixed(2),
     );
   }
