@@ -13,6 +13,7 @@ class Products extends Table {
   TextColumn get description => text().nullable()();
   TextColumn get productType => text()();
   RealColumn get price => real()();
+  RealColumn get cost => real().nullable()();
   TextColumn get priceUnit => text()();
   BoolColumn get trackStock => boolean().withDefault(const Constant(false))();
   RealColumn get stockQuantity => real().nullable()();

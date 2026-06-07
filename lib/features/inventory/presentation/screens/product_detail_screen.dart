@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_products.dart';
+import '../../../../core/constants/app_roles.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
 import '../../../../shared/widgets/empty_state.dart';
+import '../../../authentication/providers/auth_provider.dart';
 import '../../providers/inventory_provider.dart';
 
 class ProductDetailScreen extends ConsumerWidget {
@@ -19,6 +21,9 @@ class ProductDetailScreen extends ConsumerWidget {
     final subcategoriesState = ref.watch(
       subcategoriesByCategoryProvider(product.categoryId),
     );
+    final currentUser = ref.watch(currentUserProvider).valueOrNull;
+    final canViewCost =
+        currentUser != null && AppRoles.isAdminRole(currentUser.role);
 
     return Scaffold(
       body: CustomScrollView(
@@ -46,6 +51,10 @@ class ProductDetailScreen extends ConsumerWidget {
                     _BulkPortionsSection(product: product)
                   else
                     _UnitPriceSection(product: product),
+                  if (canViewCost && product.cost != null) ...[
+                    const SizedBox(height: AppSpacing.lg),
+                    _ProfitSection(product: product),
+                  ],
                   const SizedBox(height: AppSpacing.lg),
                   _StockSection(product: product),
                 ],
@@ -183,10 +192,10 @@ class _ProductInfoSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _DetailSection(
-      title: 'InformaciÃƒÂ³n',
+      title: 'Información',
       children: [
-        _DetailRow(label: 'CategorÃƒÂ­a', value: categoryName),
-        _DetailRow(label: 'SubcategorÃƒÂ­a', value: subcategoryName),
+        _DetailRow(label: 'Categoría', value: categoryName),
+        _DetailRow(label: 'Subcategoría', value: subcategoryName),
         _DetailRow(
           label: 'Tipo',
           value: product.productType == AppProductTypes.bulk
@@ -194,7 +203,7 @@ class _ProductInfoSection extends StatelessWidget {
               : 'Unidad',
         ),
         if (product.description != null && product.description!.isNotEmpty)
-          _DetailRow(label: 'DescripciÃƒÂ³n', value: product.description!),
+          _DetailRow(label: 'Descripción', value: product.description!),
       ],
     );
   }
@@ -234,6 +243,39 @@ class _UnitPriceSection extends StatelessWidget {
   }
 }
 
+class _ProfitSection extends StatelessWidget {
+  const _ProfitSection({required this.product});
+
+  final Product product;
+
+  @override
+  Widget build(BuildContext context) {
+    final cost = product.cost;
+    if (cost == null) {
+      return const SizedBox.shrink();
+    }
+
+    final profit = product.price - cost;
+    final profitPercent = cost == 0 ? 0 : (profit / cost) * 100;
+    final title = product.productType == AppProductTypes.bulk
+        ? 'Ganancia por kg'
+        : 'Ganancia por unidad';
+
+    return _DetailSection(
+      title: title,
+      children: [
+        _DetailRow(label: 'Precio de venta', value: _money(product.price)),
+        _DetailRow(label: 'Costo', value: _money(cost)),
+        _DetailRow(label: 'Ganancia neta', value: _money(profit)),
+        _DetailRow(
+          label: 'Porcentaje',
+          value: '${profitPercent.toStringAsFixed(1)}%',
+        ),
+      ],
+    );
+  }
+}
+
 class _StockSection extends StatelessWidget {
   const _StockSection({required this.product});
 
@@ -269,7 +311,7 @@ class _DetailSection extends StatelessWidget {
     if (children.isEmpty) {
       return const EmptyState(
         icon: Icons.info_outline_rounded,
-        message: 'Sin informaciÃƒÂ³n',
+        message: 'Sin información',
       );
     }
 

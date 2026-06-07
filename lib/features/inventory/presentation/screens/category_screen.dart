@@ -127,7 +127,7 @@ class _InventoryCategoryScreenState
                   loading: () => const InventoryLoadingBlock(),
                   error: (_, _) => const EmptyState(
                     icon: Icons.error_outline_rounded,
-                    message: 'No se pudieron cargar las subcategorÃƒÂ­as',
+                    message: 'No se pudieron cargar las subcategorías',
                     description: 'Intenta nuevamente.',
                   ),
                 ),
@@ -143,7 +143,7 @@ class _InventoryCategoryScreenState
                 actions: [
                   AppSpeedDialAction(
                     icon: Icons.create_new_folder_rounded,
-                    label: 'Crear subcategorÃƒÂ­a',
+                    label: 'Crear subcategoría',
                     onPressed: _showCreateSubcategoryForm,
                   ),
                   AppSpeedDialAction(
@@ -287,9 +287,9 @@ class _InventoryCategoryScreenState
   Future<void> _deleteSubcategory(Subcategory subcategory) async {
     final shouldDelete = await ConfirmDialog.show(
       context,
-      title: 'Eliminar subcategorÃƒÂ­a',
+      title: 'Eliminar subcategoría',
       message:
-          'La subcategorÃƒÂ­a se quitarÃƒÂ¡ y sus productos pasarÃƒÂ¡n a Sin subcategorÃƒÂ­a.',
+          'La subcategoría se quitará y sus productos pasarán a Sin subcategoría.',
       confirmLabel: 'Eliminar',
       icon: Icons.delete_rounded,
     );
@@ -324,7 +324,7 @@ class _InventoryCategoryScreenState
     final shouldDelete = await ConfirmDialog.show(
       context,
       title: 'Eliminar producto',
-      message: 'El producto se quitarÃƒÂ¡ del inventario.',
+      message: 'El producto se quitará del inventario.',
       confirmLabel: 'Eliminar',
       icon: Icons.delete_rounded,
     );

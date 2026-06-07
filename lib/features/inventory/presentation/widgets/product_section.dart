@@ -24,7 +24,7 @@ class ProductSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final border = AppColors.borderFor(context);
     final iconInactive = AppColors.iconInactiveFor(context);
-    final title = section.subcategory?.name ?? 'Sin subcategorÃƒÂ­a';
+    final title = section.subcategory?.name ?? 'Sin subcategoría';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -46,7 +46,7 @@ class ProductSection extends StatelessWidget {
             if (onDeleteSubcategory != null) ...[
               const SizedBox(width: AppSpacing.xs),
               IconButton(
-                tooltip: 'Eliminar subcategorÃƒÂ­a',
+                tooltip: 'Eliminar subcategoría',
                 icon: Icon(Icons.delete_outline_rounded),
                 color: iconInactive,
                 onPressed: onDeleteSubcategory,
@@ -82,7 +82,7 @@ class EmptyProductCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Text(
-          'Sin productos en esta subcategorÃƒÂ­a.',
+          'Sin productos en esta subcategoría.',
           style: Theme.of(
             context,
           ).textTheme.bodyMedium?.copyWith(

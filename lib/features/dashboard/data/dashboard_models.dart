@@ -5,9 +5,11 @@ class DailyDashboardSummary {
     required this.periodStart,
     required this.salesCount,
     required this.totalIncome,
+    required this.totalProfit,
     required this.averageTicket,
     required this.physicalCash,
     required this.incomeComparison,
+    required this.profitComparison,
     required this.salesComparison,
     required this.ticketComparison,
     required this.topRevenueProducts,
@@ -21,9 +23,11 @@ class DailyDashboardSummary {
   final DateTime periodStart;
   final int salesCount;
   final double totalIncome;
+  final double totalProfit;
   final double averageTicket;
   final double physicalCash;
   final DashboardComparison incomeComparison;
+  final DashboardComparison profitComparison;
   final DashboardComparison salesComparison;
   final DashboardComparison ticketComparison;
   final List<DashboardProductMetric> topRevenueProducts;
@@ -40,10 +44,12 @@ class WeeklyDashboardSummary {
     required this.periodEnd,
     required this.salesCount,
     required this.totalIncome,
+    required this.totalProfit,
     required this.averageTicket,
     required this.bestDay,
     required this.worstDay,
     required this.incomeComparison,
+    required this.profitComparison,
     required this.salesComparison,
     required this.ticketComparison,
     required this.topRevenueProducts,
@@ -61,10 +67,12 @@ class WeeklyDashboardSummary {
   final DateTime periodEnd;
   final int salesCount;
   final double totalIncome;
+  final double totalProfit;
   final double averageTicket;
   final DashboardDayPerformance bestDay;
   final DashboardDayPerformance worstDay;
   final DashboardComparison incomeComparison;
+  final DashboardComparison profitComparison;
   final DashboardComparison salesComparison;
   final DashboardComparison ticketComparison;
   final List<DashboardProductMetric> topRevenueProducts;
@@ -84,10 +92,12 @@ class MonthlyDashboardSummary {
     required this.periodEnd,
     required this.salesCount,
     required this.totalIncome,
+    required this.totalProfit,
     required this.averageTicket,
     required this.bestWeek,
     required this.worstWeek,
     required this.incomeComparison,
+    required this.profitComparison,
     required this.salesComparison,
     required this.ticketComparison,
     required this.topRevenueProducts,
@@ -102,10 +112,12 @@ class MonthlyDashboardSummary {
   final DateTime periodEnd;
   final int salesCount;
   final double totalIncome;
+  final double totalProfit;
   final double averageTicket;
   final DashboardPeriodPerformance bestWeek;
   final DashboardPeriodPerformance worstWeek;
   final DashboardComparison incomeComparison;
+  final DashboardComparison profitComparison;
   final DashboardComparison salesComparison;
   final DashboardComparison ticketComparison;
   final List<DashboardProductMetric> topRevenueProducts;

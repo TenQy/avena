@@ -56,7 +56,7 @@ class _CreateCategorySheetState extends ConsumerState<CreateCategorySheet> {
               ),
               const SizedBox(height: AppSpacing.lg),
               Text(
-                'Nueva categorÃƒÂ­a',
+                'Nueva categoría',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: AppSpacing.md),
@@ -66,7 +66,7 @@ class _CreateCategorySheetState extends ConsumerState<CreateCategorySheet> {
                 controller: _nameController,
                 textInputAction: TextInputAction.done,
                 decoration: const InputDecoration(
-                  labelText: 'Nombre de categorÃƒÂ­a',
+                  labelText: 'Nombre de categoría',
                   prefixIcon: Icon(Icons.category_rounded),
                 ),
                 validator: (value) {
@@ -85,7 +85,7 @@ class _CreateCategorySheetState extends ConsumerState<CreateCategorySheet> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('Crear categorÃƒÂ­a'),
+                    const Text('Crear categoría'),
                     const SizedBox(width: AppSpacing.sm),
                     if (_isSaving)
                       const SizedBox(

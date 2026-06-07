@@ -320,11 +320,13 @@ class SalesRepository {
             productTypeSnapshot: product.productType,
             priceUnitSnapshot: product.priceUnit,
             unitPriceSnapshot: product.price,
+            unitCostSnapshot: Value(product.cost),
             quantity: item.quantity,
             quantityUnit: product.productType == AppProductTypes.bulk
                 ? AppProductPriceUnits.kilogram
                 : AppProductPriceUnits.unit,
             subtotal: item.subtotal,
+            costSubtotalSnapshot: Value(_costSubtotal(product, item.quantity)),
           ),
         );
       }
@@ -489,11 +491,13 @@ class SalesRepository {
             productTypeSnapshot: product.productType,
             priceUnitSnapshot: product.priceUnit,
             unitPriceSnapshot: product.price,
+            unitCostSnapshot: Value(product.cost),
             quantity: item.quantity,
             quantityUnit: product.productType == AppProductTypes.bulk
                 ? AppProductPriceUnits.kilogram
                 : AppProductPriceUnits.unit,
             subtotal: item.subtotal,
+            costSubtotalSnapshot: Value(_costSubtotal(product, item.quantity)),
           ),
         );
       }
@@ -738,6 +742,15 @@ class SalesRepository {
   double _roundMoney(double value) => double.parse(value.toStringAsFixed(2));
 
   double _roundQuantity(double value) => double.parse(value.toStringAsFixed(3));
+
+  double? _costSubtotal(Product product, double quantity) {
+    final cost = product.cost;
+    if (cost == null) {
+      return null;
+    }
+
+    return _roundMoney(cost * quantity);
+  }
 }
 
 class _SalePaymentDraft {

@@ -12,9 +12,11 @@ class SaleItems extends Table {
   TextColumn get productTypeSnapshot => text()();
   TextColumn get priceUnitSnapshot => text()();
   RealColumn get unitPriceSnapshot => real()();
+  RealColumn get unitCostSnapshot => real().nullable()();
   RealColumn get quantity => real()();
   TextColumn get quantityUnit => text()();
   RealColumn get subtotal => real()();
+  RealColumn get costSubtotalSnapshot => real().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};

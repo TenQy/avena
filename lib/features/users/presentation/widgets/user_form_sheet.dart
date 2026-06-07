@@ -135,13 +135,13 @@ class _UserFormSheetState extends ConsumerState<UserFormSheet> {
                 textInputAction: TextInputAction.next,
                 decoration: InputDecoration(
                   labelText: _isEditing
-                      ? 'Nueva contraseÃƒÂ±a opcional'
-                      : 'ContraseÃƒÂ±a',
+                      ? 'Nueva contraseña opcional'
+                      : 'Contraseña',
                   prefixIcon: const Icon(Icons.lock_rounded),
                   suffixIcon: IconButton(
                     tooltip: _obscurePassword
-                        ? 'Mostrar contraseÃƒÂ±a'
-                        : 'Ocultar contraseÃƒÂ±a',
+                        ? 'Mostrar contraseña'
+                        : 'Ocultar contraseña',
                     icon: Icon(
                       _obscurePassword
                           ? Icons.visibility_rounded
@@ -156,7 +156,7 @@ class _UserFormSheetState extends ConsumerState<UserFormSheet> {
                 ),
                 validator: (value) {
                   if (!_isEditing && (value == null || value.trim().isEmpty)) {
-                    return 'Ingresa una contraseÃƒÂ±a.';
+                    return 'Ingresa una contraseña.';
                   }
 
                   return null;
@@ -168,7 +168,7 @@ class _UserFormSheetState extends ConsumerState<UserFormSheet> {
                 keyboardType: TextInputType.phone,
                 textInputAction: TextInputAction.next,
                 decoration: const InputDecoration(
-                  labelText: 'TelÃƒÂ©fono opcional',
+                  labelText: 'Teléfono opcional',
                   prefixIcon: Icon(Icons.phone_rounded),
                 ),
               ),

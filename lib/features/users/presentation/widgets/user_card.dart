@@ -164,8 +164,8 @@ class UserCard extends ConsumerWidget {
       context,
       title: user.isActive ? 'Inhabilitar usuario' : 'Habilitar usuario',
       message: user.isActive
-          ? 'El usuario no podrÃƒÂ¡ iniciar sesiÃƒÂ³n mientras estÃƒÂ© inhabilitado.'
-          : 'El usuario podrÃƒÂ¡ iniciar sesiÃƒÂ³n nuevamente.',
+          ? 'El usuario no podrá iniciar sesión mientras esté inhabilitado.'
+          : 'El usuario podrá iniciar sesión nuevamente.',
       confirmLabel: user.isActive ? 'Inhabilitar' : 'Habilitar',
       icon: user.isActive ? Icons.person_off_rounded : Icons.person_rounded,
     );
@@ -199,7 +199,7 @@ class UserCard extends ConsumerWidget {
     final shouldContinue = await ConfirmDialog.show(
       context,
       title: 'Eliminar usuario',
-      message: 'El usuario se eliminarÃƒÂ¡ de la lista y no podrÃƒÂ¡ iniciar sesiÃƒÂ³n.',
+      message: 'El usuario se eliminará de la lista y no podrá iniciar sesión.',
       confirmLabel: 'Eliminar',
       icon: Icons.delete_rounded,
     );

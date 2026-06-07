@@ -30,6 +30,7 @@ class _CreateProductSheetState extends ConsumerState<CreateProductSheet> {
   final _brandController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _priceController = TextEditingController();
+  final _costController = TextEditingController();
   final _stockController = TextEditingController();
 
   String? _selectedCategoryId;
@@ -52,6 +53,9 @@ class _CreateProductSheetState extends ConsumerState<CreateProductSheet> {
       _brandController.text = product.brand ?? '';
       _descriptionController.text = product.description ?? '';
       _priceController.text = _formatNumber(product.price);
+      _costController.text = product.cost == null
+          ? ''
+          : _formatNumber(product.cost!);
       _stockController.text = product.stockQuantity == null
           ? ''
           : _formatNumber(product.stockQuantity!);
@@ -64,6 +68,7 @@ class _CreateProductSheetState extends ConsumerState<CreateProductSheet> {
     _brandController.dispose();
     _descriptionController.dispose();
     _priceController.dispose();
+    _costController.dispose();
     _stockController.dispose();
     super.dispose();
   }
@@ -86,8 +91,8 @@ class _CreateProductSheetState extends ConsumerState<CreateProductSheet> {
             if (categories.isEmpty) {
               return const EmptyState(
                 icon: Icons.category_rounded,
-                message: 'Sin categorÃƒÂ­as aÃƒÂºn',
-                description: 'Crea una categorÃƒÂ­a antes de agregar productos.',
+                message: 'Sin categorías aún',
+                description: 'Crea una categoría antes de agregar productos.',
               );
             }
 
@@ -138,7 +143,7 @@ class _CreateProductSheetState extends ConsumerState<CreateProductSheet> {
                     key: ValueKey('category-$_selectedCategoryId'),
                     initialValue: _selectedCategoryId,
                     decoration: const InputDecoration(
-                      labelText: 'CategorÃƒÂ­a',
+                      labelText: 'Categoría',
                       prefixIcon: Icon(Icons.category_rounded),
                     ),
                     items: [
@@ -150,7 +155,7 @@ class _CreateProductSheetState extends ConsumerState<CreateProductSheet> {
                     ],
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Selecciona una categorÃƒÂ­a.';
+                        return 'Selecciona una categoría.';
                       }
 
                       return null;
@@ -191,13 +196,18 @@ class _CreateProductSheetState extends ConsumerState<CreateProductSheet> {
                     productType: _productType,
                   ),
                   const SizedBox(height: AppSpacing.md),
+                  _CostField(
+                    controller: _costController,
+                    productType: _productType,
+                  ),
+                  const SizedBox(height: AppSpacing.md),
                   TextFormField(
                     controller: _descriptionController,
                     minLines: 2,
                     maxLines: 3,
                     textInputAction: TextInputAction.newline,
                     decoration: const InputDecoration(
-                      labelText: 'DescripciÃƒÂ³n opcional',
+                      labelText: 'Descripción opcional',
                       prefixIcon: Icon(Icons.notes_rounded),
                     ),
                   ),
@@ -252,7 +262,7 @@ class _CreateProductSheetState extends ConsumerState<CreateProductSheet> {
           loading: () => const InventoryLoadingBlock(),
           error: (_, _) => const EmptyState(
             icon: Icons.error_outline_rounded,
-            message: 'No se pudieron cargar las categorÃƒÂ­as',
+            message: 'No se pudieron cargar las categorías',
             description: 'Intenta nuevamente.',
           ),
         ),
@@ -295,6 +305,7 @@ class _CreateProductSheetState extends ConsumerState<CreateProductSheet> {
       description: _descriptionController.text,
       productType: _productType,
       price: parseNumber(_priceController.text) ?? 0,
+      cost: parseNumber(_costController.text),
       trackStock: _trackStock,
       stockQuantity: _trackStock ? parseNumber(_stockController.text) : null,
     );
@@ -421,7 +432,44 @@ class _PriceField extends StatelessWidget {
       validator: (value) {
         final price = parseNumber(value);
         if (price == null || price <= 0) {
-          return 'Ingresa un precio vÃƒÂ¡lido.';
+          return 'Ingresa un precio válido.';
+        }
+
+        return null;
+      },
+    );
+  }
+}
+
+class _CostField extends StatelessWidget {
+  const _CostField({required this.controller, required this.productType});
+
+  final TextEditingController controller;
+  final String productType;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+      ],
+      textInputAction: TextInputAction.next,
+      decoration: InputDecoration(
+        labelText: productType == AppProductTypes.bulk
+            ? 'Costo por kilogramo opcional'
+            : 'Costo por unidad opcional',
+        prefixIcon: const Icon(Icons.account_balance_wallet_rounded),
+      ),
+      validator: (value) {
+        if (value == null || value.trim().isEmpty) {
+          return null;
+        }
+
+        final cost = parseNumber(value);
+        if (cost == null || cost < 0) {
+          return 'Ingresa un costo valido.';
         }
 
         return null;
@@ -451,7 +499,7 @@ class _StockField extends StatelessWidget {
       validator: (value) {
         final stock = parseNumber(value);
         if (stock == null || stock < 0) {
-          return 'Ingresa un stock vÃƒÂ¡lido.';
+          return 'Ingresa un stock válido.';
         }
 
         return null;

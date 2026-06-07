@@ -70,7 +70,7 @@ class _CreateSubcategorySheetState
                 controller: _nameController,
                 textInputAction: TextInputAction.done,
                 decoration: const InputDecoration(
-                  labelText: 'Nombre de subcategorÃƒÂ­a',
+                  labelText: 'Nombre de subcategoría',
                   prefixIcon: Icon(Icons.create_new_folder_rounded),
                 ),
                 validator: (value) {
@@ -89,7 +89,7 @@ class _CreateSubcategorySheetState
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('Crear subcategorÃƒÂ­a'),
+                    const Text('Crear subcategoría'),
                     const SizedBox(width: AppSpacing.sm),
                     if (_isSaving)
                       const SizedBox(

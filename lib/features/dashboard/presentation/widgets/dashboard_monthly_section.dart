@@ -41,6 +41,12 @@ class DashboardMonthlySection extends StatelessWidget {
               compact: true,
             ),
             DashboardMetricCard(
+              icon: Icons.trending_up_rounded,
+              label: 'Ganancias',
+              value: formatDashboardMoney(summary.totalProfit),
+              compact: true,
+            ),
+            DashboardMetricCard(
               icon: Icons.receipt_long_rounded,
               label: 'Ventas realizadas',
               value: summary.salesCount.toString(),
@@ -94,6 +100,13 @@ class DashboardMonthlySection extends StatelessWidget {
         DashboardComparisonCard(
           title: 'Ingresos',
           comparison: summary.incomeComparison,
+          isMoney: true,
+          previousLabel: 'Mes previo',
+        ),
+        const SizedBox(height: AppSpacing.md),
+        DashboardComparisonCard(
+          title: 'Ganancias',
+          comparison: summary.profitComparison,
           isMoney: true,
           previousLabel: 'Mes previo',
         ),

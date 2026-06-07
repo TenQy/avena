@@ -148,7 +148,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (_, _) => const EmptyState(
             icon: Icons.error_outline_rounded,
-            message: 'No se pudieron cargar las categorÃƒÂ­as',
+            message: 'No se pudieron cargar las categorías',
             description: 'Intenta nuevamente.',
           ),
         ),
@@ -160,7 +160,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                 actions: [
                   AppSpeedDialAction(
                     icon: Icons.category_rounded,
-                    label: 'Crear categorÃƒÂ­a',
+                    label: 'Crear categoría',
                     onPressed: _showCreateCategoryForm,
                   ),
                   AppSpeedDialAction(
@@ -215,7 +215,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
             hasScrollBody: false,
             child: EmptyState(
               icon: Icons.category_rounded,
-              message: 'Sin categorÃƒÂ­as aÃƒÂºn',
+              message: 'Sin categorías aún',
               description: 'Toca + para agregar una.',
             ),
           )
@@ -323,7 +323,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                 ),
                 InventoryOptionTile(
                   icon: Icons.delete_rounded,
-                  label: 'Eliminar categorÃƒÂ­a',
+                  label: 'Eliminar categoría',
                   onTap: () {
                     Navigator.of(context).pop();
                     _deleteCategory(category);
@@ -354,15 +354,15 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
     showCategoryActionResult(
       context,
       result,
-      successMessage: 'CategorÃƒÂ­a principal actualizada.',
+      successMessage: 'Categoría principal actualizada.',
     );
   }
 
   Future<void> _deleteCategory(Category category) async {
     final shouldDelete = await ConfirmDialog.show(
       context,
-      title: 'Eliminar categorÃƒÂ­a',
-      message: 'La categorÃƒÂ­a se quitarÃƒÂ¡ del inventario si no tiene productos.',
+      title: 'Eliminar categoría',
+      message: 'La categoría se quitará del inventario si no tiene productos.',
       confirmLabel: 'Eliminar',
       icon: Icons.delete_rounded,
     );
@@ -387,7 +387,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
     showCategoryActionResult(
       context,
       result,
-      successMessage: 'CategorÃƒÂ­a eliminada.',
+      successMessage: 'Categoría eliminada.',
     );
   }
 }

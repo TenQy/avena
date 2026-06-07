@@ -45,6 +45,12 @@ class DashboardDailySection extends StatelessWidget {
               compact: true,
             ),
             DashboardMetricCard(
+              icon: Icons.trending_up_rounded,
+              label: 'Ganancias',
+              value: formatDashboardMoney(summary.totalProfit),
+              compact: true,
+            ),
+            DashboardMetricCard(
               icon: Icons.confirmation_number_rounded,
               label: 'Ticket promedio',
               value: formatDashboardMoney(summary.averageTicket),
@@ -89,6 +95,12 @@ class DashboardDailySection extends StatelessWidget {
         DashboardComparisonCard(
           title: 'Ingresos',
           comparison: summary.incomeComparison,
+          isMoney: true,
+        ),
+        const SizedBox(height: AppSpacing.md),
+        DashboardComparisonCard(
+          title: 'Ganancias',
+          comparison: summary.profitComparison,
           isMoney: true,
         ),
         const SizedBox(height: AppSpacing.md),

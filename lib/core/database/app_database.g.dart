@@ -2464,6 +2464,15 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
     type: DriftSqlType.double,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _costMeta = const VerificationMeta('cost');
+  @override
+  late final GeneratedColumn<double> cost = GeneratedColumn<double>(
+    'cost',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _priceUnitMeta = const VerificationMeta(
     'priceUnit',
   );
@@ -2585,6 +2594,7 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
     description,
     productType,
     price,
+    cost,
     priceUnit,
     trackStock,
     stockQuantity,
@@ -2670,6 +2680,12 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
       );
     } else if (isInserting) {
       context.missing(_priceMeta);
+    }
+    if (data.containsKey('cost')) {
+      context.handle(
+        _costMeta,
+        cost.isAcceptableOrUnknown(data['cost']!, _costMeta),
+      );
     }
     if (data.containsKey('price_unit')) {
       context.handle(
@@ -2777,6 +2793,10 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
         DriftSqlType.double,
         data['${effectivePrefix}price'],
       )!,
+      cost: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}cost'],
+      ),
       priceUnit: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}price_unit'],
@@ -2831,6 +2851,7 @@ class Product extends DataClass implements Insertable<Product> {
   final String? description;
   final String productType;
   final double price;
+  final double? cost;
   final String priceUnit;
   final bool trackStock;
   final double? stockQuantity;
@@ -2849,6 +2870,7 @@ class Product extends DataClass implements Insertable<Product> {
     this.description,
     required this.productType,
     required this.price,
+    this.cost,
     required this.priceUnit,
     required this.trackStock,
     this.stockQuantity,
@@ -2876,6 +2898,9 @@ class Product extends DataClass implements Insertable<Product> {
     }
     map['product_type'] = Variable<String>(productType);
     map['price'] = Variable<double>(price);
+    if (!nullToAbsent || cost != null) {
+      map['cost'] = Variable<double>(cost);
+    }
     map['price_unit'] = Variable<String>(priceUnit);
     map['track_stock'] = Variable<bool>(trackStock);
     if (!nullToAbsent || stockQuantity != null) {
@@ -2908,6 +2933,7 @@ class Product extends DataClass implements Insertable<Product> {
           : Value(description),
       productType: Value(productType),
       price: Value(price),
+      cost: cost == null && nullToAbsent ? const Value.absent() : Value(cost),
       priceUnit: Value(priceUnit),
       trackStock: Value(trackStock),
       stockQuantity: stockQuantity == null && nullToAbsent
@@ -2938,6 +2964,7 @@ class Product extends DataClass implements Insertable<Product> {
       description: serializer.fromJson<String?>(json['description']),
       productType: serializer.fromJson<String>(json['productType']),
       price: serializer.fromJson<double>(json['price']),
+      cost: serializer.fromJson<double?>(json['cost']),
       priceUnit: serializer.fromJson<String>(json['priceUnit']),
       trackStock: serializer.fromJson<bool>(json['trackStock']),
       stockQuantity: serializer.fromJson<double?>(json['stockQuantity']),
@@ -2961,6 +2988,7 @@ class Product extends DataClass implements Insertable<Product> {
       'description': serializer.toJson<String?>(description),
       'productType': serializer.toJson<String>(productType),
       'price': serializer.toJson<double>(price),
+      'cost': serializer.toJson<double?>(cost),
       'priceUnit': serializer.toJson<String>(priceUnit),
       'trackStock': serializer.toJson<bool>(trackStock),
       'stockQuantity': serializer.toJson<double?>(stockQuantity),
@@ -2982,6 +3010,7 @@ class Product extends DataClass implements Insertable<Product> {
     Value<String?> description = const Value.absent(),
     String? productType,
     double? price,
+    Value<double?> cost = const Value.absent(),
     String? priceUnit,
     bool? trackStock,
     Value<double?> stockQuantity = const Value.absent(),
@@ -3002,6 +3031,7 @@ class Product extends DataClass implements Insertable<Product> {
     description: description.present ? description.value : this.description,
     productType: productType ?? this.productType,
     price: price ?? this.price,
+    cost: cost.present ? cost.value : this.cost,
     priceUnit: priceUnit ?? this.priceUnit,
     trackStock: trackStock ?? this.trackStock,
     stockQuantity: stockQuantity.present
@@ -3032,6 +3062,7 @@ class Product extends DataClass implements Insertable<Product> {
           ? data.productType.value
           : this.productType,
       price: data.price.present ? data.price.value : this.price,
+      cost: data.cost.present ? data.cost.value : this.cost,
       priceUnit: data.priceUnit.present ? data.priceUnit.value : this.priceUnit,
       trackStock: data.trackStock.present
           ? data.trackStock.value
@@ -3061,6 +3092,7 @@ class Product extends DataClass implements Insertable<Product> {
           ..write('description: $description, ')
           ..write('productType: $productType, ')
           ..write('price: $price, ')
+          ..write('cost: $cost, ')
           ..write('priceUnit: $priceUnit, ')
           ..write('trackStock: $trackStock, ')
           ..write('stockQuantity: $stockQuantity, ')
@@ -3084,6 +3116,7 @@ class Product extends DataClass implements Insertable<Product> {
     description,
     productType,
     price,
+    cost,
     priceUnit,
     trackStock,
     stockQuantity,
@@ -3106,6 +3139,7 @@ class Product extends DataClass implements Insertable<Product> {
           other.description == this.description &&
           other.productType == this.productType &&
           other.price == this.price &&
+          other.cost == this.cost &&
           other.priceUnit == this.priceUnit &&
           other.trackStock == this.trackStock &&
           other.stockQuantity == this.stockQuantity &&
@@ -3126,6 +3160,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
   final Value<String?> description;
   final Value<String> productType;
   final Value<double> price;
+  final Value<double?> cost;
   final Value<String> priceUnit;
   final Value<bool> trackStock;
   final Value<double?> stockQuantity;
@@ -3145,6 +3180,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     this.description = const Value.absent(),
     this.productType = const Value.absent(),
     this.price = const Value.absent(),
+    this.cost = const Value.absent(),
     this.priceUnit = const Value.absent(),
     this.trackStock = const Value.absent(),
     this.stockQuantity = const Value.absent(),
@@ -3165,6 +3201,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     this.description = const Value.absent(),
     required String productType,
     required double price,
+    this.cost = const Value.absent(),
     required String priceUnit,
     this.trackStock = const Value.absent(),
     this.stockQuantity = const Value.absent(),
@@ -3193,6 +3230,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     Expression<String>? description,
     Expression<String>? productType,
     Expression<double>? price,
+    Expression<double>? cost,
     Expression<String>? priceUnit,
     Expression<bool>? trackStock,
     Expression<double>? stockQuantity,
@@ -3213,6 +3251,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       if (description != null) 'description': description,
       if (productType != null) 'product_type': productType,
       if (price != null) 'price': price,
+      if (cost != null) 'cost': cost,
       if (priceUnit != null) 'price_unit': priceUnit,
       if (trackStock != null) 'track_stock': trackStock,
       if (stockQuantity != null) 'stock_quantity': stockQuantity,
@@ -3235,6 +3274,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     Value<String?>? description,
     Value<String>? productType,
     Value<double>? price,
+    Value<double?>? cost,
     Value<String>? priceUnit,
     Value<bool>? trackStock,
     Value<double?>? stockQuantity,
@@ -3255,6 +3295,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       description: description ?? this.description,
       productType: productType ?? this.productType,
       price: price ?? this.price,
+      cost: cost ?? this.cost,
       priceUnit: priceUnit ?? this.priceUnit,
       trackStock: trackStock ?? this.trackStock,
       stockQuantity: stockQuantity ?? this.stockQuantity,
@@ -3294,6 +3335,9 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     }
     if (price.present) {
       map['price'] = Variable<double>(price.value);
+    }
+    if (cost.present) {
+      map['cost'] = Variable<double>(cost.value);
     }
     if (priceUnit.present) {
       map['price_unit'] = Variable<String>(priceUnit.value);
@@ -3339,6 +3383,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
           ..write('description: $description, ')
           ..write('productType: $productType, ')
           ..write('price: $price, ')
+          ..write('cost: $cost, ')
           ..write('priceUnit: $priceUnit, ')
           ..write('trackStock: $trackStock, ')
           ..write('stockQuantity: $stockQuantity, ')
@@ -5938,6 +5983,18 @@ class $SaleItemsTable extends SaleItems
         type: DriftSqlType.double,
         requiredDuringInsert: true,
       );
+  static const VerificationMeta _unitCostSnapshotMeta = const VerificationMeta(
+    'unitCostSnapshot',
+  );
+  @override
+  late final GeneratedColumn<double> unitCostSnapshot =
+      GeneratedColumn<double>(
+        'unit_cost_snapshot',
+        aliasedName,
+        true,
+        type: DriftSqlType.double,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _quantityMeta = const VerificationMeta(
     'quantity',
   );
@@ -5971,6 +6028,17 @@ class $SaleItemsTable extends SaleItems
     type: DriftSqlType.double,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _costSubtotalSnapshotMeta =
+      const VerificationMeta('costSubtotalSnapshot');
+  @override
+  late final GeneratedColumn<double> costSubtotalSnapshot =
+      GeneratedColumn<double>(
+        'cost_subtotal_snapshot',
+        aliasedName,
+        true,
+        type: DriftSqlType.double,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -5981,9 +6049,11 @@ class $SaleItemsTable extends SaleItems
     productTypeSnapshot,
     priceUnitSnapshot,
     unitPriceSnapshot,
+    unitCostSnapshot,
     quantity,
     quantityUnit,
     subtotal,
+    costSubtotalSnapshot,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -6071,6 +6141,15 @@ class $SaleItemsTable extends SaleItems
     } else if (isInserting) {
       context.missing(_unitPriceSnapshotMeta);
     }
+    if (data.containsKey('unit_cost_snapshot')) {
+      context.handle(
+        _unitCostSnapshotMeta,
+        unitCostSnapshot.isAcceptableOrUnknown(
+          data['unit_cost_snapshot']!,
+          _unitCostSnapshotMeta,
+        ),
+      );
+    }
     if (data.containsKey('quantity')) {
       context.handle(
         _quantityMeta,
@@ -6097,6 +6176,15 @@ class $SaleItemsTable extends SaleItems
       );
     } else if (isInserting) {
       context.missing(_subtotalMeta);
+    }
+    if (data.containsKey('cost_subtotal_snapshot')) {
+      context.handle(
+        _costSubtotalSnapshotMeta,
+        costSubtotalSnapshot.isAcceptableOrUnknown(
+          data['cost_subtotal_snapshot']!,
+          _costSubtotalSnapshotMeta,
+        ),
+      );
     }
     return context;
   }
@@ -6139,6 +6227,10 @@ class $SaleItemsTable extends SaleItems
         DriftSqlType.double,
         data['${effectivePrefix}unit_price_snapshot'],
       )!,
+      unitCostSnapshot: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}unit_cost_snapshot'],
+      ),
       quantity: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
         data['${effectivePrefix}quantity'],
@@ -6151,6 +6243,10 @@ class $SaleItemsTable extends SaleItems
         DriftSqlType.double,
         data['${effectivePrefix}subtotal'],
       )!,
+      costSubtotalSnapshot: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}cost_subtotal_snapshot'],
+      ),
     );
   }
 
@@ -6169,9 +6265,11 @@ class SaleItem extends DataClass implements Insertable<SaleItem> {
   final String productTypeSnapshot;
   final String priceUnitSnapshot;
   final double unitPriceSnapshot;
+  final double? unitCostSnapshot;
   final double quantity;
   final String quantityUnit;
   final double subtotal;
+  final double? costSubtotalSnapshot;
   const SaleItem({
     required this.id,
     required this.saleId,
@@ -6181,9 +6279,11 @@ class SaleItem extends DataClass implements Insertable<SaleItem> {
     required this.productTypeSnapshot,
     required this.priceUnitSnapshot,
     required this.unitPriceSnapshot,
+    this.unitCostSnapshot,
     required this.quantity,
     required this.quantityUnit,
     required this.subtotal,
+    this.costSubtotalSnapshot,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -6198,9 +6298,15 @@ class SaleItem extends DataClass implements Insertable<SaleItem> {
     map['product_type_snapshot'] = Variable<String>(productTypeSnapshot);
     map['price_unit_snapshot'] = Variable<String>(priceUnitSnapshot);
     map['unit_price_snapshot'] = Variable<double>(unitPriceSnapshot);
+    if (!nullToAbsent || unitCostSnapshot != null) {
+      map['unit_cost_snapshot'] = Variable<double>(unitCostSnapshot);
+    }
     map['quantity'] = Variable<double>(quantity);
     map['quantity_unit'] = Variable<String>(quantityUnit);
     map['subtotal'] = Variable<double>(subtotal);
+    if (!nullToAbsent || costSubtotalSnapshot != null) {
+      map['cost_subtotal_snapshot'] = Variable<double>(costSubtotalSnapshot);
+    }
     return map;
   }
 
@@ -6216,9 +6322,15 @@ class SaleItem extends DataClass implements Insertable<SaleItem> {
       productTypeSnapshot: Value(productTypeSnapshot),
       priceUnitSnapshot: Value(priceUnitSnapshot),
       unitPriceSnapshot: Value(unitPriceSnapshot),
+      unitCostSnapshot: unitCostSnapshot == null && nullToAbsent
+          ? const Value.absent()
+          : Value(unitCostSnapshot),
       quantity: Value(quantity),
       quantityUnit: Value(quantityUnit),
       subtotal: Value(subtotal),
+      costSubtotalSnapshot: costSubtotalSnapshot == null && nullToAbsent
+          ? const Value.absent()
+          : Value(costSubtotalSnapshot),
     );
   }
 
@@ -6242,9 +6354,15 @@ class SaleItem extends DataClass implements Insertable<SaleItem> {
       ),
       priceUnitSnapshot: serializer.fromJson<String>(json['priceUnitSnapshot']),
       unitPriceSnapshot: serializer.fromJson<double>(json['unitPriceSnapshot']),
+      unitCostSnapshot: serializer.fromJson<double?>(
+        json['unitCostSnapshot'],
+      ),
       quantity: serializer.fromJson<double>(json['quantity']),
       quantityUnit: serializer.fromJson<String>(json['quantityUnit']),
       subtotal: serializer.fromJson<double>(json['subtotal']),
+      costSubtotalSnapshot: serializer.fromJson<double?>(
+        json['costSubtotalSnapshot'],
+      ),
     );
   }
   @override
@@ -6259,9 +6377,13 @@ class SaleItem extends DataClass implements Insertable<SaleItem> {
       'productTypeSnapshot': serializer.toJson<String>(productTypeSnapshot),
       'priceUnitSnapshot': serializer.toJson<String>(priceUnitSnapshot),
       'unitPriceSnapshot': serializer.toJson<double>(unitPriceSnapshot),
+      'unitCostSnapshot': serializer.toJson<double?>(unitCostSnapshot),
       'quantity': serializer.toJson<double>(quantity),
       'quantityUnit': serializer.toJson<String>(quantityUnit),
       'subtotal': serializer.toJson<double>(subtotal),
+      'costSubtotalSnapshot': serializer.toJson<double?>(
+        costSubtotalSnapshot,
+      ),
     };
   }
 
@@ -6274,9 +6396,11 @@ class SaleItem extends DataClass implements Insertable<SaleItem> {
     String? productTypeSnapshot,
     String? priceUnitSnapshot,
     double? unitPriceSnapshot,
+    Value<double?> unitCostSnapshot = const Value.absent(),
     double? quantity,
     String? quantityUnit,
     double? subtotal,
+    Value<double?> costSubtotalSnapshot = const Value.absent(),
   }) => SaleItem(
     id: id ?? this.id,
     saleId: saleId ?? this.saleId,
@@ -6288,9 +6412,15 @@ class SaleItem extends DataClass implements Insertable<SaleItem> {
     productTypeSnapshot: productTypeSnapshot ?? this.productTypeSnapshot,
     priceUnitSnapshot: priceUnitSnapshot ?? this.priceUnitSnapshot,
     unitPriceSnapshot: unitPriceSnapshot ?? this.unitPriceSnapshot,
+    unitCostSnapshot: unitCostSnapshot.present
+        ? unitCostSnapshot.value
+        : this.unitCostSnapshot,
     quantity: quantity ?? this.quantity,
     quantityUnit: quantityUnit ?? this.quantityUnit,
     subtotal: subtotal ?? this.subtotal,
+    costSubtotalSnapshot: costSubtotalSnapshot.present
+        ? costSubtotalSnapshot.value
+        : this.costSubtotalSnapshot,
   );
   SaleItem copyWithCompanion(SaleItemsCompanion data) {
     return SaleItem(
@@ -6312,11 +6442,17 @@ class SaleItem extends DataClass implements Insertable<SaleItem> {
       unitPriceSnapshot: data.unitPriceSnapshot.present
           ? data.unitPriceSnapshot.value
           : this.unitPriceSnapshot,
+      unitCostSnapshot: data.unitCostSnapshot.present
+          ? data.unitCostSnapshot.value
+          : this.unitCostSnapshot,
       quantity: data.quantity.present ? data.quantity.value : this.quantity,
       quantityUnit: data.quantityUnit.present
           ? data.quantityUnit.value
           : this.quantityUnit,
       subtotal: data.subtotal.present ? data.subtotal.value : this.subtotal,
+      costSubtotalSnapshot: data.costSubtotalSnapshot.present
+          ? data.costSubtotalSnapshot.value
+          : this.costSubtotalSnapshot,
     );
   }
 
@@ -6331,9 +6467,11 @@ class SaleItem extends DataClass implements Insertable<SaleItem> {
           ..write('productTypeSnapshot: $productTypeSnapshot, ')
           ..write('priceUnitSnapshot: $priceUnitSnapshot, ')
           ..write('unitPriceSnapshot: $unitPriceSnapshot, ')
+          ..write('unitCostSnapshot: $unitCostSnapshot, ')
           ..write('quantity: $quantity, ')
           ..write('quantityUnit: $quantityUnit, ')
-          ..write('subtotal: $subtotal')
+          ..write('subtotal: $subtotal, ')
+          ..write('costSubtotalSnapshot: $costSubtotalSnapshot')
           ..write(')'))
         .toString();
   }
@@ -6348,9 +6486,11 @@ class SaleItem extends DataClass implements Insertable<SaleItem> {
     productTypeSnapshot,
     priceUnitSnapshot,
     unitPriceSnapshot,
+    unitCostSnapshot,
     quantity,
     quantityUnit,
     subtotal,
+    costSubtotalSnapshot,
   );
   @override
   bool operator ==(Object other) =>
@@ -6364,9 +6504,11 @@ class SaleItem extends DataClass implements Insertable<SaleItem> {
           other.productTypeSnapshot == this.productTypeSnapshot &&
           other.priceUnitSnapshot == this.priceUnitSnapshot &&
           other.unitPriceSnapshot == this.unitPriceSnapshot &&
+          other.unitCostSnapshot == this.unitCostSnapshot &&
           other.quantity == this.quantity &&
           other.quantityUnit == this.quantityUnit &&
-          other.subtotal == this.subtotal);
+          other.subtotal == this.subtotal &&
+          other.costSubtotalSnapshot == this.costSubtotalSnapshot);
 }
 
 class SaleItemsCompanion extends UpdateCompanion<SaleItem> {
@@ -6378,9 +6520,11 @@ class SaleItemsCompanion extends UpdateCompanion<SaleItem> {
   final Value<String> productTypeSnapshot;
   final Value<String> priceUnitSnapshot;
   final Value<double> unitPriceSnapshot;
+  final Value<double?> unitCostSnapshot;
   final Value<double> quantity;
   final Value<String> quantityUnit;
   final Value<double> subtotal;
+  final Value<double?> costSubtotalSnapshot;
   final Value<int> rowid;
   const SaleItemsCompanion({
     this.id = const Value.absent(),
@@ -6391,9 +6535,11 @@ class SaleItemsCompanion extends UpdateCompanion<SaleItem> {
     this.productTypeSnapshot = const Value.absent(),
     this.priceUnitSnapshot = const Value.absent(),
     this.unitPriceSnapshot = const Value.absent(),
+    this.unitCostSnapshot = const Value.absent(),
     this.quantity = const Value.absent(),
     this.quantityUnit = const Value.absent(),
     this.subtotal = const Value.absent(),
+    this.costSubtotalSnapshot = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   SaleItemsCompanion.insert({
@@ -6405,9 +6551,11 @@ class SaleItemsCompanion extends UpdateCompanion<SaleItem> {
     required String productTypeSnapshot,
     required String priceUnitSnapshot,
     required double unitPriceSnapshot,
+    this.unitCostSnapshot = const Value.absent(),
     required double quantity,
     required String quantityUnit,
     required double subtotal,
+    this.costSubtotalSnapshot = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        saleId = Value(saleId),
@@ -6428,9 +6576,11 @@ class SaleItemsCompanion extends UpdateCompanion<SaleItem> {
     Expression<String>? productTypeSnapshot,
     Expression<String>? priceUnitSnapshot,
     Expression<double>? unitPriceSnapshot,
+    Expression<double>? unitCostSnapshot,
     Expression<double>? quantity,
     Expression<String>? quantityUnit,
     Expression<double>? subtotal,
+    Expression<double>? costSubtotalSnapshot,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -6445,9 +6595,12 @@ class SaleItemsCompanion extends UpdateCompanion<SaleItem> {
         'product_type_snapshot': productTypeSnapshot,
       if (priceUnitSnapshot != null) 'price_unit_snapshot': priceUnitSnapshot,
       if (unitPriceSnapshot != null) 'unit_price_snapshot': unitPriceSnapshot,
+      if (unitCostSnapshot != null) 'unit_cost_snapshot': unitCostSnapshot,
       if (quantity != null) 'quantity': quantity,
       if (quantityUnit != null) 'quantity_unit': quantityUnit,
       if (subtotal != null) 'subtotal': subtotal,
+      if (costSubtotalSnapshot != null)
+        'cost_subtotal_snapshot': costSubtotalSnapshot,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -6461,9 +6614,11 @@ class SaleItemsCompanion extends UpdateCompanion<SaleItem> {
     Value<String>? productTypeSnapshot,
     Value<String>? priceUnitSnapshot,
     Value<double>? unitPriceSnapshot,
+    Value<double?>? unitCostSnapshot,
     Value<double>? quantity,
     Value<String>? quantityUnit,
     Value<double>? subtotal,
+    Value<double?>? costSubtotalSnapshot,
     Value<int>? rowid,
   }) {
     return SaleItemsCompanion(
@@ -6475,9 +6630,12 @@ class SaleItemsCompanion extends UpdateCompanion<SaleItem> {
       productTypeSnapshot: productTypeSnapshot ?? this.productTypeSnapshot,
       priceUnitSnapshot: priceUnitSnapshot ?? this.priceUnitSnapshot,
       unitPriceSnapshot: unitPriceSnapshot ?? this.unitPriceSnapshot,
+      unitCostSnapshot: unitCostSnapshot ?? this.unitCostSnapshot,
       quantity: quantity ?? this.quantity,
       quantityUnit: quantityUnit ?? this.quantityUnit,
       subtotal: subtotal ?? this.subtotal,
+      costSubtotalSnapshot:
+          costSubtotalSnapshot ?? this.costSubtotalSnapshot,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -6515,6 +6673,9 @@ class SaleItemsCompanion extends UpdateCompanion<SaleItem> {
     if (unitPriceSnapshot.present) {
       map['unit_price_snapshot'] = Variable<double>(unitPriceSnapshot.value);
     }
+    if (unitCostSnapshot.present) {
+      map['unit_cost_snapshot'] = Variable<double>(unitCostSnapshot.value);
+    }
     if (quantity.present) {
       map['quantity'] = Variable<double>(quantity.value);
     }
@@ -6523,6 +6684,11 @@ class SaleItemsCompanion extends UpdateCompanion<SaleItem> {
     }
     if (subtotal.present) {
       map['subtotal'] = Variable<double>(subtotal.value);
+    }
+    if (costSubtotalSnapshot.present) {
+      map['cost_subtotal_snapshot'] = Variable<double>(
+        costSubtotalSnapshot.value,
+      );
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -6541,9 +6707,11 @@ class SaleItemsCompanion extends UpdateCompanion<SaleItem> {
           ..write('productTypeSnapshot: $productTypeSnapshot, ')
           ..write('priceUnitSnapshot: $priceUnitSnapshot, ')
           ..write('unitPriceSnapshot: $unitPriceSnapshot, ')
+          ..write('unitCostSnapshot: $unitCostSnapshot, ')
           ..write('quantity: $quantity, ')
           ..write('quantityUnit: $quantityUnit, ')
           ..write('subtotal: $subtotal, ')
+          ..write('costSubtotalSnapshot: $costSubtotalSnapshot, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -12735,6 +12903,7 @@ typedef $$ProductsTableCreateCompanionBuilder =
       Value<String?> description,
       required String productType,
       required double price,
+      Value<double?> cost,
       required String priceUnit,
       Value<bool> trackStock,
       Value<double?> stockQuantity,
@@ -12756,6 +12925,7 @@ typedef $$ProductsTableUpdateCompanionBuilder =
       Value<String?> description,
       Value<String> productType,
       Value<double> price,
+      Value<double?> cost,
       Value<String> priceUnit,
       Value<bool> trackStock,
       Value<double?> stockQuantity,
@@ -12865,6 +13035,11 @@ class $$ProductsTableFilterComposer
 
   ColumnFilters<double> get price => $composableBuilder(
     column: $table.price,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get cost => $composableBuilder(
+    column: $table.cost,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -13024,6 +13199,11 @@ class $$ProductsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<double> get cost => $composableBuilder(
+    column: $table.cost,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get priceUnit => $composableBuilder(
     column: $table.priceUnit,
     builder: (column) => ColumnOrderings(column),
@@ -13146,6 +13326,9 @@ class $$ProductsTableAnnotationComposer
 
   GeneratedColumn<double> get price =>
       $composableBuilder(column: $table.price, builder: (column) => column);
+
+  GeneratedColumn<double> get cost =>
+      $composableBuilder(column: $table.cost, builder: (column) => column);
 
   GeneratedColumn<String> get priceUnit =>
       $composableBuilder(column: $table.priceUnit, builder: (column) => column);
@@ -13292,6 +13475,7 @@ class $$ProductsTableTableManager
                 Value<String?> description = const Value.absent(),
                 Value<String> productType = const Value.absent(),
                 Value<double> price = const Value.absent(),
+                Value<double?> cost = const Value.absent(),
                 Value<String> priceUnit = const Value.absent(),
                 Value<bool> trackStock = const Value.absent(),
                 Value<double?> stockQuantity = const Value.absent(),
@@ -13311,6 +13495,7 @@ class $$ProductsTableTableManager
                 description: description,
                 productType: productType,
                 price: price,
+                cost: cost,
                 priceUnit: priceUnit,
                 trackStock: trackStock,
                 stockQuantity: stockQuantity,
@@ -13332,6 +13517,7 @@ class $$ProductsTableTableManager
                 Value<String?> description = const Value.absent(),
                 required String productType,
                 required double price,
+                Value<double?> cost = const Value.absent(),
                 required String priceUnit,
                 Value<bool> trackStock = const Value.absent(),
                 Value<double?> stockQuantity = const Value.absent(),
@@ -13351,6 +13537,7 @@ class $$ProductsTableTableManager
                 description: description,
                 productType: productType,
                 price: price,
+                cost: cost,
                 priceUnit: priceUnit,
                 trackStock: trackStock,
                 stockQuantity: stockQuantity,
@@ -15833,9 +16020,11 @@ typedef $$SaleItemsTableCreateCompanionBuilder =
       required String productTypeSnapshot,
       required String priceUnitSnapshot,
       required double unitPriceSnapshot,
+      Value<double?> unitCostSnapshot,
       required double quantity,
       required String quantityUnit,
       required double subtotal,
+      Value<double?> costSubtotalSnapshot,
       Value<int> rowid,
     });
 typedef $$SaleItemsTableUpdateCompanionBuilder =
@@ -15848,9 +16037,11 @@ typedef $$SaleItemsTableUpdateCompanionBuilder =
       Value<String> productTypeSnapshot,
       Value<String> priceUnitSnapshot,
       Value<double> unitPriceSnapshot,
+      Value<double?> unitCostSnapshot,
       Value<double> quantity,
       Value<String> quantityUnit,
       Value<double> subtotal,
+      Value<double?> costSubtotalSnapshot,
       Value<int> rowid,
     });
 
@@ -15935,6 +16126,11 @@ class $$SaleItemsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<double> get unitCostSnapshot => $composableBuilder(
+    column: $table.unitCostSnapshot,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<double> get quantity => $composableBuilder(
     column: $table.quantity,
     builder: (column) => ColumnFilters(column),
@@ -15947,6 +16143,11 @@ class $$SaleItemsTableFilterComposer
 
   ColumnFilters<double> get subtotal => $composableBuilder(
     column: $table.subtotal,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get costSubtotalSnapshot => $composableBuilder(
+    column: $table.costSubtotalSnapshot,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -16036,6 +16237,11 @@ class $$SaleItemsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<double> get unitCostSnapshot => $composableBuilder(
+    column: $table.unitCostSnapshot,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<double> get quantity => $composableBuilder(
     column: $table.quantity,
     builder: (column) => ColumnOrderings(column),
@@ -16048,6 +16254,11 @@ class $$SaleItemsTableOrderingComposer
 
   ColumnOrderings<double> get subtotal => $composableBuilder(
     column: $table.subtotal,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get costSubtotalSnapshot => $composableBuilder(
+    column: $table.costSubtotalSnapshot,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -16135,6 +16346,11 @@ class $$SaleItemsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<double> get unitCostSnapshot => $composableBuilder(
+    column: $table.unitCostSnapshot,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<double> get quantity =>
       $composableBuilder(column: $table.quantity, builder: (column) => column);
 
@@ -16145,6 +16361,11 @@ class $$SaleItemsTableAnnotationComposer
 
   GeneratedColumn<double> get subtotal =>
       $composableBuilder(column: $table.subtotal, builder: (column) => column);
+
+  GeneratedColumn<double> get costSubtotalSnapshot => $composableBuilder(
+    column: $table.costSubtotalSnapshot,
+    builder: (column) => column,
+  );
 
   $$SalesTableAnnotationComposer get saleId {
     final $$SalesTableAnnotationComposer composer = $composerBuilder(
@@ -16229,9 +16450,11 @@ class $$SaleItemsTableTableManager
                 Value<String> productTypeSnapshot = const Value.absent(),
                 Value<String> priceUnitSnapshot = const Value.absent(),
                 Value<double> unitPriceSnapshot = const Value.absent(),
+                Value<double?> unitCostSnapshot = const Value.absent(),
                 Value<double> quantity = const Value.absent(),
                 Value<String> quantityUnit = const Value.absent(),
                 Value<double> subtotal = const Value.absent(),
+                Value<double?> costSubtotalSnapshot = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SaleItemsCompanion(
                 id: id,
@@ -16242,9 +16465,11 @@ class $$SaleItemsTableTableManager
                 productTypeSnapshot: productTypeSnapshot,
                 priceUnitSnapshot: priceUnitSnapshot,
                 unitPriceSnapshot: unitPriceSnapshot,
+                unitCostSnapshot: unitCostSnapshot,
                 quantity: quantity,
                 quantityUnit: quantityUnit,
                 subtotal: subtotal,
+                costSubtotalSnapshot: costSubtotalSnapshot,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -16257,9 +16482,11 @@ class $$SaleItemsTableTableManager
                 required String productTypeSnapshot,
                 required String priceUnitSnapshot,
                 required double unitPriceSnapshot,
+                Value<double?> unitCostSnapshot = const Value.absent(),
                 required double quantity,
                 required String quantityUnit,
                 required double subtotal,
+                Value<double?> costSubtotalSnapshot = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SaleItemsCompanion.insert(
                 id: id,
@@ -16270,9 +16497,11 @@ class $$SaleItemsTableTableManager
                 productTypeSnapshot: productTypeSnapshot,
                 priceUnitSnapshot: priceUnitSnapshot,
                 unitPriceSnapshot: unitPriceSnapshot,
+                unitCostSnapshot: unitCostSnapshot,
                 quantity: quantity,
                 quantityUnit: quantityUnit,
                 subtotal: subtotal,
+                costSubtotalSnapshot: costSubtotalSnapshot,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

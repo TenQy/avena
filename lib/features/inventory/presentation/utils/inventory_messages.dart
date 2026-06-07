@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../../data/inventory_repository.dart';
 import '../../../../shared/widgets/app_snack_bar.dart';
+import '../../data/inventory_repository.dart';
 
 void showCategorySaveResult(BuildContext context, CategorySaveResult result) {
   final message = switch (result) {
-    CategorySaveResult.success => 'CategorÃƒÂ­a creada.',
-    CategorySaveResult.emptyName => 'Ingresa un nombre de categorÃƒÂ­a.',
-    CategorySaveResult.nameTaken => 'Esa categorÃƒÂ­a ya existe.',
+    CategorySaveResult.success => 'Categoria creada.',
+    CategorySaveResult.emptyName => 'Ingresa un nombre de categoria.',
+    CategorySaveResult.nameTaken => 'Esa categoria ya existe.',
   };
 
   showAppSnackBar(context, message);
@@ -21,8 +21,8 @@ void showCategoryActionResult(
   final message = switch (result) {
     CategoryActionResult.success => successMessage,
     CategoryActionResult.hasProducts =>
-      'No se puede eliminar una categorÃƒÂ­a con productos.',
-    CategoryActionResult.notFound => 'La categorÃƒÂ­a ya no existe.',
+      'No se puede eliminar una categoria con productos.',
+    CategoryActionResult.notFound => 'La categoria ya no existe.',
   };
 
   showAppSnackBar(context, message);
@@ -33,10 +33,10 @@ void showSubcategorySaveResult(
   SubcategorySaveResult result,
 ) {
   final message = switch (result) {
-    SubcategorySaveResult.success => 'SubcategorÃƒÂ­a creada.',
-    SubcategorySaveResult.emptyName => 'Ingresa un nombre de subcategorÃƒÂ­a.',
-    SubcategorySaveResult.nameTaken => 'Esa subcategorÃƒÂ­a ya existe.',
-    SubcategorySaveResult.categoryNotFound => 'La categorÃƒÂ­a ya no existe.',
+    SubcategorySaveResult.success => 'Subcategoria creada.',
+    SubcategorySaveResult.emptyName => 'Ingresa un nombre de subcategoria.',
+    SubcategorySaveResult.nameTaken => 'Esa subcategoria ya existe.',
+    SubcategorySaveResult.categoryNotFound => 'La categoria ya no existe.',
   };
 
   showAppSnackBar(context, message);
@@ -47,8 +47,8 @@ void showSubcategoryActionResult(
   SubcategoryActionResult result,
 ) {
   final message = switch (result) {
-    SubcategoryActionResult.success => 'SubcategorÃƒÂ­a eliminada.',
-    SubcategoryActionResult.notFound => 'La subcategorÃƒÂ­a ya no existe.',
+    SubcategoryActionResult.success => 'Subcategoria eliminada.',
+    SubcategoryActionResult.notFound => 'La subcategoria ya no existe.',
   };
 
   showAppSnackBar(context, message);
@@ -62,11 +62,12 @@ void showProductSaveResult(
   final message = switch (result) {
     ProductSaveResult.success => successMessage,
     ProductSaveResult.emptyName => 'Ingresa un nombre de producto.',
-    ProductSaveResult.missingCategory => 'Selecciona una categorÃƒÂ­a.',
-    ProductSaveResult.invalidPrice => 'Ingresa un precio vÃƒÂ¡lido.',
-    ProductSaveResult.invalidStock => 'Ingresa un stock vÃƒÂ¡lido.',
-    ProductSaveResult.categoryNotFound => 'La categorÃƒÂ­a ya no existe.',
-    ProductSaveResult.subcategoryNotFound => 'La subcategorÃƒÂ­a ya no existe.',
+    ProductSaveResult.missingCategory => 'Selecciona una categoria.',
+    ProductSaveResult.invalidPrice => 'Ingresa un precio valido.',
+    ProductSaveResult.invalidCost => 'Ingresa un costo valido.',
+    ProductSaveResult.invalidStock => 'Ingresa un stock valido.',
+    ProductSaveResult.categoryNotFound => 'La categoria ya no existe.',
+    ProductSaveResult.subcategoryNotFound => 'La subcategoria ya no existe.',
   };
 
   showAppSnackBar(context, message);

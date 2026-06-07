@@ -34,6 +34,14 @@ class DashboardRepository {
           );
           final totalIncome = _calculator.salesTotal(currentCompleted);
           final previousIncome = _calculator.salesTotal(previousCompleted);
+          final totalProfit = await _calculator.profitTotal(
+            _database,
+            currentCompleted,
+          );
+          final previousProfit = await _calculator.profitTotal(
+            _database,
+            previousCompleted,
+          );
           final averageTicket = _calculator.averageTicket(currentCompleted);
           final previousAverageTicket = _calculator.averageTicket(
             previousCompleted,
@@ -43,6 +51,7 @@ class DashboardRepository {
             periodStart: periodStart,
             salesCount: currentCompleted.length,
             totalIncome: totalIncome,
+            totalProfit: totalProfit,
             averageTicket: averageTicket,
             physicalCash: openCashSession?.expectedCashAmount ?? 0,
             topRevenueProducts: _calculator.topProductsByIncome(productMetrics),
@@ -58,6 +67,10 @@ class DashboardRepository {
             incomeComparison: DashboardComparison(
               current: totalIncome,
               previous: previousIncome,
+            ),
+            profitComparison: DashboardComparison(
+              current: totalProfit,
+              previous: previousProfit,
             ),
             salesComparison: DashboardComparison(
               current: currentCompleted.length.toDouble(),
@@ -94,6 +107,14 @@ class DashboardRepository {
               .first;
           final totalIncome = _calculator.salesTotal(currentCompleted);
           final previousIncome = _calculator.salesTotal(previousCompleted);
+          final totalProfit = await _calculator.profitTotal(
+            _database,
+            currentCompleted,
+          );
+          final previousProfit = await _calculator.profitTotal(
+            _database,
+            previousCompleted,
+          );
           final averageTicket = _calculator.averageTicket(currentCompleted);
           final previousAverageTicket = _calculator.averageTicket(
             previousCompleted,
@@ -116,12 +137,17 @@ class DashboardRepository {
             periodEnd: nextWeekStart.subtract(const Duration(days: 1)),
             salesCount: currentCompleted.length,
             totalIncome: totalIncome,
+            totalProfit: totalProfit,
             averageTicket: averageTicket,
             bestDay: _calculator.bestDay(weekPerformance),
             worstDay: _calculator.worstDay(weekPerformance),
             incomeComparison: DashboardComparison(
               current: totalIncome,
               previous: previousIncome,
+            ),
+            profitComparison: DashboardComparison(
+              current: totalProfit,
+              previous: previousProfit,
             ),
             salesComparison: DashboardComparison(
               current: currentCompleted.length.toDouble(),
@@ -176,6 +202,14 @@ class DashboardRepository {
               .first;
           final totalIncome = _calculator.salesTotal(currentCompleted);
           final previousIncome = _calculator.salesTotal(previousCompleted);
+          final totalProfit = await _calculator.profitTotal(
+            _database,
+            currentCompleted,
+          );
+          final previousProfit = await _calculator.profitTotal(
+            _database,
+            previousCompleted,
+          );
           final averageTicket = _calculator.averageTicket(currentCompleted);
           final previousAverageTicket = _calculator.averageTicket(
             previousCompleted,
@@ -195,12 +229,17 @@ class DashboardRepository {
             periodEnd: nextMonthStart.subtract(const Duration(days: 1)),
             salesCount: currentCompleted.length,
             totalIncome: totalIncome,
+            totalProfit: totalProfit,
             averageTicket: averageTicket,
             bestWeek: _calculator.bestPeriod(monthlyPerformance),
             worstWeek: _calculator.worstPeriod(monthlyPerformance),
             incomeComparison: DashboardComparison(
               current: totalIncome,
               previous: previousIncome,
+            ),
+            profitComparison: DashboardComparison(
+              current: totalProfit,
+              previous: previousProfit,
             ),
             salesComparison: DashboardComparison(
               current: currentCompleted.length.toDouble(),

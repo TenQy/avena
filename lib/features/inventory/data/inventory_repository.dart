@@ -23,6 +23,7 @@ enum ProductSaveResult {
   invalidStock,
   categoryNotFound,
   subcategoryNotFound,
+  invalidCost,
 }
 
 class ProductDraft {
@@ -35,6 +36,7 @@ class ProductDraft {
     this.brand,
     this.subcategoryId,
     this.description,
+    this.cost,
     this.stockQuantity,
   });
 
@@ -45,6 +47,7 @@ class ProductDraft {
   final String? description;
   final String productType;
   final double price;
+  final double? cost;
   final bool trackStock;
   final double? stockQuantity;
 }
@@ -242,6 +245,7 @@ class InventoryRepository {
         ),
         productType: draft.productType,
         price: draft.price,
+        cost: Value(draft.cost),
         priceUnit: priceUnit,
         trackStock: Value(draft.trackStock),
         stockQuantity: Value(draft.trackStock ? draft.stockQuantity : null),
@@ -304,6 +308,7 @@ class InventoryRepository {
         ),
         productType: draft.productType,
         price: draft.price,
+        cost: Value(draft.cost),
         priceUnit: priceUnit,
         trackStock: draft.trackStock,
         stockQuantity: Value(draft.trackStock ? draft.stockQuantity : null),
@@ -388,6 +393,10 @@ class InventoryRepository {
 
     if (draft.price <= 0) {
       return ProductSaveResult.invalidPrice;
+    }
+
+    if (draft.cost != null && draft.cost! < 0) {
+      return ProductSaveResult.invalidCost;
     }
 
     if (draft.trackStock &&

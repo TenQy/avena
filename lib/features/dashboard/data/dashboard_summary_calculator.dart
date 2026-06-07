@@ -31,6 +31,24 @@ class DashboardSummaryCalculator {
     return _roundMoney(sales.fold(0, (total, sale) => total + sale.total));
   }
 
+  Future<double> profitTotal(AppDatabase database, List<Sale> sales) async {
+    var total = 0.0;
+
+    for (final sale in sales) {
+      final items = await database.salesDao.getItemsBySale(sale.id);
+      for (final item in items) {
+        final costSubtotal = item.costSubtotalSnapshot;
+        if (costSubtotal == null) {
+          continue;
+        }
+
+        total += item.subtotal - costSubtotal;
+      }
+    }
+
+    return _roundMoney(total);
+  }
+
   double averageTicket(List<Sale> sales) {
     if (sales.isEmpty) {
       return 0;

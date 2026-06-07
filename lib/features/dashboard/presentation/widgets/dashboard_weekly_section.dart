@@ -42,6 +42,12 @@ class DashboardWeeklySection extends StatelessWidget {
               compact: true,
             ),
             DashboardMetricCard(
+              icon: Icons.trending_up_rounded,
+              label: 'Ganancias',
+              value: formatDashboardMoney(summary.totalProfit),
+              compact: true,
+            ),
+            DashboardMetricCard(
               icon: Icons.receipt_long_rounded,
               label: 'Ventas realizadas',
               value: summary.salesCount.toString(),
@@ -106,6 +112,13 @@ class DashboardWeeklySection extends StatelessWidget {
         DashboardComparisonCard(
           title: 'Ingresos',
           comparison: summary.incomeComparison,
+          isMoney: true,
+          previousLabel: 'Semana previa',
+        ),
+        const SizedBox(height: AppSpacing.md),
+        DashboardComparisonCard(
+          title: 'Ganancias',
+          comparison: summary.profitComparison,
           isMoney: true,
           previousLabel: 'Semana previa',
         ),
