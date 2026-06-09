@@ -2,15 +2,13 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 
 import '../../../core/constants/payment_methods.dart';
+import '../../../core/storage/app_files.dart';
 
 class SettingsLocalSource {
   const SettingsLocalSource();
 
-  static const _settingsFileName = 'personal_settings.json';
   static const _themeModeKey = 'themeMode';
   static const _businessNameKey = 'businessName';
   static const _businessPhoneKey = 'businessPhone';
@@ -132,9 +130,7 @@ class SettingsLocalSource {
   }
 
   Future<File> _settingsFile() async {
-    final appDir = await getApplicationDocumentsDirectory();
-
-    return File(p.join(appDir.path, _settingsFileName));
+    return AppFiles.settingsFile();
   }
 }
 

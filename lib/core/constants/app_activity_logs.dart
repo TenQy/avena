@@ -22,6 +22,11 @@ class AppActivityLogActions {
   static const cancelSale = 'cancel_sale';
   static const createPendingPayment = 'create_pending_payment';
   static const createPaymentEntry = 'create_payment_entry';
+  static const exportBackup = 'export_backup';
+  static const restoreBackup = 'restore_backup';
+  static const resetOperationalData = 'reset_operational_data';
+  static const clearLogs = 'clear_logs';
+  static const clearSyncQueue = 'clear_sync_queue';
 }
 
 class AppActivityLogEntities {
@@ -36,4 +41,5 @@ class AppActivityLogEntities {
   static const product = 'product';
   static const sale = 'sale';
   static const pendingPayment = 'pending_payment';
+  static const maintenance = 'maintenance';
 }

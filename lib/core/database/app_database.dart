@@ -1,10 +1,7 @@
-import 'dart:io';
-
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 
+import '../storage/app_files.dart';
 import 'daos/activity_logs_dao.dart';
 import 'daos/cash_dao.dart';
 import 'daos/inventory_dao.dart';
@@ -70,10 +67,7 @@ class AppDatabase extends _$AppDatabase {
         if (from < 2) {
           await migrator.addColumn(products, products.cost);
           await migrator.addColumn(saleItems, saleItems.unitCostSnapshot);
-          await migrator.addColumn(
-            saleItems,
-            saleItems.costSubtotalSnapshot,
-          );
+          await migrator.addColumn(saleItems, saleItems.costSubtotalSnapshot);
         }
       },
       beforeOpen: (details) async {
@@ -85,8 +79,7 @@ class AppDatabase extends _$AppDatabase {
 
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
-    final appDir = await getApplicationDocumentsDirectory();
-    final file = File(p.join(appDir.path, 'tienda.sqlite'));
+    final file = await AppFiles.databaseFile();
 
     return NativeDatabase.createInBackground(file);
   });

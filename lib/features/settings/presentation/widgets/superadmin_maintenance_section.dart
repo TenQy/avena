@@ -1,0 +1,302 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../../core/database/app_database.dart';
+import '../../../../shared/theme/app_spacing.dart';
+import '../../../../shared/widgets/app_snack_bar.dart';
+import '../../../../shared/widgets/confirm_dialog.dart';
+import '../../providers/settings_provider.dart';
+import 'settings_formatters.dart';
+import 'settings_rows.dart';
+import 'settings_section_card.dart';
+
+class SuperadminMaintenanceSection extends ConsumerWidget {
+  const SuperadminMaintenanceSection({super.key, required this.currentUser});
+
+  final User currentUser;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final maintenanceState = ref.watch(maintenanceProvider);
+    final isBusy = maintenanceState.isLoading;
+
+    return SettingsSectionCard(
+      title: 'Mantenimiento',
+      icon: Icons.admin_panel_settings_rounded,
+      children: [
+        const SettingsInfoRow(label: 'Acceso', value: 'Solo superadmin'),
+        const SizedBox(height: AppSpacing.sm),
+        MaintenanceActionButton(
+          icon: Icons.file_download_rounded,
+          label: 'Exportar respaldo local',
+          onPressed: isBusy
+              ? null
+              : () => _exportBackup(context, ref, currentUser),
+        ),
+        MaintenanceActionButton(
+          icon: Icons.restore_rounded,
+          label: 'Restaurar ultimo respaldo',
+          isDestructive: true,
+          onPressed: isBusy
+              ? null
+              : () => _restoreBackup(context, ref, currentUser),
+        ),
+        MaintenanceActionButton(
+          icon: Icons.cleaning_services_rounded,
+          label: 'Reiniciar datos operativos',
+          isDestructive: true,
+          onPressed: isBusy
+              ? null
+              : () => _resetOperationalData(context, ref, currentUser),
+        ),
+        MaintenanceActionButton(
+          icon: Icons.receipt_long_rounded,
+          label: 'Limpiar logs',
+          isDestructive: true,
+          onPressed: isBusy
+              ? null
+              : () => _clearActivityLogs(context, ref, currentUser),
+        ),
+        MaintenanceActionButton(
+          icon: Icons.sync_problem_rounded,
+          label: 'Limpiar cola de sincronizacion',
+          isDestructive: true,
+          onPressed: isBusy
+              ? null
+              : () => _clearSyncQueue(context, ref, currentUser),
+        ),
+        MaintenanceActionButton(
+          icon: Icons.delete_forever_rounded,
+          label: 'Reiniciar aplicacion completa',
+          isDestructive: true,
+          onPressed: isBusy
+              ? null
+              : () => _resetApplicationData(context, ref, currentUser),
+        ),
+        if (isBusy) ...[
+          const SizedBox(height: AppSpacing.md),
+          const LinearProgressIndicator(),
+        ],
+      ],
+    );
+  }
+
+  Future<void> _exportBackup(
+    BuildContext context,
+    WidgetRef ref,
+    User actor,
+  ) async {
+    try {
+      final result = await ref
+          .read(maintenanceProvider.notifier)
+          .exportLocalBackup(actor: actor);
+
+      if (!context.mounted) {
+        return;
+      }
+
+      showAppSnackBar(context, 'Respaldo guardado en ${result.path}');
+    } catch (error) {
+      if (context.mounted) {
+        showAppSnackBar(context, maintenanceErrorMessage(error));
+      }
+    }
+  }
+
+  Future<void> _restoreBackup(
+    BuildContext context,
+    WidgetRef ref,
+    User actor,
+  ) async {
+    final confirmed = await _confirmTwice(
+      context,
+      title: 'Restaurar respaldo',
+      message:
+          'Se reemplazara la base local y la configuracion con el ultimo respaldo disponible.',
+      confirmLabel: 'Restaurar',
+      secondMessage:
+          'Confirma nuevamente. Los datos locales actuales se reemplazaran.',
+    );
+
+    if (!confirmed || !context.mounted) {
+      return;
+    }
+
+    try {
+      await ref
+          .read(maintenanceProvider.notifier)
+          .restoreLatestBackup(actor: actor);
+
+      if (context.mounted) {
+        showAppSnackBar(context, 'Respaldo restaurado. La app se recargara.');
+      }
+    } catch (error) {
+      if (context.mounted) {
+        showAppSnackBar(context, maintenanceErrorMessage(error));
+      }
+    }
+  }
+
+  Future<void> _resetOperationalData(
+    BuildContext context,
+    WidgetRef ref,
+    User actor,
+  ) async {
+    final confirmed = await _confirmTwice(
+      context,
+      title: 'Reiniciar datos operativos',
+      message:
+          'Se eliminaran ventas, caja, pagos pendientes, turnos y cola sync. Inventario y usuarios se conservan.',
+      confirmLabel: 'Reiniciar',
+      secondMessage:
+          'Confirma nuevamente para conservar inventario y limpiar datos operativos.',
+    );
+
+    if (!confirmed || !context.mounted) {
+      return;
+    }
+
+    await _runMaintenance(
+      context,
+      () => ref
+          .read(maintenanceProvider.notifier)
+          .resetOperationalData(actor: actor),
+      successMessage: 'Datos operativos reiniciados.',
+    );
+  }
+
+  Future<void> _clearActivityLogs(
+    BuildContext context,
+    WidgetRef ref,
+    User actor,
+  ) async {
+    final confirmed = await _confirmTwice(
+      context,
+      title: 'Limpiar logs',
+      message: 'Se limpiara el historial local de actividad.',
+      confirmLabel: 'Limpiar',
+      secondMessage:
+          'Confirma nuevamente. Se conservara un nuevo log de esta accion.',
+    );
+
+    if (!confirmed || !context.mounted) {
+      return;
+    }
+
+    await _runMaintenance(
+      context,
+      () => ref
+          .read(maintenanceProvider.notifier)
+          .clearActivityLogs(actor: actor),
+      successMessage: 'Logs locales limpiados.',
+    );
+  }
+
+  Future<void> _clearSyncQueue(
+    BuildContext context,
+    WidgetRef ref,
+    User actor,
+  ) async {
+    final confirmed = await _confirmTwice(
+      context,
+      title: 'Limpiar cola sync',
+      message: 'Se eliminaran las operaciones locales pendientes de sync.',
+      confirmLabel: 'Limpiar',
+      secondMessage:
+          'Confirma nuevamente. Usa esto solo despues de respaldar o preparar una base limpia.',
+    );
+
+    if (!confirmed || !context.mounted) {
+      return;
+    }
+
+    await _runMaintenance(
+      context,
+      () => ref.read(maintenanceProvider.notifier).clearSyncQueue(actor: actor),
+      successMessage: 'Cola de sincronizacion limpiada.',
+    );
+  }
+
+  Future<void> _resetApplicationData(
+    BuildContext context,
+    WidgetRef ref,
+    User actor,
+  ) async {
+    final confirmed = await _confirmTwice(
+      context,
+      title: 'Reiniciar aplicacion completa',
+      message:
+          'Se borraran los datos locales y la configuracion. Se conservara tu superadmin actual y el ultimo respaldo guardado.',
+      confirmLabel: 'Reiniciar todo',
+      secondMessage:
+          'Confirma nuevamente. Inventario, ventas, caja, empleados, logs y respaldos anteriores al ultimo se eliminaran.',
+    );
+
+    if (!confirmed || !context.mounted) {
+      return;
+    }
+
+    try {
+      await ref
+          .read(maintenanceProvider.notifier)
+          .resetApplicationData(actor: actor);
+
+      if (context.mounted) {
+        showAppSnackBar(
+          context,
+          'Aplicacion reiniciada conservando superadmin y ultimo respaldo.',
+        );
+      }
+    } catch (error) {
+      if (context.mounted) {
+        showAppSnackBar(context, maintenanceErrorMessage(error));
+      }
+    }
+  }
+
+  Future<void> _runMaintenance(
+    BuildContext context,
+    Future<void> Function() action, {
+    required String successMessage,
+  }) async {
+    try {
+      await action();
+
+      if (context.mounted) {
+        showAppSnackBar(context, successMessage);
+      }
+    } catch (error) {
+      if (context.mounted) {
+        showAppSnackBar(context, maintenanceErrorMessage(error));
+      }
+    }
+  }
+
+  Future<bool> _confirmTwice(
+    BuildContext context, {
+    required String title,
+    required String message,
+    required String confirmLabel,
+    required String secondMessage,
+  }) async {
+    final firstConfirmation = await ConfirmDialog.show(
+      context,
+      title: title,
+      message: message,
+      confirmLabel: confirmLabel,
+      icon: Icons.warning_rounded,
+    );
+
+    if (!firstConfirmation || !context.mounted) {
+      return false;
+    }
+
+    return ConfirmDialog.show(
+      context,
+      title: 'Confirmacion final',
+      message: secondMessage,
+      confirmLabel: confirmLabel,
+      icon: Icons.warning_rounded,
+    );
+  }
+}
