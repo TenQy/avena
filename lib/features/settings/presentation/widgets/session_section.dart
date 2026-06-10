@@ -11,13 +11,13 @@ class SessionSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return SettingsSectionCard(
-      title: 'Sesion',
+      title: 'Sesión',
       icon: Icons.logout_rounded,
       children: [
         FilledButton.icon(
           onPressed: () => _logout(context, ref),
           icon: Icon(Icons.logout_rounded),
-          label: const Text('Cerrar sesion'),
+          label: const Text('Cerrar sesión'),
         ),
       ],
     );
@@ -26,9 +26,9 @@ class SessionSection extends ConsumerWidget {
   Future<void> _logout(BuildContext context, WidgetRef ref) async {
     final shouldLogout = await ConfirmDialog.show(
       context,
-      title: 'Cerrar sesion',
-      message: 'Quieres cerrar tu sesion actual?',
-      confirmLabel: 'Cerrar sesion',
+      title: 'Cerrar sesión',
+      message: '¿Quieres cerrar tu sesión actual?',
+      confirmLabel: 'Cerrar sesión',
       icon: Icons.logout_rounded,
     );
 

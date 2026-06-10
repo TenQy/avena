@@ -196,7 +196,7 @@ class _SaleEditSheetState extends ConsumerState<SaleEditSheet> {
         Text('Editar venta', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: AppSpacing.xs),
         Text(
-          'Ajusta productos, cantidades y metodo de pago.',
+          'Ajusta productos, cantidades y método de pago.',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
             color: AppColors.textSecondaryFor(context),
           ),
@@ -500,7 +500,7 @@ class _SaleEditSheetState extends ConsumerState<SaleEditSheet> {
       context,
       title: 'Guardar cambios',
       message:
-          'Se actualizara la venta y se ajustaran caja e inventario con los nuevos valores.',
+          'Se actualizará la venta y se ajustarán caja e inventario con los nuevos valores.',
       confirmLabel: 'Guardar',
       icon: Icons.edit_note_rounded,
     );
@@ -574,7 +574,7 @@ class _SaleEditTotalCard extends StatelessWidget {
           children: [
             _TotalRow(label: 'Subtotal', value: _money(subtotal)),
             const SizedBox(height: AppSpacing.md),
-            _TotalRow(label: 'Comision', value: _money(commission)),
+            _TotalRow(label: 'Comisión', value: _money(commission)),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
               child: Divider(

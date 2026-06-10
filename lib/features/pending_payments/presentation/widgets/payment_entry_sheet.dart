@@ -116,12 +116,16 @@ class _PaymentEntrySheetState extends ConsumerState<PaymentEntrySheet> {
               const SizedBox(height: AppSpacing.xs),
               Text(
                 '${widget.payment.customerName} - Pendiente: ${_money(widget.payment.remainingAmount)}',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryFor(context)),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: AppColors.textSecondaryFor(context),
+                ),
               ),
               const SizedBox(height: AppSpacing.md),
-              Divider(height: 1, thickness: 0.5, color: AppColors.borderFor(context)),
+              Divider(
+                height: 1,
+                thickness: 0.5,
+                color: AppColors.borderFor(context),
+              ),
               const SizedBox(height: AppSpacing.lg),
               TextFormField(
                 controller: _amountController,
@@ -151,7 +155,7 @@ class _PaymentEntrySheetState extends ConsumerState<PaymentEntrySheet> {
               ),
               const SizedBox(height: AppSpacing.lg),
               Text(
-                'Metodo de pago',
+                'Método de pago',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: AppColors.textPrimaryFor(context),
                   fontWeight: FontWeight.w600,
@@ -272,7 +276,7 @@ class _EntryChargeSummary extends StatelessWidget {
         children: [
           _ChargeRow(label: 'Saldo a cubrir', value: _money(coveredAmount)),
           const SizedBox(height: AppSpacing.sm),
-          _ChargeRow(label: 'Comision', value: _money(commission)),
+          _ChargeRow(label: 'Comisión', value: _money(commission)),
           const SizedBox(height: AppSpacing.sm),
           _ChargeRow(
             label: 'Total a cobrar',
@@ -325,7 +329,7 @@ String _paymentMethodLabel(String method) {
   return switch (method) {
     AppPaymentMethods.cash => 'Efectivo',
     AppPaymentMethods.transfer => 'Transferencia',
-    AppPaymentMethods.terminalCard => 'Debito/Credito',
+    AppPaymentMethods.terminalCard => 'Débito/Crédito',
     AppPaymentMethods.terminalBonus => 'Bonos',
     _ => method,
   };

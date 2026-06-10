@@ -179,7 +179,7 @@ class _SalesScreenState extends ConsumerState<SalesScreen> {
       context,
       title: 'Registrar venta',
       message:
-          'Se registrara la venta por ${_money(currentSale.total)} y se actualizara caja e inventario.',
+          'Se registrará la venta por ${_money(currentSale.total)} y se actualizará caja e inventario.',
       confirmLabel: 'Registrar',
       icon: Icons.point_of_sale_rounded,
     );

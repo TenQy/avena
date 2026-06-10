@@ -72,7 +72,7 @@ class _BusinessInfoSheetState extends ConsumerState<BusinessInfoSheet> {
             const SheetHandle(),
             const SizedBox(height: AppSpacing.lg),
             Text(
-              'Informacion del negocio',
+              'Información del negocio',
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -91,7 +91,7 @@ class _BusinessInfoSheetState extends ConsumerState<BusinessInfoSheet> {
               keyboardType: TextInputType.phone,
               textInputAction: TextInputAction.next,
               decoration: const InputDecoration(
-                labelText: 'Telefono',
+                labelText: 'Teléfono',
                 prefixIcon: Icon(Icons.phone_rounded),
               ),
             ),

@@ -165,17 +165,11 @@ class AppTheme {
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
-          borderSide: const BorderSide(
-            color: AppColors.darkBorder,
-            width: 0.5,
-          ),
+          borderSide: const BorderSide(color: AppColors.darkBorder, width: 0.5),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
-          borderSide: const BorderSide(
-            color: AppColors.darkBorder,
-            width: 0.5,
-          ),
+          borderSide: const BorderSide(color: AppColors.darkBorder, width: 0.5),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),

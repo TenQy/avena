@@ -5,11 +5,7 @@ import '../../../core/database/database_provider.dart';
 import '../data/logs_repository.dart';
 
 class LogsFilters {
-  const LogsFilters({
-    this.userId,
-    this.action,
-    this.selectedDate,
-  });
+  const LogsFilters({this.userId, this.action, this.selectedDate});
 
   final String? userId;
   final String? action;
@@ -46,7 +42,9 @@ class LogsFiltersNotifier extends StateNotifier<LogsFilters> {
 
   void setDate(DateTime? date) {
     state = state.copyWith(
-      selectedDate: date == null ? null : DateTime(date.year, date.month, date.day),
+      selectedDate: date == null
+          ? null
+          : DateTime(date.year, date.month, date.day),
       clearSelectedDate: date == null,
     );
   }
@@ -86,7 +84,11 @@ final filteredLogsProvider = Provider<AsyncValue<List<ActivityLog>>>((ref) {
       final selectedDate = filters.selectedDate;
       if (selectedDate != null) {
         final createdAt = log.createdAt;
-        final logDate = DateTime(createdAt.year, createdAt.month, createdAt.day);
+        final logDate = DateTime(
+          createdAt.year,
+          createdAt.month,
+          createdAt.day,
+        );
         if (logDate != selectedDate) {
           return false;
         }

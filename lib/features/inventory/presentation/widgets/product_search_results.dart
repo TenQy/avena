@@ -28,17 +28,14 @@ class ProductSearchResults extends StatelessWidget {
       return const EmptyState(
         icon: Icons.search_off_rounded,
         message: 'Sin resultados',
-        description: 'No se encontraron productos con esa bÃƒÂºsqueda.',
+        description: 'No se encontraron productos con esa búsqueda.',
       );
     }
 
     return Column(
       children: [
         for (final product in filteredProducts) ...[
-          ProductListCard(
-            product: product,
-            onTap: () => onProductTap(product),
-          ),
+          ProductListCard(product: product, onTap: () => onProductTap(product)),
           const SizedBox(height: AppSpacing.sm),
         ],
       ],

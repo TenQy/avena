@@ -57,7 +57,7 @@ class DashboardTextListCard extends StatelessWidget {
                     ],
                     if (items.length > 5)
                       Text(
-                        '+${items.length - 5} mas',
+                        '+${items.length - 5} más',
                         style: textTheme.labelSmall,
                       ),
                   ],

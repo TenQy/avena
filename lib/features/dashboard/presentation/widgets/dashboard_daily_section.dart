@@ -67,7 +67,7 @@ class DashboardDailySection extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
         DashboardProductCard(
           icon: Icons.attach_money_rounded,
-          title: 'Producto con mas ingresos',
+          title: 'Producto con más ingresos',
           emptyText: 'Sin ventas hoy',
           metric: summary.topRevenueProduct,
           topProducts: summary.topRevenueProducts,
@@ -75,7 +75,7 @@ class DashboardDailySection extends StatelessWidget {
         const SizedBox(height: AppSpacing.md),
         DashboardProductCard(
           icon: Icons.inventory_2_rounded,
-          title: 'Producto mas vendido',
+          title: 'Producto más vendido',
           emptyText: 'Sin ventas hoy',
           metric: summary.topQuantityProduct,
           topProducts: summary.topQuantityProducts,
@@ -83,7 +83,7 @@ class DashboardDailySection extends StatelessWidget {
         const SizedBox(height: AppSpacing.md),
         DashboardProductCard(
           icon: Icons.sell_rounded,
-          title: 'Producto en mas ventas',
+          title: 'Producto en más ventas',
           emptyText: 'Sin ventas hoy',
           metric: summary.topSaleCountProduct,
           topProducts: summary.topSaleCountProducts,

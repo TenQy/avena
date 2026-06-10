@@ -41,7 +41,7 @@ class LogsScreen extends ConsumerWidget {
                   icon: Icons.history_rounded,
                   message: 'Sin logs para mostrar',
                   description:
-                      'Ajusta los filtros o realiza una accion en la app.',
+                      'Ajusta los filtros o realiza una acción en la app.',
                 );
               }
 
@@ -217,7 +217,7 @@ class _ActionFilterField extends ConsumerWidget {
       initialValue: filters.action,
       isExpanded: true,
       decoration: const InputDecoration(
-        labelText: 'Accion',
+        labelText: 'Acción',
         prefixIcon: Icon(Icons.tune_rounded),
       ),
       selectedItemBuilder: (context) {
@@ -454,9 +454,9 @@ class _DetailRow extends StatelessWidget {
 String _actionLabel(String action) {
   switch (action) {
     case AppActivityLogActions.login:
-      return 'Inicio de sesion';
+      return 'Inicio de sesión';
     case AppActivityLogActions.logout:
-      return 'Cierre de sesion';
+      return 'Cierre de sesión';
     case AppActivityLogActions.openCash:
       return 'Apertura de caja';
     case AppActivityLogActions.closeCash:
@@ -464,37 +464,37 @@ String _actionLabel(String action) {
     case AppActivityLogActions.createCashMovement:
       return 'Movimiento de caja';
     case AppActivityLogActions.createUser:
-      return 'Creacion de usuario';
+      return 'Creación de usuario';
     case AppActivityLogActions.updateUser:
-      return 'Edicion de usuario';
+      return 'Edición de usuario';
     case AppActivityLogActions.setUserActive:
       return 'Cambio de estado de usuario';
     case AppActivityLogActions.deleteUser:
-      return 'Eliminacion de usuario';
+      return 'Eliminación de usuario';
     case AppActivityLogActions.createCategory:
-      return 'Creacion de categoria';
+      return 'Creación de categoría';
     case AppActivityLogActions.createSubcategory:
-      return 'Creacion de subcategoria';
+      return 'Creación de subcategoría';
     case AppActivityLogActions.deleteSubcategory:
-      return 'Eliminacion de subcategoria';
+      return 'Eliminación de subcategoría';
     case AppActivityLogActions.setMainCategory:
-      return 'Categoria principal';
+      return 'Categoría principal';
     case AppActivityLogActions.deleteCategory:
-      return 'Eliminacion de categoria';
+      return 'Eliminación de categoría';
     case AppActivityLogActions.createProduct:
-      return 'Creacion de producto';
+      return 'Creación de producto';
     case AppActivityLogActions.updateProduct:
-      return 'Edicion de producto';
+      return 'Edición de producto';
     case AppActivityLogActions.deleteProduct:
-      return 'Eliminacion de producto';
+      return 'Eliminación de producto';
     case AppActivityLogActions.createSale:
       return 'Registro de venta';
     case AppActivityLogActions.editSale:
-      return 'Edicion de venta';
+      return 'Edición de venta';
     case AppActivityLogActions.cancelSale:
       return 'Cancelacion de venta';
     case AppActivityLogActions.createPendingPayment:
-      return 'Creacion de pago pendiente';
+      return 'Creación de pago pendiente';
     case AppActivityLogActions.createPaymentEntry:
       return 'Registro de abono';
     default:
@@ -505,7 +505,7 @@ String _actionLabel(String action) {
 String _entityLabel(String entityType) {
   switch (entityType) {
     case AppActivityLogEntities.session:
-      return 'Sesion';
+      return 'Sesión';
     case AppActivityLogEntities.cashSession:
       return 'Caja';
     case AppActivityLogEntities.cashMovement:

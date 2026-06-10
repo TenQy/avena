@@ -22,9 +22,9 @@ class DashboardPaymentDonutChart extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Metodos de pago', style: textTheme.titleMedium),
+            Text('Métodos de pago', style: textTheme.titleMedium),
             const SizedBox(height: AppSpacing.xs),
-            Text('Grafica de dona semanal', style: textTheme.bodySmall),
+            Text('Gráfica de dona semanal', style: textTheme.bodySmall),
             const SizedBox(height: AppSpacing.lg),
             if (items.isEmpty)
               Text('Sin ventas esta semana', style: textTheme.bodyMedium)

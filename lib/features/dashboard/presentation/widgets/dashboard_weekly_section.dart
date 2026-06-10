@@ -61,7 +61,7 @@ class DashboardWeeklySection extends StatelessWidget {
             ),
             DashboardMetricCard(
               icon: Icons.emoji_events_rounded,
-              label: 'Mejor dia',
+              label: 'Mejor día',
               value: summary.bestDay.label,
               detail:
                   '${formatDashboardMoney(summary.bestDay.income)} - ${summary.bestDay.salesCount} ventas',
@@ -69,7 +69,7 @@ class DashboardWeeklySection extends StatelessWidget {
             ),
             DashboardMetricCard(
               icon: Icons.trending_down_rounded,
-              label: 'Peor dia',
+              label: 'Peor día',
               value: summary.worstDay.label,
               detail:
                   '${formatDashboardMoney(summary.worstDay.income)} - ${summary.worstDay.salesCount} ventas',
@@ -84,7 +84,7 @@ class DashboardWeeklySection extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
         DashboardProductCard(
           icon: Icons.attach_money_rounded,
-          title: 'Producto con mas ingresos',
+          title: 'Producto con más ingresos',
           emptyText: 'Sin ventas esta semana',
           metric: summary.topRevenueProduct,
           topProducts: summary.topRevenueProducts,
@@ -92,7 +92,7 @@ class DashboardWeeklySection extends StatelessWidget {
         const SizedBox(height: AppSpacing.md),
         DashboardProductCard(
           icon: Icons.inventory_2_rounded,
-          title: 'Producto mas vendido',
+          title: 'Producto más vendido',
           emptyText: 'Sin ventas esta semana',
           metric: summary.topQuantityProduct,
           topProducts: summary.topQuantityProducts,
@@ -100,7 +100,7 @@ class DashboardWeeklySection extends StatelessWidget {
         const SizedBox(height: AppSpacing.md),
         DashboardProductCard(
           icon: Icons.sell_rounded,
-          title: 'Producto en mas ventas',
+          title: 'Producto en más ventas',
           emptyText: 'Sin ventas esta semana',
           metric: summary.topSaleCountProduct,
           topProducts: summary.topSaleCountProducts,

@@ -13,9 +13,8 @@ class TiendaApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
-    final themeMode = ref
-        .watch(personalSettingsProvider)
-        .valueOrNull ?? ThemeMode.light;
+    final themeMode =
+        ref.watch(personalSettingsProvider).valueOrNull ?? ThemeMode.light;
 
     return MaterialApp(
       title: 'Tienda',

@@ -77,9 +77,9 @@ class _CashMovementSheetState extends ConsumerState<CashMovementSheet> {
             const SizedBox(height: AppSpacing.sm),
             Text(
               description,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondaryFor(context)),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppColors.textSecondaryFor(context),
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.xl),

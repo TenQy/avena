@@ -35,7 +35,7 @@ class AdministrativeSettingsSection extends ConsumerWidget {
                         : settings.businessName,
                   ),
                   SettingsInfoRow(
-                    label: 'Telefono',
+                    label: 'Teléfono',
                     value: settings.businessPhone.isEmpty
                         ? 'Sin configurar'
                         : settings.businessPhone,
@@ -148,7 +148,7 @@ class AdministrativeSettingsSection extends ConsumerWidget {
         ),
         const SizedBox(height: AppSpacing.md),
         SettingsSectionCard(
-          title: 'Sincronizacion local',
+          title: 'Sincronización local',
           icon: Icons.sync_rounded,
           children: [
             syncState.when(

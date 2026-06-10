@@ -5987,14 +5987,13 @@ class $SaleItemsTable extends SaleItems
     'unitCostSnapshot',
   );
   @override
-  late final GeneratedColumn<double> unitCostSnapshot =
-      GeneratedColumn<double>(
-        'unit_cost_snapshot',
-        aliasedName,
-        true,
-        type: DriftSqlType.double,
-        requiredDuringInsert: false,
-      );
+  late final GeneratedColumn<double> unitCostSnapshot = GeneratedColumn<double>(
+    'unit_cost_snapshot',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _quantityMeta = const VerificationMeta(
     'quantity',
   );
@@ -6354,9 +6353,7 @@ class SaleItem extends DataClass implements Insertable<SaleItem> {
       ),
       priceUnitSnapshot: serializer.fromJson<String>(json['priceUnitSnapshot']),
       unitPriceSnapshot: serializer.fromJson<double>(json['unitPriceSnapshot']),
-      unitCostSnapshot: serializer.fromJson<double?>(
-        json['unitCostSnapshot'],
-      ),
+      unitCostSnapshot: serializer.fromJson<double?>(json['unitCostSnapshot']),
       quantity: serializer.fromJson<double>(json['quantity']),
       quantityUnit: serializer.fromJson<String>(json['quantityUnit']),
       subtotal: serializer.fromJson<double>(json['subtotal']),
@@ -6381,9 +6378,7 @@ class SaleItem extends DataClass implements Insertable<SaleItem> {
       'quantity': serializer.toJson<double>(quantity),
       'quantityUnit': serializer.toJson<String>(quantityUnit),
       'subtotal': serializer.toJson<double>(subtotal),
-      'costSubtotalSnapshot': serializer.toJson<double?>(
-        costSubtotalSnapshot,
-      ),
+      'costSubtotalSnapshot': serializer.toJson<double?>(costSubtotalSnapshot),
     };
   }
 
@@ -6634,8 +6629,7 @@ class SaleItemsCompanion extends UpdateCompanion<SaleItem> {
       quantity: quantity ?? this.quantity,
       quantityUnit: quantityUnit ?? this.quantityUnit,
       subtotal: subtotal ?? this.subtotal,
-      costSubtotalSnapshot:
-          costSubtotalSnapshot ?? this.costSubtotalSnapshot,
+      costSubtotalSnapshot: costSubtotalSnapshot ?? this.costSubtotalSnapshot,
       rowid: rowid ?? this.rowid,
     );
   }

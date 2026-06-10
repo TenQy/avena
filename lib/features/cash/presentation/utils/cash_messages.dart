@@ -18,7 +18,7 @@ void showCloseCashResult(BuildContext context, CloseCashResult result) {
   final message = switch (result) {
     CloseCashResult.success => 'Caja cerrada.',
     CloseCashResult.unauthorized => 'No tienes permisos para cerrar caja.',
-    CloseCashResult.notFound => 'La caja abierta ya no esta disponible.',
+    CloseCashResult.notFound => 'La caja abierta ya no está disponible.',
   };
 
   showAppSnackBar(context, message);
@@ -32,7 +32,7 @@ void showCashMovementResult(BuildContext context, CashMovementResult result) {
     CashMovementResult.invalidAmount => 'Ingresa un monto valido.',
     CashMovementResult.emptyReason => 'Ingresa un motivo.',
     CashMovementResult.sessionNotFound =>
-      'La caja abierta ya no esta disponible.',
+      'La caja abierta ya no está disponible.',
   };
 
   showAppSnackBar(context, message);

@@ -61,9 +61,9 @@ class _PendingPaymentCardState extends ConsumerState<PendingPaymentCard> {
               const SizedBox(height: AppSpacing.xs),
               Text(
                 payment.customerPhone!,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryFor(context)),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: AppColors.textSecondaryFor(context),
+                ),
               ),
             ],
             if (payment.description != null) ...[
@@ -110,9 +110,9 @@ class _PendingPaymentCardState extends ConsumerState<PendingPaymentCard> {
             const SizedBox(height: AppSpacing.md),
             Text(
               'Creado: ${_dateTime(payment.createdAt)}',
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryFor(context)),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: AppColors.textSecondaryFor(context),
+              ),
             ),
             const SizedBox(height: AppSpacing.md),
             Row(
@@ -142,7 +142,11 @@ class _PendingPaymentCardState extends ConsumerState<PendingPaymentCard> {
             ),
             if (_showEntries) ...[
               const SizedBox(height: AppSpacing.md),
-              Divider(height: 1, thickness: 0.5, color: AppColors.borderFor(context)),
+              Divider(
+                height: 1,
+                thickness: 0.5,
+                color: AppColors.borderFor(context),
+              ),
               const SizedBox(height: AppSpacing.md),
               Text(
                 'Historial de abonos',
@@ -184,10 +188,10 @@ class _EntriesList extends StatelessWidget {
   Widget build(BuildContext context) {
     if (entries.isEmpty) {
       return Text(
-        'Aun no hay abonos registrados.',
-        style: Theme.of(
-          context,
-        ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryFor(context)),
+        'Aún no hay abonos registrados.',
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: AppColors.textSecondaryFor(context),
+        ),
       );
     }
 
@@ -248,7 +252,7 @@ class _PaymentEntryRow extends StatelessWidget {
                 if (AppPaymentCommissions.rateFor(entry.paymentMethod) > 0) ...[
                   const SizedBox(height: AppSpacing.xs),
                   Text(
-                    'Cubre ${_money(entry.amount)} + comision '
+                    'Cubre ${_money(entry.amount)} + comisión '
                     '${_money(_entryCommission(entry))}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: AppColors.textSecondaryFor(context),
@@ -290,9 +294,9 @@ class _AmountColumn extends StatelessWidget {
       children: [
         Text(
           label,
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryFor(context)),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: AppColors.textSecondaryFor(context),
+          ),
         ),
         const SizedBox(height: AppSpacing.xs),
         Text(
@@ -362,7 +366,7 @@ String _paymentMethodLabel(String method) {
   return switch (method) {
     AppPaymentMethods.cash => 'Efectivo',
     AppPaymentMethods.transfer => 'Transferencia',
-    AppPaymentMethods.terminalCard => 'Debito/Credito',
+    AppPaymentMethods.terminalCard => 'Débito/Crédito',
     AppPaymentMethods.terminalBonus => 'Bonos',
     _ => method,
   };

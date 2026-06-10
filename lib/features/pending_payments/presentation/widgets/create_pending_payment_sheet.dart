@@ -85,7 +85,11 @@ class _CreatePendingPaymentSheetState
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: AppSpacing.md),
-              Divider(height: 1, thickness: 0.5, color: AppColors.borderFor(context)),
+              Divider(
+                height: 1,
+                thickness: 0.5,
+                color: AppColors.borderFor(context),
+              ),
               const SizedBox(height: AppSpacing.lg),
               TextFormField(
                 controller: _customerNameController,
@@ -109,7 +113,7 @@ class _CreatePendingPaymentSheetState
                 keyboardType: TextInputType.phone,
                 textInputAction: TextInputAction.next,
                 decoration: const InputDecoration(
-                  labelText: 'Telefono opcional',
+                  labelText: 'Teléfono opcional',
                   prefixIcon: Icon(Icons.phone_outlined),
                 ),
               ),
@@ -143,7 +147,7 @@ class _CreatePendingPaymentSheetState
                 textInputAction: TextInputAction.done,
                 maxLines: 3,
                 decoration: const InputDecoration(
-                  labelText: 'Descripcion opcional',
+                  labelText: 'Descripción opcional',
                   prefixIcon: Icon(Icons.notes_rounded),
                 ),
                 onFieldSubmitted: (_) => _save(),

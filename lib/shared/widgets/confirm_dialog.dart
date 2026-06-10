@@ -59,9 +59,7 @@ class ConfirmDialog extends StatelessWidget {
       content: Text(
         message,
         textAlign: TextAlign.center,
-        style: Theme.of(
-          context,
-        ).textTheme.bodyMedium?.copyWith(
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
           color: AppColors.textSecondaryFor(context),
         ),
       ),

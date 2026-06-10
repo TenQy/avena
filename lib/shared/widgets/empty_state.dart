@@ -32,18 +32,14 @@ class EmptyState extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: textTheme.bodyLarge?.copyWith(
-                color: secondaryText,
-              ),
+              style: textTheme.bodyLarge?.copyWith(color: secondaryText),
             ),
             if (description != null) ...[
               const SizedBox(height: AppSpacing.xs),
               Text(
                 description!,
                 textAlign: TextAlign.center,
-                style: textTheme.bodySmall?.copyWith(
-                  color: iconColor,
-                ),
+                style: textTheme.bodySmall?.copyWith(color: iconColor),
               ),
             ],
           ],

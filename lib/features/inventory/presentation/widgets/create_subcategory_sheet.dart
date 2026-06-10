@@ -60,11 +60,15 @@ class _CreateSubcategorySheetState
               ),
               const SizedBox(height: AppSpacing.lg),
               Text(
-                'Nueva subcategorÃƒÂ­a',
+                'Nueva subcategoría',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: AppSpacing.md),
-              Divider(height: 1, thickness: 0.5, color: AppColors.borderFor(context)),
+              Divider(
+                height: 1,
+                thickness: 0.5,
+                color: AppColors.borderFor(context),
+              ),
               const SizedBox(height: AppSpacing.lg),
               TextFormField(
                 controller: _nameController,

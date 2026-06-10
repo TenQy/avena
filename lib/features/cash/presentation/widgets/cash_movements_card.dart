@@ -23,7 +23,7 @@ class CashMovementsCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.md),
             if (movements.isEmpty)
               Text(
-                'Aun no hay retiros ni depositos.',
+                'Aún no hay retiros ni depositos.',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: AppColors.textSecondaryFor(context),
                 ),
@@ -32,7 +32,10 @@ class CashMovementsCard extends StatelessWidget {
               for (final movement in movements) ...[
                 _MovementTile(movement: movement),
                 if (movement != movements.last)
-                  Divider(height: AppSpacing.lg, color: AppColors.borderFor(context)),
+                  Divider(
+                    height: AppSpacing.lg,
+                    color: AppColors.borderFor(context),
+                  ),
               ],
           ],
         ),
@@ -81,16 +84,16 @@ class _MovementTile extends StatelessWidget {
               const SizedBox(height: AppSpacing.xs),
               Text(
                 movement.reason,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryFor(context)),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: AppColors.textSecondaryFor(context),
+                ),
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(
                 formatCashDateTime(movement.createdAt),
-                style: Theme.of(
-                  context,
-                ).textTheme.labelSmall?.copyWith(color: AppColors.iconInactiveFor(context)),
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: AppColors.iconInactiveFor(context),
+                ),
               ),
             ],
           ),

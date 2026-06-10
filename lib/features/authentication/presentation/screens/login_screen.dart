@@ -65,7 +65,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         });
       case LoginResult.inactiveUser:
         setState(() {
-          _errorMessage = 'Este usuario esta inhabilitado.';
+          _errorMessage = 'Este usuario está inhabilitado.';
         });
     }
   }
@@ -112,7 +112,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                       const SizedBox(height: AppSpacing.md),
                       Text(
-                        'Inicia sesion para continuar',
+                        'Inicia sesión para continuar',
                         textAlign: TextAlign.center,
                         style: textTheme.bodyMedium?.copyWith(
                           color: AppColors.textSecondaryFor(context),

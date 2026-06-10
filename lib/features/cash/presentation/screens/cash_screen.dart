@@ -29,7 +29,7 @@ class CashScreen extends ConsumerWidget {
       return const EmptyState(
         icon: Icons.lock_outline_rounded,
         message: 'Caja no disponible',
-        description: 'Este modulo solo esta disponible para administradores.',
+        description: 'Este módulo solo está disponible para administradores.',
       );
     }
 

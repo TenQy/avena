@@ -119,12 +119,16 @@ class _PendingSaleSheetState extends ConsumerState<PendingSaleSheet> {
               const SizedBox(height: AppSpacing.xs),
               Text(
                 'Total de productos: ${_money(widget.subtotal)}',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryFor(context)),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: AppColors.textSecondaryFor(context),
+                ),
               ),
               const SizedBox(height: AppSpacing.md),
-              Divider(height: 1, thickness: 0.5, color: AppColors.borderFor(context)),
+              Divider(
+                height: 1,
+                thickness: 0.5,
+                color: AppColors.borderFor(context),
+              ),
               const SizedBox(height: AppSpacing.lg),
               TextFormField(
                 controller: _customerNameController,
@@ -148,7 +152,7 @@ class _PendingSaleSheetState extends ConsumerState<PendingSaleSheet> {
                 keyboardType: TextInputType.phone,
                 textInputAction: TextInputAction.next,
                 decoration: const InputDecoration(
-                  labelText: 'Telefono opcional',
+                  labelText: 'Teléfono opcional',
                   prefixIcon: Icon(Icons.phone_outlined),
                 ),
               ),
@@ -159,7 +163,7 @@ class _PendingSaleSheetState extends ConsumerState<PendingSaleSheet> {
                 textInputAction: TextInputAction.next,
                 maxLines: 2,
                 decoration: const InputDecoration(
-                  labelText: 'Descripcion opcional',
+                  labelText: 'Descripción opcional',
                   prefixIcon: Icon(Icons.notes_rounded),
                 ),
               ),
@@ -197,7 +201,7 @@ class _PendingSaleSheetState extends ConsumerState<PendingSaleSheet> {
               if (_paidAmount > 0) ...[
                 const SizedBox(height: AppSpacing.lg),
                 Text(
-                  'Metodo del abono inicial',
+                  'Método del abono inicial',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: AppColors.textPrimaryFor(context),
                     fontWeight: FontWeight.w600,
@@ -313,7 +317,7 @@ class _PendingSaleSummary extends StatelessWidget {
         children: [
           _SummaryRow(label: 'Abono cubierto', value: _money(paidAmount)),
           const SizedBox(height: AppSpacing.sm),
-          _SummaryRow(label: 'Comision', value: _money(commission)),
+          _SummaryRow(label: 'Comisión', value: _money(commission)),
           const SizedBox(height: AppSpacing.sm),
           _SummaryRow(label: 'Cobro inicial', value: _money(chargedTotal)),
           const SizedBox(height: AppSpacing.sm),
@@ -368,7 +372,7 @@ String _paymentMethodLabel(String method) {
   return switch (method) {
     AppPaymentMethods.cash => 'Efectivo',
     AppPaymentMethods.transfer => 'Transferencia',
-    AppPaymentMethods.terminalCard => 'Debito/Credito',
+    AppPaymentMethods.terminalCard => 'Débito/Crédito',
     AppPaymentMethods.terminalBonus => 'Bonos',
     _ => method,
   };

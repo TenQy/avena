@@ -22,7 +22,7 @@ class CurrentUserSection extends StatelessWidget {
       children: [
         SettingsInfoRow(
           label: 'Usuario',
-          value: currentUser?.username ?? 'Sesion no disponible',
+          value: currentUser?.username ?? 'Sesión no disponible',
         ),
         SettingsInfoRow(label: 'Rol', value: _roleLabel(currentUser?.role)),
         SettingsInfoRow(
@@ -30,7 +30,7 @@ class CurrentUserSection extends StatelessWidget {
           value: currentUser?.isActive == false ? 'Inactivo' : 'Activo',
         ),
         if (currentUser?.phone != null && currentUser!.phone!.trim().isNotEmpty)
-          SettingsInfoRow(label: 'Telefono', value: currentUser!.phone!),
+          SettingsInfoRow(label: 'Teléfono', value: currentUser!.phone!),
       ],
     );
   }

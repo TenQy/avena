@@ -68,7 +68,7 @@ class _SaleTotalCardState extends State<SaleTotalCard> {
           children: [
             _TotalRow(label: 'Subtotal', value: _money(widget.subtotal)),
             const SizedBox(height: AppSpacing.md),
-            _TotalRow(label: 'Comision', value: _money(widget.commission)),
+            _TotalRow(label: 'Comisión', value: _money(widget.commission)),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
               child: Divider(

@@ -70,9 +70,9 @@ class ProductListCard extends StatelessWidget {
                         product.brand!,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: textSecondary,
-                        ),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodySmall?.copyWith(color: textSecondary),
                       ),
                   ],
                 ),

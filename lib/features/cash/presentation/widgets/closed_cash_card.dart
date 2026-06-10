@@ -30,9 +30,9 @@ class ClosedCashCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.xs),
             Text(
               'Abre caja registrando el efectivo inicial.',
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondaryFor(context)),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppColors.textSecondaryFor(context),
+              ),
             ),
             const SizedBox(height: AppSpacing.xl),
             FilledButton(

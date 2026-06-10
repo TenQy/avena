@@ -42,7 +42,7 @@ class SaleProductSearchCard extends StatelessWidget {
                 suffixIcon: query.trim().isEmpty
                     ? null
                     : IconButton(
-                        tooltip: 'Limpiar busqueda',
+                        tooltip: 'Limpiar búsqueda',
                         icon: Icon(Icons.close_rounded),
                         onPressed: controller.clear,
                       ),
@@ -107,9 +107,9 @@ class _ProductSearchTile extends StatelessWidget {
               const SizedBox(height: AppSpacing.xs),
               Text(
                 '${_money(product.price)} x $unitLabel',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryFor(context)),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: AppColors.textSecondaryFor(context),
+                ),
               ),
             ],
           ),

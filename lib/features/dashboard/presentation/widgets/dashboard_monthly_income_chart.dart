@@ -25,7 +25,7 @@ class DashboardMonthlyIncomeChart extends StatelessWidget {
           children: [
             Text('Ingresos por semana', style: textTheme.titleMedium),
             const SizedBox(height: AppSpacing.xs),
-            Text('Grafica de lineas mensual', style: textTheme.bodySmall),
+            Text('Gráfica de líneas mensual', style: textTheme.bodySmall),
             const SizedBox(height: AppSpacing.lg),
             SizedBox(
               height: 220,

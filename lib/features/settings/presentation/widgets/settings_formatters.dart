@@ -21,5 +21,5 @@ String maintenanceErrorMessage(Object error) {
     return error.message;
   }
 
-  return 'No se pudo completar la accion de mantenimiento.';
+  return 'No se pudo completar la acción de mantenimiento.';
 }

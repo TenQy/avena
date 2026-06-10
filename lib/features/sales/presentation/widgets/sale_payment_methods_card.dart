@@ -38,7 +38,7 @@ class SalePaymentMethodsCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Metodo de pago',
+              'Método de pago',
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: AppSpacing.md),
@@ -82,7 +82,7 @@ class SalePaymentMethodsCard extends StatelessWidget {
             ],
             const SizedBox(height: AppSpacing.md),
             Text(
-              'Comisiones: debito/credito ${_percent(commissionRates.terminalCard)}, bonos ${_percent(commissionRates.terminalBonus)}.',
+              'Comisiones: débito/crédito ${_percent(commissionRates.terminalCard)}, bonos ${_percent(commissionRates.terminalBonus)}.',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: AppColors.textSecondaryFor(context),
               ),
@@ -145,7 +145,7 @@ class _MixedPaymentInputs extends StatelessWidget {
             const SizedBox(height: AppSpacing.md),
         ],
         Text(
-          'Debito/credito y bonos agregan comision al total cobrado.',
+          'Débito/crédito y bonos agregan comisión al total cobrado.',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
             color: AppColors.textSecondaryFor(context),
           ),
@@ -217,7 +217,7 @@ class _MixedPaymentSummary extends StatelessWidget {
         children: [
           _SummaryRow(label: 'Total venta', value: _money(total)),
           const SizedBox(height: AppSpacing.sm),
-          _SummaryRow(label: 'Pagado con comision', value: _money(mixedTotal)),
+          _SummaryRow(label: 'Pagado con comisión', value: _money(mixedTotal)),
           const SizedBox(height: AppSpacing.sm),
           _SummaryRow(label: 'Restante', value: _money(remaining)),
         ],
@@ -260,7 +260,7 @@ String _paymentLabel(String method) {
   return switch (method) {
     AppPaymentMethods.cash => 'Efectivo',
     AppPaymentMethods.transfer => 'Transferencia',
-    AppPaymentMethods.terminalCard => 'Debito/Credito',
+    AppPaymentMethods.terminalCard => 'Débito/Crédito',
     AppPaymentMethods.terminalBonus => 'Bonos',
     AppPaymentMethods.mixed => 'Mixto',
     _ => method,

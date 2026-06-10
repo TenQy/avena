@@ -60,7 +60,7 @@ class SuperadminMaintenanceSection extends ConsumerWidget {
         ),
         MaintenanceActionButton(
           icon: Icons.sync_problem_rounded,
-          label: 'Limpiar cola de sincronizacion',
+          label: 'Limpiar cola de sincronización',
           isDestructive: true,
           onPressed: isBusy
               ? null
@@ -68,7 +68,7 @@ class SuperadminMaintenanceSection extends ConsumerWidget {
         ),
         MaintenanceActionButton(
           icon: Icons.delete_forever_rounded,
-          label: 'Reiniciar aplicacion completa',
+          label: 'Reiniciar aplicación completa',
           isDestructive: true,
           onPressed: isBusy
               ? null
@@ -123,10 +123,10 @@ class SuperadminMaintenanceSection extends ConsumerWidget {
       context,
       title: 'Importar respaldo',
       message:
-          'Seleccionaras un archivo de respaldo. Se reemplazara la base local y la configuracion.',
+          'Seleccionarás un archivo de respaldo. Se reemplazará la base local y la configuración.',
       confirmLabel: 'Importar',
       secondMessage:
-          'Confirma nuevamente. Los datos locales actuales se reemplazaran.',
+          'Confirma nuevamente. Los datos locales actuales se reemplazarán.',
     );
 
     if (!confirmed || !context.mounted) {
@@ -150,7 +150,7 @@ class SuperadminMaintenanceSection extends ConsumerWidget {
           .restoreBackupPackage(actor: actor, packagePath: packagePath);
 
       if (context.mounted) {
-        showAppSnackBar(context, 'Respaldo importado. La app se recargara.');
+        showAppSnackBar(context, 'Respaldo importado. La app se recargará.');
       }
     } catch (error) {
       if (context.mounted) {
@@ -168,7 +168,7 @@ class SuperadminMaintenanceSection extends ConsumerWidget {
       context,
       title: 'Reiniciar datos operativos',
       message:
-          'Se eliminaran ventas, caja, pagos pendientes, turnos y cola sync. Inventario y usuarios se conservan.',
+          'Se eliminarán ventas, caja, pagos pendientes, turnos y cola sync. Inventario y usuarios se conservan.',
       confirmLabel: 'Reiniciar',
       secondMessage:
           'Confirma nuevamente para conservar inventario y limpiar datos operativos.',
@@ -195,10 +195,10 @@ class SuperadminMaintenanceSection extends ConsumerWidget {
     final confirmed = await _confirmTwice(
       context,
       title: 'Limpiar logs',
-      message: 'Se limpiara el historial local de actividad.',
+      message: 'Se limpiará el historial local de actividad.',
       confirmLabel: 'Limpiar',
       secondMessage:
-          'Confirma nuevamente. Se conservara un nuevo log de esta accion.',
+          'Confirma nuevamente. Se conservará un nuevo log de esta acción.',
     );
 
     if (!confirmed || !context.mounted) {
@@ -222,10 +222,10 @@ class SuperadminMaintenanceSection extends ConsumerWidget {
     final confirmed = await _confirmTwice(
       context,
       title: 'Limpiar cola sync',
-      message: 'Se eliminaran las operaciones locales pendientes de sync.',
+      message: 'Se eliminarán las operaciones locales pendientes de sync.',
       confirmLabel: 'Limpiar',
       secondMessage:
-          'Confirma nuevamente. Usa esto solo despues de respaldar o preparar una base limpia.',
+          'Confirma nuevamente. Usa esto solo después de respaldar o preparar una base limpia.',
     );
 
     if (!confirmed || !context.mounted) {
@@ -235,7 +235,7 @@ class SuperadminMaintenanceSection extends ConsumerWidget {
     await _runMaintenance(
       context,
       () => ref.read(maintenanceProvider.notifier).clearSyncQueue(actor: actor),
-      successMessage: 'Cola de sincronizacion limpiada.',
+      successMessage: 'Cola de sincronización limpiada.',
     );
   }
 
@@ -246,12 +246,12 @@ class SuperadminMaintenanceSection extends ConsumerWidget {
   ) async {
     final confirmed = await _confirmTwice(
       context,
-      title: 'Reiniciar aplicacion completa',
+      title: 'Reiniciar aplicación completa',
       message:
-          'Se borraran los datos locales y la configuracion. Se conservara tu superadmin actual.',
+          'Se borrarán los datos locales y la configuración. Se conservará tu superadmin actual.',
       confirmLabel: 'Reiniciar todo',
       secondMessage:
-          'Confirma nuevamente. Inventario, ventas, caja, empleados y logs se eliminaran.',
+          'Confirma nuevamente. Inventario, ventas, caja, empleados y logs se eliminarán.',
     );
 
     if (!confirmed || !context.mounted) {
@@ -266,7 +266,7 @@ class SuperadminMaintenanceSection extends ConsumerWidget {
       if (context.mounted) {
         showAppSnackBar(
           context,
-          'Aplicacion reiniciada conservando superadmin.',
+          'Aplicación reiniciada conservando superadmin.',
         );
       }
     } catch (error) {

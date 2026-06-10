@@ -220,7 +220,7 @@ class _SalesHistoryFiltersCard extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.xs),
             Text(
-              'Consulta ventas por fecha y metodo de pago.',
+              'Consulta ventas por fecha y método de pago.',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: AppColors.textSecondaryFor(context),
               ),
@@ -238,7 +238,7 @@ class _SalesHistoryFiltersCard extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.lg),
             Text(
-              'Metodo de pago',
+              'Método de pago',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: AppColors.textPrimaryFor(context),
                 fontWeight: FontWeight.w600,

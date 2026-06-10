@@ -53,8 +53,8 @@ class CategoryProductList extends StatelessWidget {
         if (visibleSections.isEmpty)
           const EmptyState(
             icon: Icons.inventory_2_rounded,
-            message: 'Sin productos aÃƒÂºn',
-            description: 'Los productos de esta categorÃƒÂ­a aparecerÃƒÂ¡n aquÃƒÂ­.',
+            message: 'Sin productos aún',
+            description: 'Los productos de esta categoría aparecerán aquí.',
           )
         else
           for (final section in visibleSections) ...[

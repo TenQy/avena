@@ -83,7 +83,7 @@ class ProductDetailScreen extends ConsumerWidget {
 
   String _subcategoryName(AsyncValue<List<Subcategory>> state) {
     if (product.subcategoryId == null) {
-      return 'Sin subcategorÃƒÂ­a';
+      return 'Sin subcategoría';
     }
 
     return state.maybeWhen(
@@ -123,7 +123,10 @@ class _ProductSummary extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.headerNavFor(context),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.borderFor(context), width: 0.5),
+                border: Border.all(
+                  color: AppColors.borderFor(context),
+                  width: 0.5,
+                ),
               ),
               child: Icon(
                 Icons.inventory_2_rounded,
@@ -347,9 +350,7 @@ class _DetailRow extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: AppColors.textSecondaryFor(context),
               ),
             ),

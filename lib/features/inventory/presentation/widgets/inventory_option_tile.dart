@@ -37,10 +37,7 @@ class InventoryOptionTile extends StatelessWidget {
         child: Icon(icon, color: iconInactive, size: 22),
       ),
       title: Text(label, style: Theme.of(context).textTheme.bodyLarge),
-      trailing: Icon(
-        Icons.chevron_right_rounded,
-        color: iconInactive,
-      ),
+      trailing: Icon(Icons.chevron_right_rounded, color: iconInactive),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       onTap: onTap,
     );

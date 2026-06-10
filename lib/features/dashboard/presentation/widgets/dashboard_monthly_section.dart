@@ -81,7 +81,7 @@ class DashboardMonthlySection extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
         DashboardProductCard(
           icon: Icons.attach_money_rounded,
-          title: 'Producto con mas ingresos',
+          title: 'Producto con más ingresos',
           emptyText: 'Sin ventas este mes',
           metric: summary.topRevenueProduct,
           topProducts: summary.topRevenueProducts,
@@ -89,7 +89,7 @@ class DashboardMonthlySection extends StatelessWidget {
         const SizedBox(height: AppSpacing.md),
         DashboardProductCard(
           icon: Icons.inventory_2_rounded,
-          title: 'Producto mas vendido',
+          title: 'Producto más vendido',
           emptyText: 'Sin ventas este mes',
           metric: summary.topQuantityProduct,
           topProducts: summary.topQuantityProducts,

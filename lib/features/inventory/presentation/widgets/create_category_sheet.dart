@@ -60,7 +60,11 @@ class _CreateCategorySheetState extends ConsumerState<CreateCategorySheet> {
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: AppSpacing.md),
-              Divider(height: 1, thickness: 0.5, color: AppColors.borderFor(context)),
+              Divider(
+                height: 1,
+                thickness: 0.5,
+                color: AppColors.borderFor(context),
+              ),
               const SizedBox(height: AppSpacing.lg),
               TextFormField(
                 controller: _nameController,

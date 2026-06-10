@@ -206,8 +206,8 @@ class _MainShellState extends ConsumerState<MainShell> {
 
     final shouldExit = await ConfirmDialog.show(
       context,
-      title: 'Salir de la aplicacion',
-      message: '¿Quieres abandonar la aplicacion?',
+      title: 'Salir de la aplicación',
+      message: '¿Quieres abandonar la aplicación?',
       confirmLabel: 'Salir',
       icon: Icons.exit_to_app_rounded,
     );
@@ -278,7 +278,7 @@ class _MainShellState extends ConsumerState<MainShell> {
               : null,
           actions: [
             IconButton(
-              tooltip: 'Mas modulos',
+              tooltip: 'Más módulos',
               icon: Icon(Icons.menu_rounded),
               onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
             ),

@@ -47,7 +47,10 @@ class SaleItemsCard extends StatelessWidget {
                   onRemoveItem: onRemoveItem,
                 ),
                 if (item != items.last)
-                  Divider(height: AppSpacing.lg, color: AppColors.borderFor(context)),
+                  Divider(
+                    height: AppSpacing.lg,
+                    color: AppColors.borderFor(context),
+                  ),
               ],
           ],
         ),
@@ -112,9 +115,9 @@ class _SaleItemTile extends StatelessWidget {
         const SizedBox(height: AppSpacing.xs),
         Text(
           '${_quantity(item.quantity)} $unitLabel x ${_money(product.price)}',
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryFor(context)),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: AppColors.textSecondaryFor(context),
+          ),
         ),
         if (product.trackStock) ...[
           const SizedBox(height: AppSpacing.xs),
@@ -251,9 +254,9 @@ class _EmptySaleItems extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
           Text(
             'Sin productos agregados.',
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondaryFor(context)),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: AppColors.textSecondaryFor(context),
+            ),
             textAlign: TextAlign.center,
           ),
         ],

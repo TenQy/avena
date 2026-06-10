@@ -108,7 +108,7 @@ class _PendingPaymentsContentState extends State<_PendingPaymentsContent> {
                           ? 'Sin pagos completados'
                           : 'Sin pagos pendientes activos',
                       description: showingCompleted
-                          ? 'Los pagos cubiertos apareceran aqui.'
+                          ? 'Los pagos cubiertos aparecerán aquí.'
                           : 'Toca + para agregar uno.',
                     )
                   : ListView.separated(

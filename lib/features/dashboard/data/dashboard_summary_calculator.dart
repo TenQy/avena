@@ -370,7 +370,7 @@ class DashboardSummaryCalculator {
       case AppPaymentMethods.transfer:
         return 'Transferencia';
       case AppPaymentMethods.terminalCard:
-        return 'Debito/Credito';
+        return 'Débito/Crédito';
       case AppPaymentMethods.terminalBonus:
         return 'Bonos';
       case AppPaymentMethods.mixed:

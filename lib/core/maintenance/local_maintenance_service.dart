@@ -87,7 +87,7 @@ class LocalMaintenanceService {
 
     final packageFile = File(packagePath);
     if (!await packageFile.exists()) {
-      throw const MaintenanceException('No se encontro el respaldo.');
+      throw const MaintenanceException('No se encontró el respaldo.');
     }
 
     final archive = ZipDecoder().decodeBytes(await packageFile.readAsBytes());
@@ -181,7 +181,7 @@ class LocalMaintenanceService {
       await _insertMaintenanceLog(
         actor: actor,
         action: AppActivityLogActions.clearSyncQueue,
-        description: 'Cola de sincronizacion local limpiada',
+        description: 'Cola de sincronización local limpiada',
       );
     });
   }

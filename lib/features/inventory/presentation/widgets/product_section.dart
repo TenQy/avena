@@ -36,13 +36,7 @@ class ProductSection extends StatelessWidget {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: Divider(
-                height: 1,
-                thickness: 0.5,
-                color: border,
-              ),
-            ),
+            Expanded(child: Divider(height: 1, thickness: 0.5, color: border)),
             if (onDeleteSubcategory != null) ...[
               const SizedBox(width: AppSpacing.xs),
               IconButton(
@@ -83,9 +77,7 @@ class EmptyProductCard extends StatelessWidget {
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Text(
           'Sin productos en esta subcategoría.',
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.copyWith(
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: AppColors.textSecondaryFor(context),
           ),
         ),

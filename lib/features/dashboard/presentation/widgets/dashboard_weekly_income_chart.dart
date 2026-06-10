@@ -23,9 +23,9 @@ class DashboardWeeklyIncomeChart extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Ingresos por dia', style: textTheme.titleMedium),
+            Text('Ingresos por día', style: textTheme.titleMedium),
             const SizedBox(height: AppSpacing.xs),
-            Text('Grafica de barras semanal', style: textTheme.bodySmall),
+            Text('Gráfica de barras semanal', style: textTheme.bodySmall),
             const SizedBox(height: AppSpacing.lg),
             SizedBox(
               height: 196,

@@ -74,7 +74,7 @@ class _DashboardContent extends StatelessWidget {
       children: [
         Text(
           selectedView == _DashboardView.day
-              ? 'Resumen del dia'
+              ? 'Resumen del día'
               : selectedView == _DashboardView.week
               ? 'Resumen de la semana'
               : 'Resumen del mes',
@@ -86,7 +86,7 @@ class _DashboardContent extends StatelessWidget {
           runSpacing: AppSpacing.sm,
           children: [
             ChoiceChip(
-              label: const Text('Dia'),
+              label: const Text('Día'),
               selected: selectedView == _DashboardView.day,
               showCheckmark: false,
               onSelected: (_) => onViewSelected(_DashboardView.day),

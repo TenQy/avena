@@ -50,8 +50,7 @@ class CurrentSaleState {
 
   double get mixedTotal {
     return mixedPayments.entries.fold(0, (total, entry) {
-      return total +
-          entry.value * (1 + commissionRates.rateFor(entry.key));
+      return total + entry.value * (1 + commissionRates.rateFor(entry.key));
     });
   }
 
