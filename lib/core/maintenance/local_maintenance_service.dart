@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:archive/archive_io.dart';
 import 'package:drift/drift.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -15,41 +17,96 @@ class LocalMaintenanceService {
 
   final AppDatabase _database;
 
-  Future<BackupResult> exportLocalBackup({required User actor}) async {
+  static const _backupVersion = 1;
+  static const _backupExtension = '.zip';
+  static const _manifestFileName = 'manifest.json';
+
+  Future<BackupResult> createShareableBackup({required User actor}) async {
     _ensureSuperadmin(actor);
     await _database.customStatement('PRAGMA wal_checkpoint(FULL)');
 
     final backupDir = await _createBackupDirectory();
     final databaseFiles = await _databaseFiles();
+    final includedFiles = <String>[];
 
     for (final file in databaseFiles) {
       if (await file.exists()) {
-        await file.copy(p.join(backupDir.path, p.basename(file.path)));
+        final fileName = p.basename(file.path);
+        includedFiles.add(fileName);
+        await file.copy(p.join(backupDir.path, fileName));
       }
     }
 
     final settingsFile = await AppFiles.settingsFile();
     if (await settingsFile.exists()) {
+      includedFiles.add(AppFiles.settingsFileName);
       await settingsFile.copy(
-        p.join(backupDir.path, p.basename(settingsFile.path)),
+        p.join(backupDir.path, AppFiles.settingsFileName),
       );
     }
+
+    final manifest = {
+      'app': 'tienda',
+      'version': _backupVersion,
+      'createdAt': DateTime.now().toIso8601String(),
+      'files': includedFiles,
+    };
+    await File(
+      p.join(backupDir.path, _manifestFileName),
+    ).writeAsString(jsonEncode(manifest));
+
+    final packageFile = File(
+      p.join(
+        (await AppFiles.backupDirectory()).path,
+        'tienda_respaldo_${_timestamp()}$_backupExtension',
+      ),
+    );
+    final encoder = ZipFileEncoder();
+    encoder.create(packageFile.path, level: ZipFileEncoder.gzip);
+    await encoder.addDirectory(
+      backupDir,
+      includeDirName: false,
+      level: ZipFileEncoder.gzip,
+    );
+    await encoder.close();
 
     await _insertMaintenanceLog(
       actor: actor,
       action: AppActivityLogActions.exportBackup,
-      description: 'Respaldo local exportado',
+      description: 'Respaldo compartible creado',
     );
 
-    return BackupResult(path: backupDir.path);
+    return BackupResult(path: packageFile.path);
   }
 
-  Future<BackupResult> restoreLatestBackup({required User actor}) async {
+  Future<BackupResult> restoreBackupPackage({
+    required User actor,
+    required String packagePath,
+  }) async {
     _ensureSuperadmin(actor);
-    final latestBackup = await _latestBackupDirectory();
 
-    if (latestBackup == null) {
-      throw const MaintenanceException('No hay respaldos locales disponibles.');
+    final packageFile = File(packagePath);
+    if (!await packageFile.exists()) {
+      throw const MaintenanceException('No se encontro el respaldo.');
+    }
+
+    final archive = ZipDecoder().decodeBytes(await packageFile.readAsBytes());
+    final manifestFile = archive.findFile(_manifestFileName);
+    if (manifestFile == null) {
+      throw const MaintenanceException('El archivo no es un respaldo valido.');
+    }
+
+    final manifest = jsonDecode(utf8.decode(manifestFile.content));
+    if (manifest is! Map ||
+        manifest['app'] != 'tienda' ||
+        manifest['version'] != _backupVersion) {
+      throw const MaintenanceException('El respaldo no es compatible.');
+    }
+
+    if (archive.findFile(AppFiles.databaseFileName) == null) {
+      throw const MaintenanceException(
+        'El respaldo no contiene la base local.',
+      );
     }
 
     await _database.close();
@@ -61,24 +118,25 @@ class LocalMaintenanceService {
       }
     }
 
-    final backupFiles = latestBackup.listSync().whereType<File>();
-    for (final file in backupFiles) {
-      final fileName = p.basename(file.path);
+    for (final entry in archive.files) {
+      if (!entry.isFile) {
+        continue;
+      }
+
+      final fileName = p.basename(entry.name);
       if (_isDatabaseFile(fileName)) {
         final appDir = await getApplicationDocumentsDirectory();
-        await file.copy(p.join(appDir.path, fileName));
+        await File(p.join(appDir.path, fileName)).writeAsBytes(entry.content);
       }
     }
 
-    final backupSettingsFile = File(
-      p.join(latestBackup.path, AppFiles.settingsFileName),
-    );
-    if (await backupSettingsFile.exists()) {
+    final backupSettingsFile = archive.findFile(AppFiles.settingsFileName);
+    if (backupSettingsFile != null) {
       final currentSettingsFile = await AppFiles.settingsFile();
-      await backupSettingsFile.copy(currentSettingsFile.path);
+      await currentSettingsFile.writeAsBytes(backupSettingsFile.content);
     }
 
-    return BackupResult(path: latestBackup.path);
+    return BackupResult(path: packagePath);
   }
 
   Future<void> resetOperationalData({required User actor}) async {
@@ -220,18 +278,6 @@ class LocalMaintenanceService {
     await directory.create(recursive: true);
 
     return directory;
-  }
-
-  Future<Directory?> _latestBackupDirectory() async {
-    final root = await AppFiles.backupDirectory();
-    if (!await root.exists()) {
-      return null;
-    }
-
-    final backups = root.listSync().whereType<Directory>().toList()
-      ..sort((a, b) => b.path.compareTo(a.path));
-
-    return backups.isEmpty ? null : backups.first;
   }
 
   Future<void> _keepOnlyLatestBackup() async {

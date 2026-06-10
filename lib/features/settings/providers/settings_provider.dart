@@ -141,11 +141,11 @@ class MaintenanceController extends StateNotifier<AsyncValue<void>> {
   final Ref _ref;
   final LocalMaintenanceService _repository;
 
-  Future<BackupResult> exportLocalBackup({required User actor}) async {
+  Future<BackupResult> createShareableBackup({required User actor}) async {
     state = const AsyncValue.loading();
 
     try {
-      final result = await _repository.exportLocalBackup(actor: actor);
+      final result = await _repository.createShareableBackup(actor: actor);
       state = const AsyncValue.data(null);
       _invalidateMaintenanceViews();
 
@@ -156,11 +156,17 @@ class MaintenanceController extends StateNotifier<AsyncValue<void>> {
     }
   }
 
-  Future<BackupResult> restoreLatestBackup({required User actor}) async {
+  Future<BackupResult> restoreBackupPackage({
+    required User actor,
+    required String packagePath,
+  }) async {
     state = const AsyncValue.loading();
 
     try {
-      final result = await _repository.restoreLatestBackup(actor: actor);
+      final result = await _repository.restoreBackupPackage(
+        actor: actor,
+        packagePath: packagePath,
+      );
       state = const AsyncValue.data(null);
       _ref.invalidate(databaseProvider);
       _ref.invalidate(authProvider);

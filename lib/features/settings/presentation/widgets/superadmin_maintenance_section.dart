@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:path/path.dart' as p;
 
 import '../../../../core/database/app_database.dart';
 import '../../../../shared/theme/app_spacing.dart';
@@ -25,15 +28,15 @@ class SuperadminMaintenanceSection extends ConsumerWidget {
       icon: Icons.admin_panel_settings_rounded,
       children: [
         MaintenanceActionButton(
-          icon: Icons.file_download_rounded,
-          label: 'Exportar respaldo local',
+          icon: Icons.ios_share_rounded,
+          label: 'Compartir respaldo',
           onPressed: isBusy
               ? null
               : () => _exportBackup(context, ref, currentUser),
         ),
         MaintenanceActionButton(
-          icon: Icons.restore_rounded,
-          label: 'Restaurar ultimo respaldo',
+          icon: Icons.upload_file_rounded,
+          label: 'Importar respaldo',
           isDestructive: true,
           onPressed: isBusy
               ? null
@@ -87,13 +90,23 @@ class SuperadminMaintenanceSection extends ConsumerWidget {
     try {
       final result = await ref
           .read(maintenanceProvider.notifier)
-          .exportLocalBackup(actor: actor);
+          .createShareableBackup(actor: actor);
 
       if (!context.mounted) {
         return;
       }
 
-      showAppSnackBar(context, 'Respaldo guardado en ${result.path}');
+      await Share.shareXFiles(
+        [
+          XFile(
+            result.path,
+            mimeType: 'application/zip',
+            name: p.basename(result.path),
+          ),
+        ],
+        subject: 'Respaldo de Tienda',
+        text: 'Respaldo de Tienda',
+      );
     } catch (error) {
       if (context.mounted) {
         showAppSnackBar(context, maintenanceErrorMessage(error));
@@ -108,10 +121,10 @@ class SuperadminMaintenanceSection extends ConsumerWidget {
   ) async {
     final confirmed = await _confirmTwice(
       context,
-      title: 'Restaurar respaldo',
+      title: 'Importar respaldo',
       message:
-          'Se reemplazara la base local y la configuracion con el ultimo respaldo disponible.',
-      confirmLabel: 'Restaurar',
+          'Seleccionaras un archivo de respaldo. Se reemplazara la base local y la configuracion.',
+      confirmLabel: 'Importar',
       secondMessage:
           'Confirma nuevamente. Los datos locales actuales se reemplazaran.',
     );
@@ -121,12 +134,23 @@ class SuperadminMaintenanceSection extends ConsumerWidget {
     }
 
     try {
+      final pickedFile = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['zip', 'tiendabak', 'bin'],
+        allowMultiple: false,
+      );
+      final packagePath = pickedFile?.files.single.path;
+
+      if (packagePath == null) {
+        return;
+      }
+
       await ref
           .read(maintenanceProvider.notifier)
-          .restoreLatestBackup(actor: actor);
+          .restoreBackupPackage(actor: actor, packagePath: packagePath);
 
       if (context.mounted) {
-        showAppSnackBar(context, 'Respaldo restaurado. La app se recargara.');
+        showAppSnackBar(context, 'Respaldo importado. La app se recargara.');
       }
     } catch (error) {
       if (context.mounted) {
@@ -224,10 +248,10 @@ class SuperadminMaintenanceSection extends ConsumerWidget {
       context,
       title: 'Reiniciar aplicacion completa',
       message:
-          'Se borraran los datos locales y la configuracion. Se conservara tu superadmin actual y el ultimo respaldo guardado.',
+          'Se borraran los datos locales y la configuracion. Se conservara tu superadmin actual.',
       confirmLabel: 'Reiniciar todo',
       secondMessage:
-          'Confirma nuevamente. Inventario, ventas, caja, empleados, logs y respaldos anteriores al ultimo se eliminaran.',
+          'Confirma nuevamente. Inventario, ventas, caja, empleados y logs se eliminaran.',
     );
 
     if (!confirmed || !context.mounted) {
@@ -242,7 +266,7 @@ class SuperadminMaintenanceSection extends ConsumerWidget {
       if (context.mounted) {
         showAppSnackBar(
           context,
-          'Aplicacion reiniciada conservando superadmin y ultimo respaldo.',
+          'Aplicacion reiniciada conservando superadmin.',
         );
       }
     } catch (error) {
