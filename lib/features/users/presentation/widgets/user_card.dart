@@ -51,97 +51,143 @@ class UserCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: AppColors.headerNavFor(context),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.borderFor(context), width: 0.5),
-                  ),
-                  child: Icon(
-                    userRoleIcon(user.role),
-                    color: AppColors.iconInactiveFor(context),
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        user.username,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      Text(
-                        userRoleLabel(user.role),
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
-                  ),
-                ),
-                _StatusBadge(isActive: user.isActive),
-              ],
-            ),
-            if (user.phone != null && user.phone!.isNotEmpty) ...[
-              const SizedBox(height: AppSpacing.md),
+    final hasActions = _canEdit || _canChangeState || _canDelete;
+
+    return GestureDetector(
+      onLongPress: hasActions ? () => _showUserActions(context, ref) : null,
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    Icons.phone_rounded,
-                    color: AppColors.iconInactiveFor(context),
-                    size: 18,
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: AppColors.headerNavFor(context),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColors.borderFor(context),
+                        width: 0.5,
+                      ),
+                    ),
+                    child: Icon(
+                      userRoleIcon(user.role),
+                      color: AppColors.iconInactiveFor(context),
+                    ),
                   ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Text(
-                    user.phone!,
-                    style: Theme.of(context).textTheme.bodySmall,
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          user.username,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: AppSpacing.xs),
+                        Text(
+                          userRoleLabel(user.role),
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
                   ),
+                  _StatusBadge(isActive: user.isActive),
                 ],
               ),
+              if (user.phone != null && user.phone!.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.md),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.phone_rounded,
+                      color: AppColors.iconInactiveFor(context),
+                      size: 18,
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Text(
+                      user.phone!,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ],
             ],
-            if (_canEdit || _canChangeState || _canDelete) ...[
-              const SizedBox(height: AppSpacing.md),
-              Wrap(
-                spacing: AppSpacing.sm,
-                runSpacing: AppSpacing.sm,
-                children: [
-                  if (_canEdit)
-                    _UserActionButton(
-                      icon: Icons.edit_rounded,
-                      label: 'Editar',
-                      onPressed: () => _editUser(context),
-                    ),
-                  if (_canChangeState)
-                    _UserActionButton(
-                      icon: user.isActive
-                          ? Icons.person_off_rounded
-                          : Icons.person_rounded,
-                      label: user.isActive ? 'Inhabilitar' : 'Habilitar',
-                      onPressed: () => _changeState(context, ref),
-                    ),
-                  if (_canDelete)
-                    _UserActionButton(
-                      icon: Icons.delete_rounded,
-                      label: 'Eliminar',
-                      onPressed: () => _deleteUser(context, ref),
-                    ),
-                ],
-              ),
-            ],
-          ],
+          ),
         ),
       ),
+    );
+  }
+
+  Future<void> _showUserActions(BuildContext context, WidgetRef ref) async {
+    final parentContext = context;
+
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.cardSurfaceFor(context),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              AppSpacing.md,
+              AppSpacing.lg,
+              AppSpacing.lg,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.borderFor(context),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                if (_canEdit)
+                  _UserActionTile(
+                    icon: Icons.edit_rounded,
+                    label: 'Editar',
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      _editUser(parentContext);
+                    },
+                  ),
+                if (_canChangeState)
+                  _UserActionTile(
+                    icon: user.isActive
+                        ? Icons.person_off_rounded
+                        : Icons.person_rounded,
+                    label: user.isActive ? 'Inhabilitar' : 'Habilitar',
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      _changeState(parentContext, ref);
+                    },
+                  ),
+                if (_canDelete)
+                  _UserActionTile(
+                    icon: Icons.delete_rounded,
+                    label: 'Eliminar',
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      _deleteUser(parentContext, ref);
+                    },
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -220,34 +266,41 @@ class UserCard extends ConsumerWidget {
   }
 }
 
-class _UserActionButton extends StatelessWidget {
-  const _UserActionButton({
+class _UserActionTile extends StatelessWidget {
+  const _UserActionTile({
     required this.icon,
     required this.label,
-    required this.onPressed,
+    required this.onTap,
   });
 
   final IconData icon;
   final String label;
-  final VoidCallback onPressed;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return OutlinedButton(
-      onPressed: onPressed,
-      style: OutlinedButton.styleFrom(
-        foregroundColor: AppColors.textSecondaryFor(context),
-        side: BorderSide(color: AppColors.borderFor(context), width: 0.5),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.xs,
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(label),
-          const SizedBox(width: AppSpacing.sm),
-          Icon(icon, size: 18),
-        ],
+      leading: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: AppColors.bodyBgFor(context),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: AppColors.borderFor(context), width: 0.5),
+        ),
+        child: Icon(icon, color: AppColors.iconInactiveFor(context), size: 22),
       ),
+      title: Text(label, style: Theme.of(context).textTheme.bodyLarge),
+      trailing: Icon(
+        Icons.chevron_right_rounded,
+        color: AppColors.iconInactiveFor(context),
+      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      onTap: onTap,
     );
   }
 }
@@ -265,7 +318,9 @@ class _StatusBadge extends StatelessWidget {
         vertical: AppSpacing.xs,
       ),
       decoration: BoxDecoration(
-        color: isActive ? AppColors.headerNavFor(context) : AppColors.bodyBgFor(context),
+        color: isActive
+            ? AppColors.headerNavFor(context)
+            : AppColors.bodyBgFor(context),
         borderRadius: BorderRadius.circular(30),
         border: Border.all(color: AppColors.borderFor(context), width: 0.5),
       ),
