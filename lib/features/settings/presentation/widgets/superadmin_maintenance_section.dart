@@ -24,8 +24,6 @@ class SuperadminMaintenanceSection extends ConsumerWidget {
       title: 'Mantenimiento',
       icon: Icons.admin_panel_settings_rounded,
       children: [
-        const SettingsInfoRow(label: 'Acceso', value: 'Solo superadmin'),
-        const SizedBox(height: AppSpacing.sm),
         MaintenanceActionButton(
           icon: Icons.file_download_rounded,
           label: 'Exportar respaldo local',

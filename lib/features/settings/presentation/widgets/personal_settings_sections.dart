@@ -101,23 +101,6 @@ class SystemStatusSection extends ConsumerWidget {
   }
 }
 
-class FutureSettingsSection extends StatelessWidget {
-  const FutureSettingsSection({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const SettingsSectionCard(
-      title: 'Preparacion futura',
-      icon: Icons.extension_rounded,
-      children: [
-        SettingsInfoRow(label: 'Tickets', value: 'Impresion pendiente'),
-        SettingsInfoRow(label: 'Supabase', value: 'Configuracion pendiente'),
-        SettingsInfoRow(label: 'Sync avanzado', value: 'Estructura reservada'),
-      ],
-    );
-  }
-}
-
 class SettingsSectionGap extends StatelessWidget {
   const SettingsSectionGap({super.key});
 

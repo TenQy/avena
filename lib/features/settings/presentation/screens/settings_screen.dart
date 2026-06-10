@@ -47,8 +47,6 @@ class SettingsScreen extends ConsumerWidget {
             SuperadminMaintenanceSection(currentUser: currentUser!),
           ],
           const SettingsSectionGap(),
-          const FutureSettingsSection(),
-          const SettingsSectionGap(),
           const SessionSection(),
         ],
       ),
