@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 
 import '../../../../core/constants/app_roles.dart';
 import '../../../../shared/theme/app_colors.dart';
@@ -43,6 +44,7 @@ class MainShell extends ConsumerStatefulWidget {
 class _MainShellState extends ConsumerState<MainShell> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _inventoryController = InventoryScreenController();
+  final _moduleBackStack = <MainModule>[];
   MainModule _selectedModule = MainModule.dashboard;
 
   @override
@@ -142,9 +144,7 @@ class _MainShellState extends ConsumerState<MainShell> {
       return;
     }
 
-    setState(() {
-      _selectedModule = primaryModules[index];
-    });
+    _selectModule(primaryModules[index]);
   }
 
   void _selectOtherModule(MainModule module, String? role) {
@@ -154,7 +154,16 @@ class _MainShellState extends ConsumerState<MainShell> {
     }
 
     Navigator.of(context).pop();
+    _selectModule(module);
+  }
+
+  void _selectModule(MainModule module) {
+    if (module == _selectedModule) {
+      return;
+    }
+
     setState(() {
+      _moduleBackStack.add(_selectedModule);
       _selectedModule = module;
     });
   }
@@ -174,6 +183,40 @@ class _MainShellState extends ConsumerState<MainShell> {
 
     Navigator.of(context).pop();
     await ref.read(authProvider.notifier).logout();
+  }
+
+  Future<void> _handleSystemBack(MainModule effectiveModule) async {
+    if (_scaffoldKey.currentState?.isEndDrawerOpen == true) {
+      Navigator.of(context).pop();
+      return;
+    }
+
+    if (effectiveModule == MainModule.inventory &&
+        _inventoryController.canGoBack) {
+      _inventoryController.closeCategory();
+      return;
+    }
+
+    if (_moduleBackStack.isNotEmpty) {
+      setState(() {
+        _selectedModule = _moduleBackStack.removeLast();
+      });
+      return;
+    }
+
+    final shouldExit = await ConfirmDialog.show(
+      context,
+      title: 'Salir de la aplicacion',
+      message: '¿Quieres abandonar la aplicacion?',
+      confirmLabel: 'Salir',
+      icon: Icons.exit_to_app_rounded,
+    );
+
+    if (!mounted || !shouldExit) {
+      return;
+    }
+
+    SystemNavigator.pop();
   }
 
   @override
@@ -211,142 +254,153 @@ class _MainShellState extends ConsumerState<MainShell> {
     final canManageCash =
         currentRole != null && AppRoles.canManageCash(currentRole);
 
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: AppHeader(
-        title: _titleFor(effectiveModule),
-        leading:
-            effectiveModule == MainModule.inventory &&
-                _inventoryController.canGoBack
-            ? IconButton(
-                tooltip: 'Volver a categorías',
-                icon: Icon(Icons.arrow_back_rounded),
-                onPressed: _inventoryController.closeCategory,
-              )
-            : null,
-        actions: [
-          IconButton(
-            tooltip: 'Mas modulos',
-            icon: Icon(Icons.menu_rounded),
-            onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
-          ),
-        ],
-      ),
-      endDrawer: Drawer(
-        width: drawerWidth,
-        backgroundColor: cardSurface,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.horizontal(left: Radius.circular(20)),
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.lg,
-              AppSpacing.lg,
-              AppSpacing.lg,
-              AppSpacing.sm,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) {
+          return;
+        }
+
+        _handleSystemBack(effectiveModule);
+      },
+      child: Scaffold(
+        key: _scaffoldKey,
+        appBar: AppHeader(
+          title: _titleFor(effectiveModule),
+          leading:
+              effectiveModule == MainModule.inventory &&
+                  _inventoryController.canGoBack
+              ? IconButton(
+                  tooltip: 'Volver a categorías',
+                  icon: Icon(Icons.arrow_back_rounded),
+                  onPressed: _inventoryController.closeCategory,
+                )
+              : null,
+          actions: [
+            IconButton(
+              tooltip: 'Mas modulos',
+              icon: Icon(Icons.menu_rounded),
+              onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: headerNav,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: border, width: 0.5),
+          ],
+        ),
+        endDrawer: Drawer(
+          width: drawerWidth,
+          backgroundColor: cardSurface,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.horizontal(left: Radius.circular(20)),
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.lg,
+                AppSpacing.lg,
+                AppSpacing.sm,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: headerNav,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: border, width: 0.5),
+                        ),
+                        child: Icon(Icons.apps_rounded, color: textPrimary),
                       ),
-                      child: Icon(
-                        Icons.apps_rounded,
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: Text(
+                          'Más módulos',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                      ),
+                      IconButton(
+                        tooltip: 'Cerrar',
+                        icon: Icon(Icons.close_rounded),
                         color: textPrimary,
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ],
+                  ),
+                  const _DrawerSeparator(),
+                  _OtherModuleTile(
+                    icon: Icons.receipt_long_rounded,
+                    label: 'Historial de ventas',
+                    selected: effectiveModule == MainModule.salesHistory,
+                    onTap: () => _selectOtherModule(
+                      MainModule.salesHistory,
+                      currentRole,
+                    ),
+                  ),
+                  if (canManageUsers)
+                    _OtherModuleTile(
+                      icon: Icons.group_rounded,
+                      label: 'Usuarios',
+                      selected: effectiveModule == MainModule.users,
+                      onTap: () =>
+                          _selectOtherModule(MainModule.users, currentRole),
+                    ),
+                  _OtherModuleTile(
+                    icon: Icons.receipt_long_rounded,
+                    label: 'Pagos pendientes',
+                    selected: effectiveModule == MainModule.pendingPayments,
+                    onTap: () => _selectOtherModule(
+                      MainModule.pendingPayments,
+                      currentRole,
+                    ),
+                  ),
+                  if (canUseCalculator)
+                    _OtherModuleTile(
+                      icon: Icons.calculate_rounded,
+                      label: 'Calculadora',
+                      selected: effectiveModule == MainModule.calculator,
+                      onTap: () => _selectOtherModule(
+                        MainModule.calculator,
+                        currentRole,
                       ),
                     ),
-                    const SizedBox(width: AppSpacing.md),
-                    Expanded(
-                      child: Text(
-                        'Más módulos',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
+                  if (canViewLogs)
+                    _OtherModuleTile(
+                      icon: Icons.history_rounded,
+                      label: 'Logs',
+                      selected: effectiveModule == MainModule.logs,
+                      onTap: () =>
+                          _selectOtherModule(MainModule.logs, currentRole),
                     ),
-                    IconButton(
-                      tooltip: 'Cerrar',
-                      icon: Icon(Icons.close_rounded),
-                      color: textPrimary,
-                      onPressed: () => Navigator.of(context).pop(),
+                  const Spacer(),
+                  const _DrawerSeparator(),
+                  if (currentRole != null)
+                    _OtherModuleTile(
+                      icon: Icons.settings_rounded,
+                      label: 'Configuración',
+                      selected: effectiveModule == MainModule.settings,
+                      onTap: () =>
+                          _selectOtherModule(MainModule.settings, currentRole),
                     ),
-                  ],
-                ),
-                const _DrawerSeparator(),
-                _OtherModuleTile(
-                  icon: Icons.receipt_long_rounded,
-                  label: 'Historial de ventas',
-                  selected: effectiveModule == MainModule.salesHistory,
-                  onTap: () =>
-                      _selectOtherModule(MainModule.salesHistory, currentRole),
-                ),
-                if (canManageUsers)
-                  _OtherModuleTile(
-                    icon: Icons.group_rounded,
-                    label: 'Usuarios',
-                    selected: effectiveModule == MainModule.users,
-                    onTap: () =>
-                        _selectOtherModule(MainModule.users, currentRole),
+                  _DrawerActionTile(
+                    icon: Icons.logout_rounded,
+                    label: 'Cerrar sesión',
+                    onTap: _logout,
                   ),
-                _OtherModuleTile(
-                  icon: Icons.receipt_long_rounded,
-                  label: 'Pagos pendientes',
-                  selected: effectiveModule == MainModule.pendingPayments,
-                  onTap: () => _selectOtherModule(
-                    MainModule.pendingPayments,
-                    currentRole,
-                  ),
-                ),
-                if (canUseCalculator)
-                  _OtherModuleTile(
-                    icon: Icons.calculate_rounded,
-                    label: 'Calculadora',
-                    selected: effectiveModule == MainModule.calculator,
-                    onTap: () =>
-                        _selectOtherModule(MainModule.calculator, currentRole),
-                  ),
-                if (canViewLogs)
-                  _OtherModuleTile(
-                    icon: Icons.history_rounded,
-                    label: 'Logs',
-                    selected: effectiveModule == MainModule.logs,
-                    onTap: () =>
-                        _selectOtherModule(MainModule.logs, currentRole),
-                  ),
-                const Spacer(),
-                const _DrawerSeparator(),
-                if (currentRole != null)
-                  _OtherModuleTile(
-                    icon: Icons.settings_rounded,
-                    label: 'Configuración',
-                    selected: effectiveModule == MainModule.settings,
-                    onTap: () =>
-                        _selectOtherModule(MainModule.settings, currentRole),
-                  ),
-                _DrawerActionTile(
-                  icon: Icons.logout_rounded,
-                  label: 'Cerrar sesión',
-                  onTap: _logout,
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
-      ),
-      body: _screenFor(effectiveModule),
-      bottomNavigationBar: AppNavBar(
-        currentIndex: _currentNavIndex(primaryModules),
-        hasActiveItem: primaryModules.contains(effectiveModule),
-        showDashboard: primaryModules.contains(MainModule.dashboard),
-        showCash: canManageCash,
-        onItemSelected: (index) => _onNavSelected(index, primaryModules),
+        body: _screenFor(effectiveModule),
+        bottomNavigationBar: AppNavBar(
+          currentIndex: _currentNavIndex(primaryModules),
+          hasActiveItem: primaryModules.contains(effectiveModule),
+          showDashboard: primaryModules.contains(MainModule.dashboard),
+          showCash: canManageCash,
+          onItemSelected: (index) => _onNavSelected(index, primaryModules),
+        ),
       ),
     );
   }
@@ -417,10 +471,7 @@ class _OtherModuleTile extends StatelessWidget {
           fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
         ),
       ),
-      trailing: Icon(
-        Icons.chevron_right_rounded,
-        color: iconInactive,
-      ),
+      trailing: Icon(Icons.chevron_right_rounded, color: iconInactive),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       tileColor: selected ? headerNav : cardSurface,
       onTap: onTap,
