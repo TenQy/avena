@@ -11,10 +11,12 @@ class ProductSearchResults extends StatelessWidget {
     super.key,
     required this.products,
     required this.query,
+    required this.onProductTap,
   });
 
   final List<Product> products;
   final String query;
+  final ValueChanged<Product> onProductTap;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +35,10 @@ class ProductSearchResults extends StatelessWidget {
     return Column(
       children: [
         for (final product in filteredProducts) ...[
-          ProductListCard(product: product),
+          ProductListCard(
+            product: product,
+            onTap: () => onProductTap(product),
+          ),
           const SizedBox(height: AppSpacing.sm),
         ],
       ],

@@ -207,6 +207,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
               child: ProductSearchResults(
                 products: products,
                 query: searchQuery,
+                onProductTap: widget.controller.openProduct,
               ),
             ),
           )
