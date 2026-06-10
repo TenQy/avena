@@ -26,7 +26,8 @@ class LogsScreen extends ConsumerWidget {
     }
 
     final logsState = ref.watch(filteredLogsProvider);
-    final allLogs = ref.watch(logsProvider).valueOrNull ?? const <ActivityLog>[];
+    final allLogs =
+        ref.watch(logsProvider).valueOrNull ?? const <ActivityLog>[];
     final filters = ref.watch(logsFiltersProvider);
 
     return Column(
@@ -39,7 +40,8 @@ class LogsScreen extends ConsumerWidget {
                 return const EmptyState(
                   icon: Icons.history_rounded,
                   message: 'Sin logs para mostrar',
-                  description: 'Ajusta los filtros o realiza una accion en la app.',
+                  description:
+                      'Ajusta los filtros o realiza una accion en la app.',
                 );
               }
 
@@ -51,7 +53,8 @@ class LogsScreen extends ConsumerWidget {
                   AppSpacing.xxl,
                 ),
                 itemBuilder: (context, index) => _LogCard(log: logs[index]),
-                separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
+                separatorBuilder: (_, _) =>
+                    const SizedBox(height: AppSpacing.md),
                 itemCount: logs.length,
               );
             },
@@ -69,10 +72,7 @@ class LogsScreen extends ConsumerWidget {
 }
 
 class _LogsFiltersBar extends ConsumerWidget {
-  const _LogsFiltersBar({
-    required this.allLogs,
-    required this.filters,
-  });
+  const _LogsFiltersBar({required this.allLogs, required this.filters});
 
   final List<ActivityLog> allLogs;
   final LogsFilters filters;
@@ -144,9 +144,7 @@ class _LogsFiltersBar extends ConsumerWidget {
                   const SizedBox(height: AppSpacing.md),
                   Row(
                     children: [
-                      Expanded(
-                        child: _DateFilterButton(filters: filters),
-                      ),
+                      Expanded(child: _DateFilterButton(filters: filters)),
                       const SizedBox(width: AppSpacing.md),
                       TextButton(
                         onPressed: () {
@@ -167,10 +165,7 @@ class _LogsFiltersBar extends ConsumerWidget {
 }
 
 class _UserFilterField extends ConsumerWidget {
-  const _UserFilterField({
-    required this.filters,
-    required this.sortedUsers,
-  });
+  const _UserFilterField({required this.filters, required this.sortedUsers});
 
   final LogsFilters filters;
   final List<ActivityLog> sortedUsers;
@@ -187,10 +182,7 @@ class _UserFilterField extends ConsumerWidget {
       items: [
         const DropdownMenuItem<String?>(
           value: null,
-          child: Text(
-            'Todos',
-            overflow: TextOverflow.ellipsis,
-          ),
+          child: Text('Todos', overflow: TextOverflow.ellipsis),
         ),
         for (final userLog in sortedUsers)
           DropdownMenuItem<String?>(
@@ -233,29 +225,19 @@ class _ActionFilterField extends ConsumerWidget {
           for (final label in labels)
             Align(
               alignment: Alignment.centerLeft,
-              child: Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
+              child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
             ),
         ];
       },
       items: [
         const DropdownMenuItem<String?>(
           value: null,
-          child: Text(
-            'Todas',
-            overflow: TextOverflow.ellipsis,
-          ),
+          child: Text('Todas', overflow: TextOverflow.ellipsis),
         ),
         for (final action in sortedActions)
           DropdownMenuItem<String?>(
             value: action,
-            child: Text(
-              _actionLabel(action),
-              overflow: TextOverflow.ellipsis,
-            ),
+            child: Text(_actionLabel(action), overflow: TextOverflow.ellipsis),
           ),
       ],
       onChanged: (value) {
@@ -324,7 +306,10 @@ class _LogCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: AppColors.headerNavFor(context),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.borderFor(context), width: 0.5),
+                      border: Border.all(
+                        color: AppColors.borderFor(context),
+                        width: 0.5,
+                      ),
                     ),
                     child: Icon(
                       _iconFor(log.action),
@@ -343,9 +328,10 @@ class _LogCard extends StatelessWidget {
                         const SizedBox(height: AppSpacing.xs),
                         Text(
                           '${log.userNameSnapshot} | ${_entityLabel(log.entityType)}',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.textSecondaryFor(context),
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: AppColors.textSecondaryFor(context),
+                              ),
                         ),
                       ],
                     ),
@@ -409,12 +395,22 @@ class _LogCard extends StatelessWidget {
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: AppSpacing.md),
-                Divider(height: 1, thickness: 0.5, color: AppColors.borderFor(context)),
+                Divider(
+                  height: 1,
+                  thickness: 0.5,
+                  color: AppColors.borderFor(context),
+                ),
                 const SizedBox(height: AppSpacing.lg),
                 _DetailRow(label: 'Usuario', value: log.userNameSnapshot),
                 _DetailRow(label: 'Rol', value: log.userRoleSnapshot),
-                _DetailRow(label: 'Modulo', value: _entityLabel(log.entityType)),
-                _DetailRow(label: 'Fecha', value: _fullDateLabel(log.createdAt)),
+                _DetailRow(
+                  label: 'Modulo',
+                  value: _entityLabel(log.entityType),
+                ),
+                _DetailRow(
+                  label: 'Fecha',
+                  value: _fullDateLabel(log.createdAt),
+                ),
                 if (log.entityId != null)
                   _DetailRow(label: 'Referencia', value: log.entityId!),
                 if ((log.description ?? '').trim().isNotEmpty)
@@ -493,6 +489,8 @@ String _actionLabel(String action) {
       return 'Eliminacion de producto';
     case AppActivityLogActions.createSale:
       return 'Registro de venta';
+    case AppActivityLogActions.editSale:
+      return 'Edicion de venta';
     case AppActivityLogActions.cancelSale:
       return 'Cancelacion de venta';
     case AppActivityLogActions.createPendingPayment:
@@ -553,6 +551,7 @@ IconData _iconFor(String action) {
     case AppActivityLogActions.deleteProduct:
       return Icons.inventory_2_rounded;
     case AppActivityLogActions.createSale:
+    case AppActivityLogActions.editSale:
     case AppActivityLogActions.cancelSale:
       return Icons.receipt_long_rounded;
     case AppActivityLogActions.createPendingPayment:

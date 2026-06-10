@@ -11,6 +11,7 @@ import '../../../authentication/providers/auth_provider.dart';
 import '../../providers/sales_provider.dart';
 import '../utils/sale_messages.dart';
 import '../widgets/sale_cancel_sheet.dart';
+import '../widgets/sale_edit_sheet.dart';
 import '../widgets/sales_history_card.dart';
 
 class SalesHistoryScreen extends ConsumerStatefulWidget {
@@ -72,7 +73,7 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
                     onLongPress:
                         canCancelSales &&
                             sale.saleStatus == AppSaleStatuses.completed
-                        ? () => _cancelSale(currentUser, sale)
+                        ? () => _showSaleActions(currentUser, sale)
                         : null,
                   ),
                   if (sale != sales.last) const SizedBox(height: AppSpacing.md),
@@ -123,6 +124,71 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
 
     showSaleCancelResult(context, result);
   }
+
+  Future<void> _showSaleActions(User actor, Sale sale) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.cardSurfaceFor(context),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        final canEdit = sale.paymentStatus == AppPaymentStatuses.paid;
+
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              AppSpacing.md,
+              AppSpacing.lg,
+              AppSpacing.lg,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.borderFor(context),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                if (canEdit)
+                  _SaleActionTile(
+                    icon: Icons.edit_note_rounded,
+                    label: 'Editar venta',
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      _editSale(actor, sale);
+                    },
+                  ),
+                _SaleActionTile(
+                  icon: Icons.cancel_outlined,
+                  label: 'Cancelar venta',
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _cancelSale(actor, sale);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _editSale(User actor, Sale sale) async {
+    final result = await SaleEditSheet.show(context, actor: actor, sale: sale);
+
+    if (!mounted || result == null) {
+      return;
+    }
+
+    showSaleEditResult(context, result);
+  }
 }
 
 class _SalesHistoryFiltersCard extends StatelessWidget {
@@ -155,9 +221,9 @@ class _SalesHistoryFiltersCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.xs),
             Text(
               'Consulta ventas por fecha y metodo de pago.',
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryFor(context)),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: AppColors.textSecondaryFor(context),
+              ),
             ),
             const SizedBox(height: AppSpacing.lg),
             OutlinedButton(
@@ -214,4 +280,43 @@ bool _isSameDate(DateTime first, DateTime second) {
   return first.year == second.year &&
       first.month == second.month &&
       first.day == second.day;
+}
+
+class _SaleActionTile extends StatelessWidget {
+  const _SaleActionTile({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.xs,
+      ),
+      leading: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: AppColors.bodyBgFor(context),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: AppColors.borderFor(context), width: 0.5),
+        ),
+        child: Icon(icon, color: AppColors.iconInactiveFor(context), size: 22),
+      ),
+      title: Text(label, style: Theme.of(context).textTheme.bodyLarge),
+      trailing: Icon(
+        Icons.chevron_right_rounded,
+        color: AppColors.iconInactiveFor(context),
+      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      onTap: onTap,
+    );
+  }
 }

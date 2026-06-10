@@ -34,3 +34,20 @@ void showSaleCancelResult(BuildContext context, SaleCancelResult result) {
 
   showAppSnackBar(context, message);
 }
+
+void showSaleEditResult(BuildContext context, SaleEditResult result) {
+  final message = switch (result) {
+    SaleEditResult.success => 'Venta actualizada.',
+    SaleEditResult.unauthorized => 'No tienes permisos para editar ventas.',
+    SaleEditResult.emptySale => 'Agrega al menos un producto.',
+    SaleEditResult.invalidPayment => 'Revisa los montos del pago.',
+    SaleEditResult.notFound => 'La venta ya no esta disponible.',
+    SaleEditResult.notEditable => 'Esta venta no se puede editar.',
+    SaleEditResult.cashSessionNotFound =>
+      'No se encontro la caja asociada a la venta.',
+    SaleEditResult.productNotFound => 'Un producto ya no esta disponible.',
+    SaleEditResult.insufficientStock => 'Stock insuficiente para la venta.',
+  };
+
+  showAppSnackBar(context, message);
+}

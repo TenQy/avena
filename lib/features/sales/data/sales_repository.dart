@@ -30,6 +30,18 @@ enum SaleCancelResult {
   cashSessionNotFound,
 }
 
+enum SaleEditResult {
+  success,
+  unauthorized,
+  emptySale,
+  invalidPayment,
+  notFound,
+  notEditable,
+  cashSessionNotFound,
+  productNotFound,
+  insufficientStock,
+}
+
 class SaleRegisterItem {
   const SaleRegisterItem({
     required this.product,
@@ -197,6 +209,217 @@ class SalesRepository {
       );
 
       return SaleCancelResult.success;
+    });
+  }
+
+  Future<SaleEditResult> editSale({
+    required User actor,
+    required Sale sale,
+    required SaleRegisterDraft draft,
+  }) async {
+    if (!AppRoles.canCancelSales(actor.role)) {
+      return SaleEditResult.unauthorized;
+    }
+
+    if (draft.items.isEmpty) {
+      return SaleEditResult.emptySale;
+    }
+
+    if (!_isValidPaymentDraft(draft)) {
+      return SaleEditResult.invalidPayment;
+    }
+
+    return _database.transaction(() async {
+      final currentSale = await _database.salesDao.getSaleById(sale.id);
+      if (currentSale == null) {
+        return SaleEditResult.notFound;
+      }
+
+      if (currentSale.saleStatus != AppSaleStatuses.completed ||
+          currentSale.paymentStatus != AppPaymentStatuses.paid) {
+        return SaleEditResult.notEditable;
+      }
+
+      final cashSession = await _database.cashDao.getCashSessionById(
+        currentSale.cashSessionId,
+      );
+      if (cashSession == null) {
+        return SaleEditResult.cashSessionNotFound;
+      }
+
+      final oldItems = await _database.salesDao.getItemsBySale(currentSale.id);
+      final oldPayments = await _database.salesDao.getPaymentsBySale(
+        currentSale.id,
+      );
+      final now = DateTime.now();
+      final subtotal = _roundMoney(
+        draft.items.fold(0.0, (total, item) => total + item.subtotal),
+      );
+      final payments = _buildPayments(draft, subtotal);
+      final commissionTotal = _roundMoney(
+        payments.fold(
+          0.0,
+          (total, payment) => total + payment.commissionAmount,
+        ),
+      );
+      final total = _roundMoney(
+        payments.fold(0.0, (sum, payment) => sum + payment.totalCharged),
+      );
+      final productsById = <String, Product>{};
+      final restoredStockByProductId = <String, double>{};
+      final newQuantityByProductId = <String, double>{};
+
+      for (final item in oldItems) {
+        final product = await _database.inventoryDao.getProductById(
+          item.productId,
+        );
+        if (product == null) {
+          continue;
+        }
+
+        productsById[product.id] = product;
+        if (product.trackStock) {
+          restoredStockByProductId[product.id] =
+              (restoredStockByProductId[product.id] ??
+                  (product.stockQuantity ?? 0)) +
+              item.quantity;
+        }
+      }
+
+      for (final item in draft.items) {
+        final currentProduct = await _database.inventoryDao.getProductById(
+          item.product.id,
+        );
+
+        if (currentProduct == null || currentProduct.isDeleted) {
+          return SaleEditResult.productNotFound;
+        }
+
+        productsById[currentProduct.id] = currentProduct;
+        newQuantityByProductId[currentProduct.id] =
+            (newQuantityByProductId[currentProduct.id] ?? 0) + item.quantity;
+
+        if (currentProduct.trackStock) {
+          final available =
+              restoredStockByProductId[currentProduct.id] ??
+              (currentProduct.stockQuantity ?? 0);
+          if (available + _centTolerance <
+              newQuantityByProductId[currentProduct.id]!) {
+            return SaleEditResult.insufficientStock;
+          }
+        }
+      }
+
+      final revertedSession = _reversePaymentsFromCashSession(
+        session: cashSession,
+        payments: oldPayments,
+        commissionTotal: currentSale.commissionTotal,
+      );
+      final updatedSession = _applyPaymentsToCashSession(
+        session: revertedSession,
+        payments: payments,
+        commissionTotal: commissionTotal,
+      );
+      final cashUpdated = await _database.cashDao.updateCashSession(
+        updatedSession,
+      );
+
+      if (!cashUpdated) {
+        return SaleEditResult.cashSessionNotFound;
+      }
+
+      for (final entry in productsById.entries) {
+        final product = entry.value;
+        if (!product.trackStock) {
+          continue;
+        }
+
+        final restoredStock =
+            restoredStockByProductId[entry.key] ?? (product.stockQuantity ?? 0);
+        final newQuantity = newQuantityByProductId[entry.key] ?? 0;
+        await _database.inventoryDao.updateProduct(
+          product.copyWith(
+            stockQuantity: Value(_roundQuantity(restoredStock - newQuantity)),
+            updatedAt: now,
+            syncStatus: _pendingSync,
+          ),
+        );
+      }
+
+      await _database.salesDao.updateSale(
+        currentSale.copyWith(
+          subtotal: subtotal,
+          commissionTotal: commissionTotal,
+          total: total,
+          paidAmount: total,
+          pendingAmount: 0,
+          paymentStatus: AppPaymentStatuses.paid,
+          syncStatus: _pendingSync,
+        ),
+      );
+
+      await _database.salesDao.deleteItemsBySale(currentSale.id);
+      await _database.salesDao.deletePaymentsBySale(currentSale.id);
+
+      for (final item in draft.items) {
+        final product = item.product;
+
+        await _database.salesDao.insertSaleItem(
+          SaleItemsCompanion.insert(
+            id: IdGenerator.create(),
+            saleId: currentSale.id,
+            productId: product.id,
+            productNameSnapshot: product.name,
+            productBrandSnapshot: Value(product.brand),
+            productTypeSnapshot: product.productType,
+            priceUnitSnapshot: product.priceUnit,
+            unitPriceSnapshot: product.price,
+            unitCostSnapshot: Value(product.cost),
+            quantity: item.quantity,
+            quantityUnit: product.productType == AppProductTypes.bulk
+                ? AppProductPriceUnits.kilogram
+                : AppProductPriceUnits.unit,
+            subtotal: item.subtotal,
+            costSubtotalSnapshot: Value(_costSubtotal(product, item.quantity)),
+          ),
+        );
+      }
+
+      for (final payment in payments) {
+        await _database.salesDao.insertSalePayment(
+          SalePaymentsCompanion.insert(
+            id: IdGenerator.create(),
+            saleId: currentSale.id,
+            paymentMethod: payment.method,
+            baseAmount: payment.baseAmount,
+            commissionRate: Value(payment.commissionRate),
+            commissionAmount: Value(payment.commissionAmount),
+            totalCharged: payment.totalCharged,
+            createdAt: now,
+            syncStatus: _pendingSync,
+          ),
+        );
+      }
+
+      await _database.activityLogsDao.insertActivityLog(
+        ActivityLogsCompanion.insert(
+          id: IdGenerator.create(),
+          userId: Value(actor.id),
+          userNameSnapshot: actor.username,
+          userRoleSnapshot: actor.role,
+          action: AppActivityLogActions.editSale,
+          entityType: AppActivityLogEntities.sale,
+          entityId: Value(currentSale.id),
+          description: Value(
+            'Venta editada de \$${currentSale.total.toStringAsFixed(2)} '
+            'a \$${total.toStringAsFixed(2)}.',
+          ),
+          createdAt: now,
+          syncStatus: _pendingSync,
+        ),
+      );
+
+      return SaleEditResult.success;
     });
   }
 
@@ -773,16 +996,13 @@ class _SalePaymentDraft {
     this.method,
     double amount,
     PaymentCommissionRates commissionRates,
-  )
-    : baseAmount = double.parse(amount.toStringAsFixed(2)),
+  ) : baseAmount = double.parse(amount.toStringAsFixed(2)),
       commissionRate = commissionRates.rateFor(method),
       commissionAmount = double.parse(
         (amount * commissionRates.rateFor(method)).toStringAsFixed(2),
       ),
       totalCharged = double.parse(
-        (amount * (1 + commissionRates.rateFor(method))).toStringAsFixed(
-          2,
-        ),
+        (amount * (1 + commissionRates.rateFor(method))).toStringAsFixed(2),
       );
 
   final String method;

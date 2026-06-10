@@ -19,6 +19,7 @@ class AppActivityLogActions {
   static const updateProduct = 'update_product';
   static const deleteProduct = 'delete_product';
   static const createSale = 'create_sale';
+  static const editSale = 'edit_sale';
   static const cancelSale = 'cancel_sale';
   static const createPendingPayment = 'create_pending_payment';
   static const createPaymentEntry = 'create_payment_entry';

@@ -81,7 +81,19 @@ class SalesDao extends DatabaseAccessor<AppDatabase> with _$SalesDaoMixin {
     return into(saleItems).insert(item);
   }
 
+  Future<int> deleteItemsBySale(String saleId) {
+    return (delete(
+      saleItems,
+    )..where((item) => item.saleId.equals(saleId))).go();
+  }
+
   Future<void> insertSalePayment(SalePaymentsCompanion payment) {
     return into(salePayments).insert(payment);
+  }
+
+  Future<int> deletePaymentsBySale(String saleId) {
+    return (delete(
+      salePayments,
+    )..where((payment) => payment.saleId.equals(saleId))).go();
   }
 }
