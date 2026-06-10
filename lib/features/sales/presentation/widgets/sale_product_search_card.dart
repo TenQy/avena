@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_products.dart';
 import '../../../../core/database/app_database.dart';
+import '../../../../core/utils/search_text.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
 
@@ -126,15 +127,15 @@ class _ProductSearchTile extends StatelessWidget {
 }
 
 List<Product> _filterProducts(List<Product> products, String query) {
-  final cleanQuery = query.trim().toLowerCase();
+  final cleanQuery = normalizeSearchText(query);
   if (cleanQuery.isEmpty) {
     return const [];
   }
 
   return products.where((product) {
-    final brand = product.brand?.toLowerCase() ?? '';
-    return product.name.toLowerCase().contains(cleanQuery) ||
-        brand.contains(cleanQuery);
+    final brand = product.brand;
+    return normalizeSearchText(product.name).contains(cleanQuery) ||
+        (brand != null && normalizeSearchText(brand).contains(cleanQuery));
   }).toList();
 }
 

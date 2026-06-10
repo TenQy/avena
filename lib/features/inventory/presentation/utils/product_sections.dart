@@ -1,4 +1,5 @@
 import '../../../../core/database/app_database.dart';
+import '../../../../core/utils/search_text.dart';
 
 class ProductSectionData {
   const ProductSectionData({required this.subcategory, required this.products});
@@ -80,15 +81,17 @@ List<Product> sortProductsForDisplay(List<Product> products) {
 }
 
 List<Product> filterProductsByQuery(List<Product> products, String query) {
-  final cleanQuery = query.trim().toLowerCase();
+  final cleanQuery = normalizeSearchText(query);
   if (cleanQuery.isEmpty) {
     return products;
   }
 
   return products.where((product) {
-    return product.name.toLowerCase().contains(cleanQuery) ||
-        (product.brand?.toLowerCase().contains(cleanQuery) ?? false) ||
-        (product.description?.toLowerCase().contains(cleanQuery) ?? false);
+    return normalizeSearchText(product.name).contains(cleanQuery) ||
+        (product.brand != null &&
+            normalizeSearchText(product.brand!).contains(cleanQuery)) ||
+        (product.description != null &&
+            normalizeSearchText(product.description!).contains(cleanQuery));
   }).toList();
 }
 
