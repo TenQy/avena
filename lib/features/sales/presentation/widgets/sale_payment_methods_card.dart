@@ -54,7 +54,10 @@ class SalePaymentMethodsCard extends StatelessWidget {
                     onSelected: (_) => onMethodSelected(method),
                     backgroundColor: AppColors.bodyBgFor(context),
                     selectedColor: AppColors.headerNavFor(context),
-                    side: BorderSide(color: AppColors.borderFor(context), width: 0.5),
+                    side: BorderSide(
+                      color: AppColors.borderFor(context),
+                      width: 0.5,
+                    ),
                     labelStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: selectedMethod == method
                           ? AppColors.textPrimaryFor(context)
@@ -80,9 +83,9 @@ class SalePaymentMethodsCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.md),
             Text(
               'Comisiones: debito/credito ${_percent(commissionRates.terminalCard)}, bonos ${_percent(commissionRates.terminalBonus)}.',
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryFor(context)),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: AppColors.textSecondaryFor(context),
+              ),
             ),
           ],
         ),
@@ -115,7 +118,7 @@ class _MixedPaymentInputs extends StatelessWidget {
 
               return TextFormField(
                 key: ValueKey('mixed-$method'),
-                initialValue: _initialValue(payments[method]),
+                initialValue: _initialChargeValue(method),
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
@@ -126,12 +129,14 @@ class _MixedPaymentInputs extends StatelessWidget {
                   labelText: _paymentLabel(method),
                   hintText: _money(remainingCharge),
                   hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppColors.textSecondaryFor(context).withValues(alpha: 0.55),
+                    color: AppColors.textSecondaryFor(
+                      context,
+                    ).withValues(alpha: 0.55),
                   ),
                   prefixIcon: const Icon(Icons.attach_money_rounded),
                 ),
                 onChanged: (value) {
-                  onChanged(method, double.tryParse(value.trim()) ?? 0);
+                  onChanged(method, _baseAmountForInput(method, value));
                 },
               );
             },
@@ -141,9 +146,9 @@ class _MixedPaymentInputs extends StatelessWidget {
         ],
         Text(
           'Debito/credito y bonos agregan comision al total cobrado.',
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryFor(context)),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: AppColors.textSecondaryFor(context),
+          ),
         ),
       ],
     );
@@ -162,6 +167,31 @@ class _MixedPaymentInputs extends StatelessWidget {
         .toDouble();
 
     return remainingBase * (1 + commissionRates.rateFor(method));
+  }
+
+  String _initialChargeValue(String method) {
+    final baseAmount = payments[method];
+    if (baseAmount == null || baseAmount <= 0) {
+      return '';
+    }
+
+    return _roundMoney(
+      baseAmount * (1 + commissionRates.rateFor(method)),
+    ).toStringAsFixed(2);
+  }
+
+  double _baseAmountForInput(String method, String value) {
+    final chargedAmount = double.tryParse(value.trim()) ?? 0;
+    if (chargedAmount <= 0) {
+      return 0;
+    }
+
+    final rate = commissionRates.rateFor(method);
+    if (rate == 0) {
+      return chargedAmount;
+    }
+
+    return _roundMoney(chargedAmount / (1 + rate));
   }
 }
 
@@ -209,9 +239,9 @@ class _SummaryRow extends StatelessWidget {
         Expanded(
           child: Text(
             label,
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryFor(context)),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: AppColors.textSecondaryFor(context),
+            ),
           ),
         ),
         Text(
@@ -241,17 +271,11 @@ String _money(double value) {
   return '\$${value.toStringAsFixed(2)}';
 }
 
+double _roundMoney(double value) => double.parse(value.toStringAsFixed(2));
+
 String _percent(double rate) {
   final value = rate * 100;
   return value == value.roundToDouble()
       ? '${value.toStringAsFixed(0)}%'
       : '${value.toStringAsFixed(1)}%';
-}
-
-String _initialValue(double? value) {
-  if (value == null || value <= 0) {
-    return '';
-  }
-
-  return value.toStringAsFixed(2);
 }
