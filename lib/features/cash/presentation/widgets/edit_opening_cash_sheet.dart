@@ -5,48 +5,44 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
+import '../../../../shared/widgets/confirm_dialog.dart';
 import '../../../authentication/providers/auth_provider.dart';
 import '../../data/cash_repository.dart';
 import '../../providers/cash_provider.dart';
 import 'cash_button_content.dart';
 
-class CashMovementSheet extends ConsumerStatefulWidget {
-  const CashMovementSheet({
-    super.key,
-    required this.session,
-    required this.type,
-  });
+class EditOpeningCashSheet extends ConsumerStatefulWidget {
+  const EditOpeningCashSheet({super.key, required this.session});
 
   final CashSession session;
-  final CashMovementType type;
 
   @override
-  ConsumerState<CashMovementSheet> createState() => _CashMovementSheetState();
+  ConsumerState<EditOpeningCashSheet> createState() =>
+      _EditOpeningCashSheetState();
 }
 
-class _CashMovementSheetState extends ConsumerState<CashMovementSheet> {
-  final _amountController = TextEditingController();
-  final _reasonController = TextEditingController();
+class _EditOpeningCashSheetState extends ConsumerState<EditOpeningCashSheet> {
+  late final TextEditingController _amountController;
   bool _isSaving = false;
   String? _amountError;
-  String? _reasonError;
 
-  bool get _isDeposit => widget.type == CashMovementType.deposit;
+  @override
+  void initState() {
+    super.initState();
+    _amountController = TextEditingController(
+      text: widget.session.openingCashAmount.toStringAsFixed(2),
+    );
+  }
 
   @override
   void dispose() {
     _amountController.dispose();
-    _reasonController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
-    final title = _isDeposit ? 'Deposito' : 'Retiro';
-    final description = _isDeposit
-        ? 'Registra efectivo agregado a caja.'
-        : 'Registra efectivo retirado de caja.';
 
     return SafeArea(
       child: Padding(
@@ -72,13 +68,13 @@ class _CashMovementSheetState extends ConsumerState<CashMovementSheet> {
             ),
             const SizedBox(height: AppSpacing.lg),
             Text(
-              title,
+              'Editar dinero inicial',
               style: Theme.of(context).textTheme.titleLarge,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              description,
+              'El cambio ajustara tambien la caja fisica esperada.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: AppColors.textSecondaryFor(context),
               ),
@@ -94,43 +90,26 @@ class _CashMovementSheetState extends ConsumerState<CashMovementSheet> {
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
               ],
-              decoration:
-                  const InputDecoration(
-                    labelText: 'Monto',
-                    prefixIcon: Icon(Icons.attach_money_rounded),
-                  ).copyWith(
-                    errorText: _amountError,
-                    helperText: _isDeposit
-                        ? 'Monto maximo: \$999999.00'
-                        : 'Disponible: \$${widget.session.expectedCashAmount.toStringAsFixed(2)}',
-                  ),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            TextField(
-              controller: _reasonController,
-              textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                labelText: 'Motivo',
-                prefixIcon: Icon(Icons.notes_rounded),
-              ).copyWith(errorText: _reasonError),
-              onSubmitted: (_) => _saveMovement(),
+              decoration: InputDecoration(
+                labelText: 'Dinero inicial',
+                helperText: 'Monto maximo: \$999999.00',
+                errorText: _amountError,
+                prefixIcon: const Icon(Icons.attach_money_rounded),
+              ),
+              onSubmitted: (_) => _save(),
             ),
             const SizedBox(height: AppSpacing.xl),
             FilledButton(
-              onPressed: _isSaving ? null : _saveMovement,
+              onPressed: _isSaving ? null : _save,
               child: CashButtonContent(
-                label: _isSaving ? 'Guardando...' : 'Registrar $title',
+                label: _isSaving ? 'Guardando...' : 'Guardar cambio',
                 trailing: _isSaving
                     ? const SizedBox(
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : Icon(
-                        _isDeposit
-                            ? Icons.add_circle_outline_rounded
-                            : Icons.remove_circle_outline_rounded,
-                      ),
+                    : const Icon(Icons.save_rounded),
               ),
             ),
           ],
@@ -139,51 +118,58 @@ class _CashMovementSheetState extends ConsumerState<CashMovementSheet> {
     );
   }
 
-  Future<void> _saveMovement() async {
+  Future<void> _save() async {
     if (_isSaving) {
       return;
     }
 
     final amount = double.tryParse(_amountController.text.trim());
-    final reason = _reasonController.text.trim();
     final amountError = _validateAmount(amount);
-    final reasonError = reason.isEmpty ? 'Ingresa un motivo.' : null;
-
-    if (amountError != null || reasonError != null) {
+    if (amountError != null) {
       setState(() {
         _amountError = amountError;
-        _reasonError = reasonError;
       });
       return;
     }
 
-    final currentUser = ref.read(currentUserProvider).valueOrNull;
-    if (currentUser == null) {
-      Navigator.of(context).pop(CashMovementResult.unauthorized);
+    final confirmed = await ConfirmDialog.show(
+      context,
+      title: 'Editar dinero inicial',
+      message: 'Se cambiara el dinero inicial de caja y se registrara en logs.',
+      confirmLabel: 'Guardar',
+      icon: Icons.edit_rounded,
+    );
+
+    if (!mounted || !confirmed) {
+      return;
+    }
+
+    final actor = ref.read(currentUserProvider).valueOrNull;
+    if (actor == null) {
+      Navigator.of(context).pop(UpdateOpeningCashResult.unauthorized);
       return;
     }
 
     setState(() {
       _isSaving = true;
+      _amountError = null;
     });
 
     final result = await ref
         .read(cashRepositoryProvider)
-        .createMovement(
-          actor: currentUser,
+        .updateOpeningCashAmount(
+          actor: actor,
           session: widget.session,
-          type: widget.type,
-          amount: amount!,
-          reason: reason,
+          openingCashAmount: amount!,
         );
 
     if (!mounted) {
       return;
     }
 
-    if (result == CashMovementResult.success ||
-        result == CashMovementResult.unauthorized ||
-        result == CashMovementResult.sessionNotFound) {
+    if (result == UpdateOpeningCashResult.success ||
+        result == UpdateOpeningCashResult.unauthorized ||
+        result == UpdateOpeningCashResult.sessionNotFound) {
       Navigator.of(context).pop(result);
       return;
     }
@@ -191,29 +177,29 @@ class _CashMovementSheetState extends ConsumerState<CashMovementSheet> {
     setState(() {
       _isSaving = false;
       _amountError = switch (result) {
-        CashMovementResult.invalidAmount => 'Ingresa un monto valido.',
-        CashMovementResult.amountTooHigh => 'El monto maximo es \$999999.00.',
-        CashMovementResult.insufficientCash =>
-          'No puedes retirar mas de lo disponible.',
+        UpdateOpeningCashResult.invalidAmount =>
+          'Ingresa un monto inicial valido.',
+        UpdateOpeningCashResult.amountTooHigh =>
+          'El monto maximo es \$999999.00.',
         _ => null,
       };
-      _reasonError = result == CashMovementResult.emptyReason
-          ? 'Ingresa un motivo.'
-          : null;
     });
   }
 
   String? _validateAmount(double? amount) {
-    if (amount == null || !amount.isFinite || amount <= 0) {
-      return 'Ingresa un monto valido.';
+    if (amount == null || !amount.isFinite || amount < 0) {
+      return 'Ingresa un monto inicial valido.';
     }
 
     if (amount > CashRepository.maxCashOperationAmount) {
       return 'El monto maximo es \$999999.00.';
     }
 
-    if (!_isDeposit && amount > widget.session.expectedCashAmount) {
-      return 'No puedes retirar mas de lo disponible.';
+    final expectedCashAmount =
+        widget.session.expectedCashAmount +
+        (amount - widget.session.openingCashAmount);
+    if (expectedCashAmount < 0) {
+      return 'La caja esperada no puede quedar negativa.';
     }
 
     return null;

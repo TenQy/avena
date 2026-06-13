@@ -30,8 +30,28 @@ void showCashMovementResult(BuildContext context, CashMovementResult result) {
     CashMovementResult.unauthorized =>
       'No tienes permisos para modificar caja.',
     CashMovementResult.invalidAmount => 'Ingresa un monto valido.',
+    CashMovementResult.amountTooHigh => 'El monto maximo es \$999999.00.',
     CashMovementResult.emptyReason => 'Ingresa un motivo.',
+    CashMovementResult.insufficientCash =>
+      'No puedes retirar mas dinero del disponible en caja.',
     CashMovementResult.sessionNotFound =>
+      'La caja abierta ya no está disponible.',
+  };
+
+  showAppSnackBar(context, message);
+}
+
+void showUpdateOpeningCashResult(
+  BuildContext context,
+  UpdateOpeningCashResult result,
+) {
+  final message = switch (result) {
+    UpdateOpeningCashResult.success => 'Dinero inicial actualizado.',
+    UpdateOpeningCashResult.unauthorized =>
+      'No tienes permisos para modificar caja.',
+    UpdateOpeningCashResult.invalidAmount => 'Ingresa un monto inicial valido.',
+    UpdateOpeningCashResult.amountTooHigh => 'El monto maximo es \$999999.00.',
+    UpdateOpeningCashResult.sessionNotFound =>
       'La caja abierta ya no está disponible.',
   };
 

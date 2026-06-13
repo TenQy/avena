@@ -6,6 +6,7 @@ class AppActivityLogActions {
   static const openCash = 'open_cash';
   static const closeCash = 'close_cash';
   static const createCashMovement = 'create_cash_movement';
+  static const updateOpeningCash = 'update_opening_cash';
   static const createUser = 'create_user';
   static const updateUser = 'update_user';
   static const setUserActive = 'set_user_active';

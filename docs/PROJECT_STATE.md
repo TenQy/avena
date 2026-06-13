@@ -97,3 +97,9 @@
   - La búsqueda dentro de una categoría ya no muestra subcategorías vacías sin productos encontrados.
   - "Sin subcategoría" se reemplazó por "Otros" en inventario.
   - Corregida la validación de cantidades enormes de stock, incluyendo notación científica como 1e+21.
+
+- Testing Caja:
+  - Retiros y depósitos conservan el formulario y muestran errores si falta motivo o el monto no es válido.
+  - Retiros y depósitos tienen límite máximo razonable.
+  - Los retiros no pueden exceder el efectivo disponible esperado en caja.
+  - Se puede editar el dinero inicial de caja con confirmación, ajuste de caja esperada y registro en logs.

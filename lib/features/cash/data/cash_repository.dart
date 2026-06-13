@@ -14,7 +14,17 @@ enum CashMovementResult {
   success,
   unauthorized,
   invalidAmount,
+  amountTooHigh,
   emptyReason,
+  insufficientCash,
+  sessionNotFound,
+}
+
+enum UpdateOpeningCashResult {
+  success,
+  unauthorized,
+  invalidAmount,
+  amountTooHigh,
   sessionNotFound,
 }
 
@@ -33,6 +43,7 @@ class CashRepository {
   final AppDatabase _database;
 
   static const _pendingSync = 'pending';
+  static const maxCashOperationAmount = 999999.0;
 
   Stream<CashSession?> watchOpenCashSession() {
     return _database.cashDao.watchOpenCashSession();
@@ -156,8 +167,12 @@ class CashRepository {
       return CashMovementResult.unauthorized;
     }
 
-    if (amount <= 0) {
+    if (amount <= 0 || !amount.isFinite) {
       return CashMovementResult.invalidAmount;
+    }
+
+    if (amount > maxCashOperationAmount) {
+      return CashMovementResult.amountTooHigh;
     }
 
     final cleanReason = reason.trim();
@@ -170,6 +185,11 @@ class CashRepository {
 
       if (currentOpenSession == null || currentOpenSession.id != session.id) {
         return CashMovementResult.sessionNotFound;
+      }
+
+      if (type == CashMovementType.withdrawal &&
+          amount > currentOpenSession.expectedCashAmount) {
+        return CashMovementResult.insufficientCash;
       }
 
       final signedAmount = type == CashMovementType.deposit ? amount : -amount;
@@ -220,6 +240,75 @@ class CashRepository {
       );
 
       return CashMovementResult.success;
+    });
+  }
+
+  Future<UpdateOpeningCashResult> updateOpeningCashAmount({
+    required User actor,
+    required CashSession session,
+    required double openingCashAmount,
+  }) async {
+    if (!AppRoles.canManageCash(actor.role)) {
+      return UpdateOpeningCashResult.unauthorized;
+    }
+
+    if (openingCashAmount < 0 || !openingCashAmount.isFinite) {
+      return UpdateOpeningCashResult.invalidAmount;
+    }
+
+    if (openingCashAmount > maxCashOperationAmount) {
+      return UpdateOpeningCashResult.amountTooHigh;
+    }
+
+    return _database.transaction(() async {
+      final currentOpenSession = await _database.cashDao.getOpenCashSession();
+
+      if (currentOpenSession == null || currentOpenSession.id != session.id) {
+        return UpdateOpeningCashResult.sessionNotFound;
+      }
+
+      final now = DateTime.now();
+      final difference =
+          openingCashAmount - currentOpenSession.openingCashAmount;
+      final expectedCashAmount =
+          currentOpenSession.expectedCashAmount + difference;
+
+      if (expectedCashAmount < 0) {
+        return UpdateOpeningCashResult.invalidAmount;
+      }
+
+      final updated = await _database.cashDao.updateCashSession(
+        currentOpenSession.copyWith(
+          openingCashAmount: openingCashAmount,
+          expectedCashAmount: expectedCashAmount,
+          syncStatus: _pendingSync,
+        ),
+      );
+
+      if (!updated) {
+        return UpdateOpeningCashResult.sessionNotFound;
+      }
+
+      await _database.activityLogsDao.insertActivityLog(
+        ActivityLogsCompanion.insert(
+          id: IdGenerator.create(),
+          userId: Value(actor.id),
+          userNameSnapshot: actor.username,
+          userRoleSnapshot: actor.role,
+          action: AppActivityLogActions.updateOpeningCash,
+          entityType: AppActivityLogEntities.cashSession,
+          entityId: Value(currentOpenSession.id),
+          description: Value(
+            'Dinero inicial de caja actualizado de '
+            '\$${currentOpenSession.openingCashAmount.toStringAsFixed(2)} '
+            'a \$${openingCashAmount.toStringAsFixed(2)}',
+          ),
+          createdAt: now,
+          syncStatus: _pendingSync,
+        ),
+      );
+
+      return UpdateOpeningCashResult.success;
     });
   }
 

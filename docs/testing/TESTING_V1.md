@@ -55,13 +55,13 @@
 
 ## Bugs
 
-- [] Retiro o depósito sin motivo cierra el formulario; debe mostrar error y conservar datos.
-- [] No hay límite razonable en depósito o retiro.
-- [] El retiro permite sacar más dinero del disponible en caja.
+- [x] Retiro o depósito sin motivo cierra el formulario; debe mostrar error y conservar datos.
+- [x] No hay límite razonable en depósito o retiro.
+- [x] El retiro permite sacar más dinero del disponible en caja.
 
 ## Mejoras seguras
 
-- [] Permitir editar dinero inicial de caja con confirmación y log.
+- [x] Permitir editar dinero inicial de caja con confirmación y log.
 
 ---
 

@@ -13,12 +13,14 @@ class OpenCashCard extends StatelessWidget {
     required this.session,
     required this.onWithdrawal,
     required this.onDeposit,
+    required this.onEditOpeningCash,
     required this.onCloseCash,
   });
 
   final CashSession session;
   final VoidCallback onWithdrawal;
   final VoidCallback onDeposit;
+  final VoidCallback onEditOpeningCash;
   final VoidCallback onCloseCash;
 
   @override
@@ -38,15 +40,18 @@ class OpenCashCard extends StatelessWidget {
               label: 'Dinero inicial',
               value: formatMoney(session.openingCashAmount),
             ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton.icon(
+                onPressed: onEditOpeningCash,
+                icon: const Icon(Icons.edit_rounded),
+                label: const Text('Editar'),
+              ),
+            ),
             const SizedBox(height: AppSpacing.md),
             CashDetailRow(
               label: 'Caja fisica esperada',
               value: formatMoney(session.expectedCashAmount),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            CashDetailRow(
-              label: 'Diferencia esperada',
-              value: formatMoney(session.cashDifference ?? 0),
             ),
             const SizedBox(height: AppSpacing.md),
             CashDetailRow(

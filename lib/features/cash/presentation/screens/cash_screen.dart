@@ -15,6 +15,7 @@ import '../widgets/cash_income_card.dart';
 import '../widgets/cash_movement_sheet.dart';
 import '../widgets/cash_movements_card.dart';
 import '../widgets/closed_cash_card.dart';
+import '../widgets/edit_opening_cash_sheet.dart';
 import '../widgets/open_cash_card.dart';
 import '../widgets/open_cash_sheet.dart';
 
@@ -88,6 +89,7 @@ class _CashContent extends ConsumerWidget {
             _showMovementSheet(context, session, CashMovementType.withdrawal),
         onDeposit: () =>
             _showMovementSheet(context, session, CashMovementType.deposit),
+        onEditOpeningCash: () => _showEditOpeningCashSheet(context, session),
         onCloseCash: () => _closeCash(context, ref, session),
       ),
       const SizedBox(height: AppSpacing.lg),
@@ -103,6 +105,29 @@ class _CashContent extends ConsumerWidget {
         ),
       ),
     ];
+  }
+
+  Future<void> _showEditOpeningCashSheet(
+    BuildContext context,
+    CashSession session,
+  ) async {
+    final result = await showModalBottomSheet<UpdateOpeningCashResult>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.cardSurfaceFor(context),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return EditOpeningCashSheet(session: session);
+      },
+    );
+
+    if (!context.mounted || result == null) {
+      return;
+    }
+
+    showUpdateOpeningCashResult(context, result);
   }
 
   Future<void> _showOpenCashSheet(BuildContext context) async {
