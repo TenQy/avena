@@ -24,12 +24,14 @@ class CurrentSaleState {
     this.items = const [],
     this.paymentMethod = AppPaymentMethods.cash,
     this.mixedPayments = const {},
+    this.cashReceived = 0,
     this.commissionRates = AppPaymentCommissions.defaults,
   });
 
   final List<SaleDraftItem> items;
   final String paymentMethod;
   final Map<String, double> mixedPayments;
+  final double cashReceived;
   final PaymentCommissionRates commissionRates;
 
   double get subtotal {
@@ -74,12 +76,14 @@ class CurrentSaleState {
     List<SaleDraftItem>? items,
     String? paymentMethod,
     Map<String, double>? mixedPayments,
+    double? cashReceived,
     PaymentCommissionRates? commissionRates,
   }) {
     return CurrentSaleState(
       items: items ?? this.items,
       paymentMethod: paymentMethod ?? this.paymentMethod,
       mixedPayments: mixedPayments ?? this.mixedPayments,
+      cashReceived: cashReceived ?? this.cashReceived,
       commissionRates: commissionRates ?? this.commissionRates,
     );
   }
@@ -111,7 +115,7 @@ class CurrentSaleController extends StateNotifier<CurrentSaleState> {
       );
     }
 
-    state = state.copyWith(items: items);
+    _setItems(items);
   }
 
   void increaseQuantity(SaleDraftItem item) {
@@ -148,7 +152,7 @@ class CurrentSaleController extends StateNotifier<CurrentSaleState> {
       );
     }
 
-    state = state.copyWith(items: items);
+    _setItems(items);
   }
 
   void applyBulkPortion(SaleDraftItem item, AppBulkPortion portion) {
@@ -179,8 +183,8 @@ class CurrentSaleController extends StateNotifier<CurrentSaleState> {
   }
 
   void removeItem(SaleDraftItem item) {
-    state = state.copyWith(
-      items: state.items
+    _setItems(
+      state.items
           .where((currentItem) => currentItem.product.id != item.product.id)
           .toList(),
     );
@@ -205,6 +209,10 @@ class CurrentSaleController extends StateNotifier<CurrentSaleState> {
     }
 
     state = state.copyWith(mixedPayments: payments);
+  }
+
+  void updateCashReceived(double amount) {
+    state = state.copyWith(cashReceived: amount < 0 ? 0 : amount);
   }
 
   void reset() {
@@ -259,9 +267,7 @@ class CurrentSaleController extends StateNotifier<CurrentSaleState> {
       return;
     }
 
-    state = state.copyWith(
-      items: syncedItems.where((item) => item.quantity > 0).toList(),
-    );
+    _setItems(syncedItems.where((item) => item.quantity > 0).toList());
   }
 
   void _updateItem(
@@ -277,8 +283,17 @@ class CurrentSaleController extends StateNotifier<CurrentSaleState> {
       return;
     }
 
-    items[index] = update(items[index]);
-    state = state.copyWith(items: items);
+    final updatedItem = update(items[index]);
+    if (updatedItem == items[index]) {
+      return;
+    }
+
+    items[index] = updatedItem;
+    _setItems(items);
+  }
+
+  void _setItems(List<SaleDraftItem> items) {
+    state = state.copyWith(items: items, cashReceived: 0);
   }
 
   bool _hasAvailableStock(SaleDraftItem item, double nextQuantity) {

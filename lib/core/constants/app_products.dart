@@ -22,6 +22,7 @@ class AppBulkPortion {
 class AppBulkPortions {
   const AppBulkPortions._();
 
+  static const twoKilograms = AppBulkPortion(label: '2 kg', kilogramFactor: 2);
   static const oneKilogram = AppBulkPortion(label: '1 kg', kilogramFactor: 1);
   static const halfKilogram = AppBulkPortion(
     label: '1/2 kg',
@@ -40,5 +41,10 @@ class AppBulkPortions {
     fiftyGrams,
   ];
 
-  static const salesQuick = [oneKilogram, halfKilogram, oneHundredGrams];
+  static const salesQuick = [
+    twoKilograms,
+    oneKilogram,
+    halfKilogram,
+    oneHundredGrams,
+  ];
 }

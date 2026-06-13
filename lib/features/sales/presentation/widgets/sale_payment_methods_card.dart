@@ -128,6 +128,7 @@ class _MixedPaymentInputs extends StatelessWidget {
                 decoration: InputDecoration(
                   labelText: _paymentLabel(method),
                   hintText: _money(remainingCharge),
+                  helperText: 'Restante sugerido: ${_money(remainingCharge)}',
                   hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: AppColors.textSecondaryFor(
                       context,

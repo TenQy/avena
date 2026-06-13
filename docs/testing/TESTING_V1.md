@@ -29,16 +29,16 @@
 ## Bugs 
 
 - [] Se puede pagar aunque el efectivo recibido sea menor al total.
-- [] Pagado en efectivo no muestra faltante, solo cambio.
-- [] El buscador muestra productos sin stock.
-- [] No poder decrementar si hay 1 producto genera duda: debería quitar el producto o deshabilitarse claramente.
-- [] Al cambiar de pantalla, el campo "pagado en efectivo" no persiste.
+- [x] Pagado en efectivo no muestra faltante, solo cambio.
+- [x] El buscador muestra productos sin stock.
+- [x] No poder decrementar si hay 1 producto genera duda: debería quitar el producto o deshabilitarse claramente.
+- [x] Al cambiar de pantalla, el campo "pagado en efectivo" no persiste.
 
 ## Mejoras seguras 
 
-- [] En pago mixto, mostrar el restante dinámico junto al input, no solo como placeholder.
-- [] Agregar chip rápido de 2kg para productos a granel.
-- [] Evaluar chips rápidos para granel: 100g, 500g, 1kg, 2kg.
+- [x] En pago mixto, mostrar el restante dinámico junto al input, no solo como placeholder.
+- [x] Agregar chip rápido de 2kg para productos a granel.
+- [x] Evaluar chips rápidos para granel: 100g, 500g, 1kg, 2kg.
 - [] Agregar forma rápida para vender varias unidades: +5, +10 o input directo.
 - [] Evaluar si + y - en producto a granel deben aumentar/disminuir 1kg, aunque por ahora modificar cantidad y chips rápidos puede ser suficiente.
 

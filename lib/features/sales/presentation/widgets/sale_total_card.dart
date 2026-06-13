@@ -13,6 +13,8 @@ class SaleTotalCard extends StatefulWidget {
     required this.canRegister,
     required this.canRegisterPending,
     required this.isRegistering,
+    required this.paidWith,
+    required this.onPaidWithChanged,
     required this.onRegister,
     required this.onRegisterPending,
   });
@@ -23,6 +25,8 @@ class SaleTotalCard extends StatefulWidget {
   final bool canRegister;
   final bool canRegisterPending;
   final bool isRegistering;
+  final double paidWith;
+  final ValueChanged<double> onPaidWithChanged;
   final VoidCallback onRegister;
   final VoidCallback onRegisterPending;
 
@@ -34,28 +38,56 @@ class SaleTotalCard extends StatefulWidget {
 
 class _SaleTotalCardState extends State<SaleTotalCard> {
   final _paidWithController = TextEditingController();
-  double _paidWith = 0;
+  final _paidWithFocusNode = FocusNode();
 
   double get _change =>
-      (_paidWith - widget.total).clamp(0.0, double.infinity).toDouble();
+      (widget.paidWith - widget.total).clamp(0.0, double.infinity).toDouble();
+
+  double get _shortfall =>
+      (widget.total - widget.paidWith).clamp(0.0, double.infinity).toDouble();
+
+  bool get _hasEnoughCash => _shortfall <= 0.01;
 
   @override
   void initState() {
     super.initState();
+    _syncPaidWithController();
     _paidWithController.addListener(_onPaidWithChanged);
+  }
+
+  @override
+  void didUpdateWidget(covariant SaleTotalCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.paidWith != widget.paidWith &&
+        (!_paidWithFocusNode.hasFocus || widget.paidWith == 0)) {
+      _syncPaidWithController();
+    }
   }
 
   @override
   void dispose() {
     _paidWithController.removeListener(_onPaidWithChanged);
+    _paidWithFocusNode.dispose();
     _paidWithController.dispose();
     super.dispose();
   }
 
   void _onPaidWithChanged() {
-    setState(() {
-      _paidWith = double.tryParse(_paidWithController.text.trim()) ?? 0;
-    });
+    widget.onPaidWithChanged(_parseAmount(_paidWithController.text));
+  }
+
+  void _syncPaidWithController() {
+    final nextText = widget.paidWith <= 0
+        ? ''
+        : widget.paidWith.toStringAsFixed(2);
+    if (_paidWithController.text == nextText) {
+      return;
+    }
+
+    _paidWithController.value = TextEditingValue(
+      text: nextText,
+      selection: TextSelection.collapsed(offset: nextText.length),
+    );
   }
 
   @override
@@ -86,6 +118,7 @@ class _SaleTotalCardState extends State<SaleTotalCard> {
               const SizedBox(height: AppSpacing.lg),
               TextFormField(
                 controller: _paidWithController,
+                focusNode: _paidWithFocusNode,
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
@@ -98,7 +131,10 @@ class _SaleTotalCardState extends State<SaleTotalCard> {
                 ),
               ),
               const SizedBox(height: AppSpacing.md),
-              _TotalRow(label: 'Cambio', value: _money(_change)),
+              _TotalRow(
+                label: _hasEnoughCash ? 'Cambio' : 'Faltante',
+                value: _money(_hasEnoughCash ? _change : _shortfall),
+              ),
             ],
             const SizedBox(height: AppSpacing.xl),
             FilledButton(
@@ -196,4 +232,8 @@ class _ButtonContent extends StatelessWidget {
 
 String _money(double value) {
   return '\$${value.toStringAsFixed(2)}';
+}
+
+double _parseAmount(String value) {
+  return double.tryParse(value.trim().replaceAll(',', '.')) ?? 0;
 }

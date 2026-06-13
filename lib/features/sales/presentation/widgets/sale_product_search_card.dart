@@ -133,6 +133,10 @@ List<Product> _filterProducts(List<Product> products, String query) {
   }
 
   return products.where((product) {
+    if (product.trackStock && (product.stockQuantity ?? 0) <= 0) {
+      return false;
+    }
+
     final brand = product.brand;
     return normalizeSearchText(product.name).contains(cleanQuery) ||
         (brand != null && normalizeSearchText(brand).contains(cleanQuery));

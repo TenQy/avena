@@ -85,6 +85,7 @@ class _SaleItemTile extends StatelessWidget {
     final stockQuantity = product.stockQuantity ?? 0;
     final stockLabel = isBulk ? 'kg disponibles' : 'pz disponibles';
     final canAddUnit = !product.trackStock || item.quantity < stockQuantity;
+    final removesUnitItem = !isBulk && item.quantity <= 1;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -182,9 +183,13 @@ class _SaleItemTile extends StatelessWidget {
           Row(
             children: [
               IconButton(
-                tooltip: 'Restar',
+                tooltip: removesUnitItem ? 'Quitar producto' : 'Restar',
                 onPressed: () => onDecreaseQuantity(item),
-                icon: Icon(Icons.remove_circle_outline_rounded),
+                icon: Icon(
+                  removesUnitItem
+                      ? Icons.delete_outline_rounded
+                      : Icons.remove_circle_outline_rounded,
+                ),
               ),
               SizedBox(
                 width: 32,

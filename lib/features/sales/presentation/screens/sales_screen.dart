@@ -109,6 +109,8 @@ class _SalesScreenState extends ConsumerState<SalesScreen> {
               canRegister: currentSale.canRegister,
               canRegisterPending: currentSale.items.isNotEmpty,
               isRegistering: _isRegistering,
+              paidWith: currentSale.cashReceived,
+              onPaidWithChanged: saleController.updateCashReceived,
               onRegister: _registerSale,
               onRegisterPending: _registerPendingSale,
             ),
