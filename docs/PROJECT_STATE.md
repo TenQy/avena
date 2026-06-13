@@ -89,3 +89,11 @@
     - bonos 6.5%
   - UI de Caja modularizada en widgets.
   - Helpers de dinero y fecha separados.
+
+- Testing Inventario:
+  - Corregida la acción redundante de marcar como principal una categoría que ya era principal; se evita el log innecesario.
+  - Corregida la validación de stock para productos por unidad; ahora sólo aceptan cantidades enteras.
+  - Productos a granel muestran y capturan stock con contexto de kg/gr.
+  - La búsqueda dentro de una categoría ya no muestra subcategorías vacías sin productos encontrados.
+  - "Sin subcategoría" se reemplazó por "Otros" en inventario.
+  - Corregida la validación de cantidades enormes de stock, incluyendo notación científica como 1e+21.

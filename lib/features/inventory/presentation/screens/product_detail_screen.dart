@@ -83,7 +83,7 @@ class ProductDetailScreen extends ConsumerWidget {
 
   String _subcategoryName(AsyncValue<List<Subcategory>> state) {
     if (product.subcategoryId == null) {
-      return 'Sin subcategoría';
+      return 'Otros';
     }
 
     return state.maybeWhen(
@@ -294,10 +294,7 @@ class _StockSection extends StatelessWidget {
           value: product.trackStock ? 'Activado' : 'Sin control',
         ),
         if (product.trackStock)
-          _DetailRow(
-            label: 'Cantidad actual',
-            value: _formatQuantity(product.stockQuantity ?? 0),
-          ),
+          _DetailRow(label: 'Cantidad actual', value: _formatStock(product)),
       ],
     );
   }
@@ -379,4 +376,18 @@ String _money(double value) {
 String _formatQuantity(double value) {
   final text = value.toStringAsFixed(3);
   return text.replaceFirst(RegExp(r'0+$'), '').replaceFirst(RegExp(r'\.$'), '');
+}
+
+String _formatStock(Product product) {
+  final quantity = product.stockQuantity ?? 0;
+  if (product.productType == AppProductTypes.bulk) {
+    if (quantity > 0 && quantity < 1) {
+      return '${(quantity * 1000).round()} g';
+    }
+
+    return '${_formatQuantity(quantity)} kg';
+  }
+
+  final units = quantity.truncate();
+  return '$units ${units == 1 ? 'unidad' : 'unidades'}';
 }

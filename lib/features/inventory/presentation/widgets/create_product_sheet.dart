@@ -187,6 +187,12 @@ class _CreateProductSheetState extends ConsumerState<CreateProductSheet> {
                     onChanged: (value) {
                       setState(() {
                         _productType = value;
+                        if (value == AppProductTypes.unit) {
+                          final stock = parseNumber(_stockController.text);
+                          if (stock != null) {
+                            _stockController.text = stock.truncate().toString();
+                          }
+                        }
                       });
                     },
                   ),
@@ -229,7 +235,10 @@ class _CreateProductSheetState extends ConsumerState<CreateProductSheet> {
                   ),
                   if (_trackStock) ...[
                     const SizedBox(height: AppSpacing.sm),
-                    _StockField(controller: _stockController),
+                    _StockField(
+                      controller: _stockController,
+                      productType: _productType,
+                    ),
                   ],
                   const SizedBox(height: AppSpacing.xl),
                   FilledButton(
@@ -479,27 +488,39 @@ class _CostField extends StatelessWidget {
 }
 
 class _StockField extends StatelessWidget {
-  const _StockField({required this.controller});
+  const _StockField({required this.controller, required this.productType});
 
   final TextEditingController controller;
+  final String productType;
 
   @override
   Widget build(BuildContext context) {
+    final isBulk = productType == AppProductTypes.bulk;
+
     return TextFormField(
       controller: controller,
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,3}')),
-      ],
+      keyboardType: TextInputType.numberWithOptions(decimal: isBulk),
+      inputFormatters: isBulk
+          ? [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,3}'))]
+          : [FilteringTextInputFormatter.digitsOnly],
       textInputAction: TextInputAction.done,
-      decoration: const InputDecoration(
-        labelText: 'Stock inicial',
-        prefixIcon: Icon(Icons.storage_rounded),
+      decoration: InputDecoration(
+        labelText: isBulk ? 'Stock inicial (kg)' : 'Stock inicial (unidades)',
+        helperText: isBulk ? 'Ej. 0.5 kg = 500 g' : null,
+        prefixIcon: const Icon(Icons.storage_rounded),
       ),
       validator: (value) {
         final stock = parseNumber(value);
-        if (stock == null || stock < 0) {
+        if (stock == null || !stock.isFinite || stock < 0) {
           return 'Ingresa un stock válido.';
+        }
+
+        if (stock > maxProductStockQuantity) {
+          return 'El stock máximo es 999999.';
+        }
+
+        if (!isBulk && stock != stock.truncateToDouble()) {
+          return 'El stock por unidad debe ser entero.';
         }
 
         return null;

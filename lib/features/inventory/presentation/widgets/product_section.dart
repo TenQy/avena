@@ -24,7 +24,7 @@ class ProductSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final border = AppColors.borderFor(context);
     final iconInactive = AppColors.iconInactiveFor(context);
-    final title = section.subcategory?.name ?? 'Sin subcategoría';
+    final title = section.subcategory?.name ?? 'Otros';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -50,7 +50,7 @@ class ProductSection extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.sm),
         if (section.products.isEmpty)
-          const EmptyProductCard()
+          EmptyProductCard(title: title)
         else
           for (final product in section.products) ...[
             ProductListCard(
@@ -68,7 +68,9 @@ class ProductSection extends StatelessWidget {
 }
 
 class EmptyProductCard extends StatelessWidget {
-  const EmptyProductCard({super.key});
+  const EmptyProductCard({super.key, required this.title});
+
+  final String title;
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +78,7 @@ class EmptyProductCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Text(
-          'Sin productos en esta subcategoría.',
+          'Sin productos en $title.',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: AppColors.textSecondaryFor(context),
           ),

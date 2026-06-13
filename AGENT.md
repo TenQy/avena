@@ -388,3 +388,6 @@ Construir una app:
   - consulta de detalles por evento desde la interfaz
   - auditoria local de login, logout, caja, usuarios, inventario, ventas y pagos pendientes
   - mensajes descriptivos por cada accion importante registrada
+- Fase 13 completada
+
+Realizando testing

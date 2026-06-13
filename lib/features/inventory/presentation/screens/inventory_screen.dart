@@ -314,14 +314,15 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                   ),
                 ),
                 const SizedBox(height: AppSpacing.lg),
-                InventoryOptionTile(
-                  icon: Icons.star_rounded,
-                  label: 'Establecer como principal',
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    _setMainCategory(category);
-                  },
-                ),
+                if (category.sortOrder != 0)
+                  InventoryOptionTile(
+                    icon: Icons.star_rounded,
+                    label: 'Establecer como principal',
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      _setMainCategory(category);
+                    },
+                  ),
                 InventoryOptionTile(
                   icon: Icons.delete_rounded,
                   label: 'Eliminar categoría',

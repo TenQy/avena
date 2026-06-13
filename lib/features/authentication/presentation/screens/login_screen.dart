@@ -151,8 +151,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           onFieldSubmitted: (_) => _submit(),
                           trailing: IconButton(
                             tooltip: _obscurePassword
-                                ? 'Mostrar contrasena'
-                                : 'Ocultar contrasena',
+                                ? 'Mostrar contraseña'
+                                : 'Ocultar contraseña',
                             icon: Icon(
                               _obscurePassword
                                   ? Icons.visibility_rounded
@@ -167,7 +167,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Ingresa tu contrasena.';
+                              return 'Ingresa tu contraseña.';
                             }
 
                             return null;

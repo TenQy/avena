@@ -31,8 +31,13 @@ class CategoryProductList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasSearchQuery = searchQuery.trim().isNotEmpty;
     final filteredProducts = filterProductsByQuery(products, searchQuery);
-    final sections = buildProductSections(subcategories, filteredProducts);
+    final sections = buildProductSectionsWithOptions(
+      subcategories,
+      filteredProducts,
+      includeEmptySubcategories: !hasSearchQuery,
+    );
     final visibleSections = selectedSubcategoryId == null
         ? sections
         : sections
@@ -51,10 +56,12 @@ class CategoryProductList extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.lg),
         if (visibleSections.isEmpty)
-          const EmptyState(
+          EmptyState(
             icon: Icons.inventory_2_rounded,
-            message: 'Sin productos aún',
-            description: 'Los productos de esta categoría aparecerán aquí.',
+            message: hasSearchQuery ? 'Sin resultados' : 'Sin productos aún',
+            description: hasSearchQuery
+                ? 'No hay productos que coincidan con la búsqueda.'
+                : 'Los productos de esta categoría aparecerán aquí.',
           )
         else
           for (final section in visibleSections) ...[

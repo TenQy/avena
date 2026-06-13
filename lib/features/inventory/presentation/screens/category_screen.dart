@@ -288,8 +288,7 @@ class _InventoryCategoryScreenState
     final shouldDelete = await ConfirmDialog.show(
       context,
       title: 'Eliminar subcategoría',
-      message:
-          'La subcategoría se quitará y sus productos pasarán a Sin subcategoría.',
+      message: 'La subcategoría se quitará y sus productos pasarán a Otros.',
       confirmLabel: 'Eliminar',
       icon: Icons.delete_rounded,
     );

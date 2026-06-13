@@ -26,6 +26,8 @@ enum ProductSaveResult {
   invalidCost,
 }
 
+const maxProductStockQuantity = 999999.0;
+
 class ProductDraft {
   const ProductDraft({
     required this.name,
@@ -399,9 +401,19 @@ class InventoryRepository {
       return ProductSaveResult.invalidCost;
     }
 
-    if (draft.trackStock &&
-        (draft.stockQuantity == null || draft.stockQuantity! < 0)) {
-      return ProductSaveResult.invalidStock;
+    if (draft.trackStock) {
+      final stockQuantity = draft.stockQuantity;
+      if (stockQuantity == null ||
+          !stockQuantity.isFinite ||
+          stockQuantity < 0 ||
+          stockQuantity > maxProductStockQuantity) {
+        return ProductSaveResult.invalidStock;
+      }
+
+      if (draft.productType == AppProductTypes.unit &&
+          stockQuantity != stockQuantity.truncateToDouble()) {
+        return ProductSaveResult.invalidStock;
+      }
     }
 
     final categories = await _database.inventoryDao
@@ -483,15 +495,23 @@ class InventoryRepository {
         .watchVisibleCategories()
         .first;
 
-    if (!categories.any((category) => category.id == selectedCategory.id)) {
+    final currentCategory = categories
+        .where((category) => category.id == selectedCategory.id)
+        .firstOrNull;
+
+    if (currentCategory == null) {
       return CategoryActionResult.notFound;
+    }
+
+    if (currentCategory.sortOrder == 0) {
+      return CategoryActionResult.success;
     }
 
     final now = DateTime.now();
     final updatedCategories = <Category>[];
 
     updatedCategories.add(
-      selectedCategory.copyWith(
+      currentCategory.copyWith(
         sortOrder: 0,
         updatedAt: now,
         syncStatus: _pendingSync,

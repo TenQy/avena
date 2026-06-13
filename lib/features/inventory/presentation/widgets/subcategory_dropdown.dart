@@ -55,10 +55,7 @@ class SubcategoryDropdown extends ConsumerWidget {
             prefixIcon: Icon(Icons.folder_rounded),
           ),
           items: [
-            const DropdownMenuItem(
-              value: null,
-              child: Text('Sin subcategoría'),
-            ),
+            const DropdownMenuItem(value: null, child: Text('Otros')),
             for (final subcategory in subcategories)
               DropdownMenuItem(
                 value: subcategory.id,

@@ -12,16 +12,30 @@ List<ProductSectionData> buildProductSections(
   List<Subcategory> subcategories,
   List<Product> products,
 ) {
+  return buildProductSectionsWithOptions(
+    subcategories,
+    products,
+    includeEmptySubcategories: true,
+  );
+}
+
+List<ProductSectionData> buildProductSectionsWithOptions(
+  List<Subcategory> subcategories,
+  List<Product> products, {
+  required bool includeEmptySubcategories,
+}) {
   final sections = [
     for (final subcategory in subcategories)
-      ProductSectionData(
-        subcategory: subcategory,
-        products: sortProductsForDisplay(
-          products
-              .where((product) => product.subcategoryId == subcategory.id)
-              .toList(),
+      if (includeEmptySubcategories ||
+          products.any((product) => product.subcategoryId == subcategory.id))
+        ProductSectionData(
+          subcategory: subcategory,
+          products: sortProductsForDisplay(
+            products
+                .where((product) => product.subcategoryId == subcategory.id)
+                .toList(),
+          ),
         ),
-      ),
   ];
 
   sections.sort((a, b) {

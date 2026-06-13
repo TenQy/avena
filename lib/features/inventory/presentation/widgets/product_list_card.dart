@@ -74,6 +74,15 @@ class ProductListCard extends StatelessWidget {
                           context,
                         ).textTheme.bodySmall?.copyWith(color: textSecondary),
                       ),
+                    if (product.trackStock)
+                      Text(
+                        'Stock: ${_formatStock(product)}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodySmall?.copyWith(color: textSecondary),
+                      ),
                   ],
                 ),
               ),
@@ -102,4 +111,27 @@ class ProductListCard extends StatelessWidget {
       ),
     );
   }
+}
+
+String _formatStock(Product product) {
+  final quantity = product.stockQuantity ?? 0;
+  if (product.productType == AppProductTypes.bulk) {
+    return _formatBulkQuantity(quantity);
+  }
+
+  final units = quantity.truncate();
+  return '$units ${units == 1 ? 'unidad' : 'unidades'}';
+}
+
+String _formatBulkQuantity(double kilograms) {
+  if (kilograms > 0 && kilograms < 1) {
+    final grams = (kilograms * 1000).round();
+    return '$grams g';
+  }
+
+  final formatted = kilograms
+      .toStringAsFixed(3)
+      .replaceFirst(RegExp(r'0+$'), '')
+      .replaceFirst(RegExp(r'\.$'), '');
+  return '$formatted kg';
 }
