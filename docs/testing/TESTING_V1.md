@@ -69,8 +69,8 @@
 
 ## Bugs
 
-- [] Al editar venta aparecen errores del módulo ventas, como productos sin stock en buscador.
-- [] No hay botón visible para cerrar el editor de ventas, solo back del celular.
+- [x] Al editar venta aparecen errores del módulo ventas, como productos sin stock en buscador.
+- [x] No hay botón visible para cerrar el editor de ventas, solo back del celular.
 
 ## Mejoras seguras
 
@@ -88,8 +88,8 @@
 
 ## Bugs
 
-- [] Input de teléfono no tiene límite.
-- [] Falta campo de confirmar contraseña.
+- [x] Input de teléfono no tiene límite.
+- [x] Falta campo de confirmar contraseña.
 
 ## Mejoras seguras
 
@@ -110,7 +110,7 @@
 
 ## Bugs
 
-- [] Hora en formato 24h aunque la app usa AM/PM.
+- [x] Hora en formato 24h aunque la app usa AM/PM.
 
 ## Mejoras seguras
 

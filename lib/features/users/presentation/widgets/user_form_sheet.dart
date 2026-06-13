@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_roles.dart';
@@ -41,6 +42,7 @@ class _UserFormSheetState extends ConsumerState<UserFormSheet> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _usernameController;
   late final TextEditingController _passwordController;
+  late final TextEditingController _confirmPasswordController;
   late final TextEditingController _phoneController;
   late String _role;
   bool _isSaving = false;
@@ -65,6 +67,7 @@ class _UserFormSheetState extends ConsumerState<UserFormSheet> {
     super.initState();
     _usernameController = TextEditingController(text: widget.user?.username);
     _passwordController = TextEditingController();
+    _confirmPasswordController = TextEditingController();
     _phoneController = TextEditingController(text: widget.user?.phone);
     _role = widget.user?.role ?? _availableRoles.first;
   }
@@ -73,6 +76,7 @@ class _UserFormSheetState extends ConsumerState<UserFormSheet> {
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     _phoneController.dispose();
     super.dispose();
   }
@@ -168,8 +172,44 @@ class _UserFormSheetState extends ConsumerState<UserFormSheet> {
               ),
               const SizedBox(height: AppSpacing.md),
               TextFormField(
+                controller: _confirmPasswordController,
+                obscureText: _obscurePassword,
+                textInputAction: TextInputAction.next,
+                decoration: InputDecoration(
+                  labelText: _isEditing
+                      ? 'Confirmar nueva contraseña'
+                      : 'Confirmar contraseña',
+                  prefixIcon: const Icon(Icons.lock_reset_rounded),
+                ),
+                validator: (value) {
+                  final password = _passwordController.text.trim();
+                  final confirmation = value?.trim() ?? '';
+
+                  if (!_isEditing && confirmation.isEmpty) {
+                    return 'Confirma la contraseña.';
+                  }
+
+                  if (password.isNotEmpty && confirmation != password) {
+                    return 'Las contraseñas no coinciden.';
+                  }
+
+                  if (_isEditing &&
+                      password.isEmpty &&
+                      confirmation.isNotEmpty) {
+                    return 'Ingresa la nueva contraseña primero.';
+                  }
+
+                  return null;
+                },
+              ),
+              const SizedBox(height: AppSpacing.md),
+              TextFormField(
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(10),
+                ],
                 textInputAction: TextInputAction.next,
                 decoration: const InputDecoration(
                   labelText: 'Teléfono opcional',

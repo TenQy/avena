@@ -193,7 +193,21 @@ class _SaleEditSheetState extends ConsumerState<SaleEditSheet> {
           ),
         ),
         const SizedBox(height: AppSpacing.lg),
-        Text('Editar venta', style: Theme.of(context).textTheme.titleLarge),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Editar venta',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ),
+            IconButton(
+              tooltip: 'Cerrar editor',
+              onPressed: _isSaving ? null : () => Navigator.of(context).pop(),
+              icon: const Icon(Icons.close_rounded),
+            ),
+          ],
+        ),
         const SizedBox(height: AppSpacing.xs),
         Text(
           'Ajusta productos, cantidades y método de pago.',

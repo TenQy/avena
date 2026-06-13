@@ -28,7 +28,7 @@ class UsersRepository {
     String? phone,
   }) async {
     final cleanUsername = username.trim();
-    final cleanPhone = phone?.trim();
+    final cleanPhone = _normalizePhone(phone);
 
     if (!AppRoles.isValid(role)) {
       return UserSaveResult.invalidRole;
@@ -101,7 +101,7 @@ class UsersRepository {
     }
 
     final cleanUsername = username.trim();
-    final cleanPhone = phone?.trim();
+    final cleanPhone = _normalizePhone(phone);
     final roleChanged = currentTarget.role != role;
     final usernameChanged = currentTarget.username != cleanUsername;
 
@@ -290,5 +290,14 @@ class UsersRepository {
     return actor.role == AppRoles.superadmin &&
         actor.id != target.id &&
         target.role != AppRoles.superadmin;
+  }
+
+  String? _normalizePhone(String? phone) {
+    final digits = phone?.replaceAll(RegExp(r'\D'), '');
+    if (digits == null || digits.isEmpty) {
+      return null;
+    }
+
+    return digits.length <= 10 ? digits : digits.substring(0, 10);
   }
 }

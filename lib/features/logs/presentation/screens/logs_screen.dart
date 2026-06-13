@@ -567,7 +567,9 @@ String _dateLabel(DateTime value) {
 }
 
 String _timeLabel(DateTime value) {
-  return '${_twoDigits(value.hour)}:${_twoDigits(value.minute)}';
+  final hour12 = value.hour % 12 == 0 ? 12 : value.hour % 12;
+  final period = value.hour < 12 ? 'AM' : 'PM';
+  return '${_twoDigits(hour12)}:${_twoDigits(value.minute)} $period';
 }
 
 String _fullDateLabel(DateTime value) {

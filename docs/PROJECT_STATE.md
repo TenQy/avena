@@ -1,105 +1,153 @@
-# Estado actual
+# Estado del proyecto
 
-- Fase 0 completada:
-  - Proyecto Flutter creado.
-  - Tema visual inicial y widgets compartidos base implementados.
+## Estado actual
 
-- Fase 1 completada:
-  - Navegación principal implementada.
-  - Navbar: Dashboard, Ventas, Inventario y Caja.
-  - Header con menú lateral para Usuarios, Pagos pendientes, Calculadora y Logs.
-  - Pantallas actuales siguen siendo placeholders sin lógica de negocio.
+La app esta en etapa de testing funcional. La base local offline-first ya esta implementada y los modulos principales operan con persistencia local, roles, logs y flujos moviles.
 
-- Fase 2 completada:
-  - Base de datos local configurada con Drift + SQLite.
-  - Tablas principales creadas:
-    - Users
-    - EmployeeSessions
-    - Categories
-    - Subcategories
-    - Products
-    - CashSessions
-    - CashMovements
-    - Sales
-    - SaleItems
-    - SalePayments
-    - PendingPayments
-    - PendingPaymentEntries
-    - ActivityLogs
-    - SyncQueue
-  - DAOs principales implementados.
-  - UUID helper creado.
-  - Datos iniciales:
-    - Categoría General
-    - Cuenta superadmin idempotente
+El foco actual es estabilizar bugs de testing, pulir flujos operativos reales y preparar una primera APK interna para pruebas con usuarios.
 
-- Fase 3 completada (sin logs):
-  - Autenticación local implementada.
-  - Sesión persistente funcional.
-  - Roles:
-    - superadmin
-    - admin
-    - employee
-  - Menú lateral filtrado según permisos.
-  - Módulo de usuarios funcional.
-  - Admin:
-    - crear/editar empleados
-    - habilitar/inhabilitar empleados
-  - Superadmin:
-    - administrar admins y empleados
-    - soft delete de usuarios
-  - Logs pendientes para fase de Logs.
+## Modulos implementados
 
-- Fase 4 completada:
-  - Inventario funcional con persistencia local.
-  - Gestión de:
-    - categorías
-    - subcategorías
-    - productos
-  - Búsqueda global y por categoría.
-  - Productos:
-    - por unidad
-    - a granel
-  - Detalles de producto implementados.
-  - Soft delete para categorías y productos.
-  - Categorías principales destacadas visualmente.
-  - FAB reutilizable tipo speed dial.
-  - Employee mantiene inventario en modo lectura.
-  - Helpers reutilizables para FAB/snackbar.
+- Autenticacion y sesion:
+  - Login local.
+  - Sesion persistente.
+  - Roles: superadmin, admin y employee.
+  - Menu lateral filtrado por permisos.
 
-- Fase 5 Completada:
-  - Módulo Caja funcional para admin/superadmin.
-  - Employee sin acceso a Caja.
-  - `CashRepository` y providers implementados.
-  - Validación de única caja abierta.
-  - Apertura y cierre de caja funcionales.
-  - Retiros y depósitos persistidos localmente.
-  - Movimientos ordenados por fecha.
-  - Caja muestra:
-    - dinero inicial
-    - caja esperada
-    - diferencia esperada
-    - fecha de apertura
-  - Ingresos separados visualmente:
-    - efectivo
-    - transferencia
-    - terminal
-  - Comisiones documentadas:
-    - tarjeta 5%
-    - bonos 6.5%
-  - UI de Caja modularizada en widgets.
-  - Helpers de dinero y fecha separados.
+- Usuarios:
+  - Superadmin administra admins y empleados.
+  - Admin administra empleados.
+  - Crear y editar usuarios.
+  - Habilitar/inhabilitar usuarios.
+  - Soft delete segun permisos.
+  - Validacion de telefono limitado y confirmacion de contrasena.
 
-- Testing Inventario:
-  - Corregida la acción redundante de marcar como principal una categoría que ya era principal; se evita el log innecesario.
-  - Corregida la validación de stock para productos por unidad; ahora sólo aceptan cantidades enteras.
-  - Productos a granel muestran y capturan stock con contexto de kg/gr.
-  - La búsqueda dentro de una categoría ya no muestra subcategorías vacías sin productos encontrados.
-  - "Sin subcategoría" se reemplazó por "Otros" en inventario.
-  - Corregida la validación de cantidades enormes de stock, incluyendo notación científica como 1e+21.
+- Inventario:
+  - Categorias, subcategorias y productos.
+  - Productos por unidad y a granel.
+  - Control opcional de stock.
+  - Busqueda global y por categoria.
+  - Detalle de producto.
+  - Soft delete de productos y categorias.
+  - Employee en modo lectura.
+  - Ajustes de testing aplicados en stock, busqueda, granel y categoria principal.
 
-- Testing Caja:
-  - Retiros y depósitos conservan el formulario y muestran errores si falta motivo o el monto no es válido.
-  - Retiros y depósitos tienen límite máximo razonable.
-  - Los retiros no pueden exceder el efectivo disponible esperado en caja.
-  - Se puede editar el dinero inicial de caja con confirmación, ajuste de caja esperada y registro en logs.
+- Ventas:
+  - Venta con productos por unidad y a granel.
+  - Pagos en efectivo, transferencia, terminal, bonos y mixto.
+  - Comisiones configuradas para tarjeta y bonos.
+  - Caja e inventario se actualizan al registrar venta.
+  - Pago pendiente desde venta.
+  - Faltante/cambio visible en efectivo.
+  - Chips rapidos para granel, incluido 2 kg.
+  - Buscador filtra productos sin stock.
+
+- Historial de ventas:
+  - Consulta de ventas por fecha.
+  - Detalle de ventas.
+  - Cancelacion con motivo y reversa de caja/inventario.
+  - Edicion de ventas pagadas.
+  - Editor con boton visible para cerrar.
+
+- Caja:
+  - Apertura y cierre de caja.
+  - Retiros y depositos con motivo.
+  - Validacion de montos y limite maximo.
+  - Retiro limitado por efectivo esperado disponible.
+  - Edicion de dinero inicial con confirmacion y log.
+  - Ingresos separados por efectivo, transferencia, terminal y bonos.
+
+- Pagos pendientes:
+  - Creacion desde venta.
+  - Registro de abonos.
+  - Persistencia local y logs.
+
+- Dashboard:
+  - Resumen operativo basado en caja/ventas actuales.
+  - Metricas principales y productos destacados.
+
+- Logs:
+  - Auditoria local de acciones importantes.
+  - Filtros por usuario, fecha y accion.
+  - Detalle de eventos.
+  - Hora visible en formato AM/PM.
+
+- Configuracion y mantenimiento:
+  - Ajustes administrativos basicos.
+  - Acciones de mantenimiento local.
+  - Base preparada para sync queue, sin sincronizacion cloud completa todavia.
+
+## Base tecnica
+
+- Flutter con arquitectura feature-first.
+- Riverpod para estado.
+- Drift + SQLite como fuente local principal.
+- UUIDs para entidades.
+- Repositories encapsulan reglas y acceso a datos.
+- Logs de actividad para acciones relevantes.
+- UI mobile-first con componentes compartidos.
+
+## Pendiente antes de APK interna
+
+- Completar bugs restantes de testing documentados.
+- Revisar flujos criticos en dispositivo real:
+  - abrir caja
+  - vender
+  - venta a granel
+  - pago mixto
+  - pago pendiente
+  - cancelar venta
+  - editar venta
+  - cerrar caja
+- Validar permisos por rol en todos los modulos.
+- Revisar textos visibles, acentos y consistencia de AM/PM.
+- Probar datos reales con inventario pequeno y ventas repetidas.
+- Generar APK de prueba interna.
+
+## Bugs y mejoras en cola
+
+- Ventas:
+  - Evaluar input directo o botones +5/+10 para varias unidades.
+  - Notificaciones internas para stock bajo o agotado.
+  - Mejorar placeholders de inputs.
+
+- Historial de ventas:
+  - Diferenciar visualmente mejor ventas canceladas.
+  - Agregar vista simplificada.
+  - Agregar boton para volver al inicio de la lista.
+  - Redisenar cards para ocupar menos espacio.
+
+- Usuarios:
+  - Ocultar superadmin en vista del admin.
+  - Formatear telefono como `00 0000 0000`.
+  - Permitir que admin cambie su contrasena.
+  - Permitir eliminar empleados.
+
+- Logs:
+  - Cambiar filtro de accion por filtro de modulo.
+
+- Dashboard:
+  - Estadisticas por dia especifico.
+  - Historial semanal y mensual.
+  - Comparativas historicas.
+
+- UI escritorio/tablet:
+  - Adaptar inventario y ventas a laptop/PC.
+  - Botones visibles en lugar de depender de long press.
+  - Mejor distribucion para pantallas grandes.
+
+## Proximos pasos sugeridos
+
+1. Terminar correccion de bugs de testing restantes.
+2. Hacer una pasada completa de QA en Android fisico.
+3. Ajustar textos y detalles visuales detectados durante QA.
+4. Generar APK interna para prueba con usuarios.
+5. Recopilar feedback real de operacion en tienda.
+6. Priorizar mejoras post-APK: rapidez en ventas, notificaciones, dashboard historico y adaptacion a pantallas grandes.
+
+## Fuera de alcance por ahora
+
+- Sincronizacion cloud completa.
+- Refactors grandes de arquitectura.
+- Nuevos modulos fuera del roadmap actual.
+- Optimizaciones para escritorio como prioridad principal antes de estabilizar la APK movil.
