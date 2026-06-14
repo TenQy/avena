@@ -12,7 +12,9 @@ class AppActivityLogActions {
   static const setUserActive = 'set_user_active';
   static const deleteUser = 'delete_user';
   static const createCategory = 'create_category';
+  static const updateCategory = 'update_category';
   static const createSubcategory = 'create_subcategory';
+  static const updateSubcategory = 'update_subcategory';
   static const deleteSubcategory = 'delete_subcategory';
   static const setMainCategory = 'set_main_category';
   static const deleteCategory = 'delete_category';

@@ -9,8 +9,8 @@
 
 ## Mejoras seguras 
 
-- [] Agregar edición de nombre para categoría.
-- [] Agregar edición de nombre para subcategoría.
+- [x] Agregar edición de nombre para categoría.
+- [x] Agregar edición de nombre para subcategoría.
 - [x] Cambiar "Sin subcategoría" por "Otros".
 - [] Mejorar mensaje al intentar eliminar categoría con productos asociados.
 - [] Evaluar opción futura para mover productos antes de eliminar una categoría.

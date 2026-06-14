@@ -104,8 +104,8 @@ class SuperadminMaintenanceSection extends ConsumerWidget {
             name: p.basename(result.path),
           ),
         ],
-        subject: 'Respaldo de Tienda',
-        text: 'Respaldo de Tienda',
+        subject: 'Respaldo de Avena POS',
+        text: 'Respaldo de Avena POS',
       );
     } catch (error) {
       if (context.mounted) {

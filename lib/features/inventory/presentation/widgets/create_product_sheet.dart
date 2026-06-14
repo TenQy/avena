@@ -38,6 +38,7 @@ class _CreateProductSheetState extends ConsumerState<CreateProductSheet> {
   String _productType = AppProductTypes.unit;
   bool _trackStock = false;
   bool _isSaving = false;
+  String? _nameErrorText;
 
   @override
   void initState() {
@@ -137,6 +138,16 @@ class _CreateProductSheetState extends ConsumerState<CreateProductSheet> {
                   _ProductTextFields(
                     nameController: _nameController,
                     brandController: _brandController,
+                    nameErrorText: _nameErrorText,
+                    onNameChanged: (_) {
+                      if (_nameErrorText == null) {
+                        return;
+                      }
+
+                      setState(() {
+                        _nameErrorText = null;
+                      });
+                    },
                   ),
                   const SizedBox(height: AppSpacing.md),
                   DropdownButtonFormField<String>(
@@ -292,6 +303,7 @@ class _CreateProductSheetState extends ConsumerState<CreateProductSheet> {
 
     setState(() {
       _isSaving = true;
+      _nameErrorText = null;
     });
 
     final actor = ref.read(currentUserProvider).valueOrNull;
@@ -332,6 +344,13 @@ class _CreateProductSheetState extends ConsumerState<CreateProductSheet> {
       _isSaving = false;
     });
 
+    if (result == ProductSaveResult.nameTaken) {
+      setState(() {
+        _nameErrorText = 'Ya existe un producto con ese nombre.';
+      });
+      return;
+    }
+
     Navigator.of(context).pop(result);
   }
 }
@@ -347,10 +366,14 @@ class _ProductTextFields extends StatelessWidget {
   const _ProductTextFields({
     required this.nameController,
     required this.brandController,
+    required this.nameErrorText,
+    required this.onNameChanged,
   });
 
   final TextEditingController nameController;
   final TextEditingController brandController;
+  final String? nameErrorText;
+  final ValueChanged<String> onNameChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -358,10 +381,12 @@ class _ProductTextFields extends StatelessWidget {
       children: [
         TextFormField(
           controller: nameController,
+          onChanged: onNameChanged,
           textInputAction: TextInputAction.next,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             labelText: 'Nombre',
-            prefixIcon: Icon(Icons.inventory_2_rounded),
+            prefixIcon: const Icon(Icons.inventory_2_rounded),
+            errorText: nameErrorText,
           ),
           validator: (value) {
             if (value == null || value.trim().isEmpty) {

@@ -122,8 +122,22 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
     }
 
     if (selectedCategory != null) {
+      final currentCategory = categoriesState.valueOrNull
+          ?.where((category) => category.id == selectedCategory.id)
+          .firstOrNull;
+
+      if (currentCategory != null && currentCategory != selectedCategory) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) {
+            return;
+          }
+
+          widget.controller.syncSelectedCategory(currentCategory);
+        });
+      }
+
       return InventoryCategoryScreen(
-        category: selectedCategory,
+        category: currentCategory ?? selectedCategory,
         onProductTap: widget.controller.openProduct,
       );
     }
@@ -286,6 +300,30 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
     showCategorySaveResult(context, result);
   }
 
+  Future<void> _showEditCategoryForm(Category category) async {
+    final result = await showModalBottomSheet<CategorySaveResult>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.cardSurfaceFor(context),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return CreateCategorySheet(category: category);
+      },
+    );
+
+    if (!mounted || result == null) {
+      return;
+    }
+
+    showCategorySaveResult(
+      context,
+      result,
+      successMessage: 'Categoría actualizada.',
+    );
+  }
+
   Future<void> _showCategoryActions(Category category) async {
     await showModalBottomSheet<void>(
       context: context,
@@ -314,6 +352,14 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                   ),
                 ),
                 const SizedBox(height: AppSpacing.lg),
+                InventoryOptionTile(
+                  icon: Icons.edit_rounded,
+                  label: 'Editar categoría',
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _showEditCategoryForm(category);
+                  },
+                ),
                 if (category.sortOrder != 0)
                   InventoryOptionTile(
                     icon: Icons.star_rounded,

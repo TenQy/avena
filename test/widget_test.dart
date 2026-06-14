@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:tienda/app.dart';
+import 'package:avena/app.dart';
 
 void main() {
   testWidgets('Shows phase one navigation', (WidgetTester tester) async {

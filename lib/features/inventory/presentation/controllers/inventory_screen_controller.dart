@@ -18,6 +18,15 @@ class InventoryScreenController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void syncSelectedCategory(Category category) {
+    if (_selectedCategory?.id != category.id) {
+      return;
+    }
+
+    _selectedCategory = category;
+    notifyListeners();
+  }
+
   void openProduct(Product product) {
     _selectedProduct = product;
     notifyListeners();

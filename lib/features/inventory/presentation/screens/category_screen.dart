@@ -109,6 +109,9 @@ class _InventoryCategoryScreenState
                         selectedSubcategoryId: _selectedSubcategoryId,
                         onFilterChanged: _setSubcategoryFilter,
                         onProductTap: _openProductDetail,
+                        onEditSubcategory: canEditInventory
+                            ? _showEditSubcategoryForm
+                            : null,
                         onDeleteSubcategory: canEditInventory
                             ? _deleteSubcategory
                             : null,
@@ -176,6 +179,33 @@ class _InventoryCategoryScreenState
     }
 
     showSubcategorySaveResult(context, result);
+  }
+
+  Future<void> _showEditSubcategoryForm(Subcategory subcategory) async {
+    final result = await showModalBottomSheet<SubcategorySaveResult>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.cardSurfaceFor(context),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return CreateSubcategorySheet(
+          category: widget.category,
+          subcategory: subcategory,
+        );
+      },
+    );
+
+    if (!mounted || result == null) {
+      return;
+    }
+
+    showSubcategorySaveResult(
+      context,
+      result,
+      successMessage: 'Subcategoría actualizada.',
+    );
   }
 
   Future<void> _showCreateProductForm() async {

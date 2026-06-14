@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'core/constants/app_constants.dart';
 import 'features/authentication/providers/auth_provider.dart';
 import 'features/authentication/presentation/screens/login_screen.dart';
 import 'features/navigation/presentation/screens/main_shell.dart';
@@ -17,7 +18,7 @@ class TiendaApp extends ConsumerWidget {
         ref.watch(personalSettingsProvider).valueOrNull ?? ThemeMode.light;
 
     return MaterialApp(
-      title: 'Tienda',
+      title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,

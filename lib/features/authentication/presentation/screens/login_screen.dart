@@ -61,7 +61,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         return;
       case LoginResult.invalidCredentials:
         setState(() {
-          _errorMessage = 'Usuario o contrasena incorrectos.';
+          _errorMessage = 'Usuario o contraseña incorrectos.';
         });
       case LoginResult.inactiveUser:
         setState(() {
@@ -145,7 +145,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         child: _LoginInput(
                           controller: _passwordController,
                           icon: Icons.lock_rounded,
-                          hintText: 'Contrasena',
+                          hintText: 'Contraseña',
                           obscureText: _obscurePassword,
                           textInputAction: TextInputAction.done,
                           onFieldSubmitted: (_) => _submit(),

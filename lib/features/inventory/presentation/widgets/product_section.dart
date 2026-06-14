@@ -12,12 +12,14 @@ class ProductSection extends StatelessWidget {
     required this.section,
     required this.onProductTap,
     this.onProductLongPress,
+    this.onEditSubcategory,
     this.onDeleteSubcategory,
   });
 
   final ProductSectionData section;
   final ValueChanged<Product> onProductTap;
   final ValueChanged<Product>? onProductLongPress;
+  final VoidCallback? onEditSubcategory;
   final VoidCallback? onDeleteSubcategory;
 
   @override
@@ -37,10 +39,19 @@ class ProductSection extends StatelessWidget {
             ),
             const SizedBox(width: AppSpacing.md),
             Expanded(child: Divider(height: 1, thickness: 0.5, color: border)),
+            if (onEditSubcategory != null) ...[
+              const SizedBox(width: AppSpacing.xs),
+              IconButton(
+                tooltip: 'Editar subcategoria',
+                icon: Icon(Icons.edit_outlined),
+                color: iconInactive,
+                onPressed: onEditSubcategory,
+              ),
+            ],
             if (onDeleteSubcategory != null) ...[
               const SizedBox(width: AppSpacing.xs),
               IconButton(
-                tooltip: 'Eliminar subcategoría',
+                tooltip: 'Eliminar subcategoria',
                 icon: Icon(Icons.delete_outline_rounded),
                 color: iconInactive,
                 onPressed: onDeleteSubcategory,

@@ -9,9 +9,14 @@ import '../../data/inventory_repository.dart';
 import '../../providers/inventory_provider.dart';
 
 class CreateSubcategorySheet extends ConsumerStatefulWidget {
-  const CreateSubcategorySheet({super.key, required this.category});
+  const CreateSubcategorySheet({
+    super.key,
+    required this.category,
+    this.subcategory,
+  });
 
   final Category category;
+  final Subcategory? subcategory;
 
   @override
   ConsumerState<CreateSubcategorySheet> createState() =>
@@ -23,6 +28,14 @@ class _CreateSubcategorySheetState
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   bool _isSaving = false;
+
+  bool get _isEditing => widget.subcategory != null;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController.text = widget.subcategory?.name ?? '';
+  }
 
   @override
   void dispose() {
@@ -60,7 +73,7 @@ class _CreateSubcategorySheetState
               ),
               const SizedBox(height: AppSpacing.lg),
               Text(
-                'Nueva subcategoría',
+                _isEditing ? 'Editar subcategoría' : 'Nueva subcategoría',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: AppSpacing.md),
@@ -74,7 +87,7 @@ class _CreateSubcategorySheetState
                 controller: _nameController,
                 textInputAction: TextInputAction.done,
                 decoration: const InputDecoration(
-                  labelText: 'Nombre de subcategoría',
+                  labelText: 'Nombre de subcategoria',
                   prefixIcon: Icon(Icons.create_new_folder_rounded),
                 ),
                 validator: (value) {
@@ -93,7 +106,7 @@ class _CreateSubcategorySheetState
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('Crear subcategoría'),
+                    Text(_isEditing ? 'Guardar cambios' : 'Crear subcategoría'),
                     const SizedBox(width: AppSpacing.sm),
                     if (_isSaving)
                       const SizedBox(
@@ -134,13 +147,20 @@ class _CreateSubcategorySheetState
       return;
     }
 
-    final result = await ref
-        .read(inventoryRepositoryProvider)
-        .createSubcategory(
-          actor: actor,
-          category: widget.category,
-          name: _nameController.text,
-        );
+    final repository = ref.read(inventoryRepositoryProvider);
+    final subcategory = widget.subcategory;
+    final result = subcategory == null
+        ? await repository.createSubcategory(
+            actor: actor,
+            category: widget.category,
+            name: _nameController.text,
+          )
+        : await repository.updateSubcategory(
+            actor: actor,
+            category: widget.category,
+            subcategory: subcategory,
+            name: _nameController.text,
+          );
 
     if (!mounted) {
       return;

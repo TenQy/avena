@@ -5,9 +5,15 @@ import '../../../core/constants/app_activity_logs.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/utils/id_generator.dart';
 
-enum CategorySaveResult { success, emptyName, nameTaken }
+enum CategorySaveResult { success, emptyName, nameTaken, notFound }
 
-enum SubcategorySaveResult { success, emptyName, nameTaken, categoryNotFound }
+enum SubcategorySaveResult {
+  success,
+  emptyName,
+  nameTaken,
+  categoryNotFound,
+  notFound,
+}
 
 enum CategoryActionResult { success, hasProducts, notFound }
 
@@ -18,6 +24,7 @@ enum ProductActionResult { success, notFound }
 enum ProductSaveResult {
   success,
   emptyName,
+  nameTaken,
   missingCategory,
   invalidPrice,
   invalidStock,
@@ -213,6 +220,154 @@ class InventoryRepository {
     return SubcategorySaveResult.success;
   }
 
+  Future<CategorySaveResult> updateCategory({
+    required User actor,
+    required Category category,
+    required String name,
+  }) async {
+    final cleanName = name.trim();
+
+    if (cleanName.isEmpty) {
+      return CategorySaveResult.emptyName;
+    }
+
+    final categories = await _database.inventoryDao
+        .watchVisibleCategories()
+        .first;
+    final currentCategory = categories
+        .where((item) => item.id == category.id)
+        .firstOrNull;
+
+    if (currentCategory == null) {
+      return CategorySaveResult.notFound;
+    }
+
+    final nameExists = categories.any(
+      (item) =>
+          item.id != category.id &&
+          item.name.toLowerCase() == cleanName.toLowerCase(),
+    );
+
+    if (nameExists) {
+      return CategorySaveResult.nameTaken;
+    }
+
+    if (currentCategory.name == cleanName) {
+      return CategorySaveResult.success;
+    }
+
+    final now = DateTime.now();
+    final updated = await _database.inventoryDao.updateCategory(
+      currentCategory.copyWith(
+        name: cleanName,
+        updatedAt: now,
+        syncStatus: _pendingSync,
+      ),
+    );
+
+    if (!updated) {
+      return CategorySaveResult.notFound;
+    }
+
+    await _database.activityLogsDao.insertActivityLog(
+      ActivityLogsCompanion.insert(
+        id: IdGenerator.create(),
+        userId: Value(actor.id),
+        userNameSnapshot: actor.username,
+        userRoleSnapshot: actor.role,
+        action: AppActivityLogActions.updateCategory,
+        entityType: AppActivityLogEntities.category,
+        entityId: Value(category.id),
+        description: Value(
+          'Categoría renombrada: ${currentCategory.name} -> $cleanName',
+        ),
+        createdAt: now,
+        syncStatus: _pendingSync,
+      ),
+    );
+
+    return CategorySaveResult.success;
+  }
+
+  Future<SubcategorySaveResult> updateSubcategory({
+    required User actor,
+    required Category category,
+    required Subcategory subcategory,
+    required String name,
+  }) async {
+    final cleanName = name.trim();
+
+    if (cleanName.isEmpty) {
+      return SubcategorySaveResult.emptyName;
+    }
+
+    final categories = await _database.inventoryDao
+        .watchVisibleCategories()
+        .first;
+    final categoryExists = categories.any((item) => item.id == category.id);
+
+    if (!categoryExists) {
+      return SubcategorySaveResult.categoryNotFound;
+    }
+
+    final subcategories = await _database.inventoryDao
+        .watchSubcategoriesByCategory(category.id)
+        .first;
+    final currentSubcategory = subcategories
+        .where((item) => item.id == subcategory.id)
+        .firstOrNull;
+
+    if (currentSubcategory == null) {
+      return SubcategorySaveResult.notFound;
+    }
+
+    final nameExists = subcategories.any(
+      (item) =>
+          item.id != subcategory.id &&
+          item.name.toLowerCase() == cleanName.toLowerCase(),
+    );
+
+    if (nameExists) {
+      return SubcategorySaveResult.nameTaken;
+    }
+
+    if (currentSubcategory.name == cleanName) {
+      return SubcategorySaveResult.success;
+    }
+
+    final now = DateTime.now();
+    final updated = await _database.inventoryDao.updateSubcategory(
+      currentSubcategory.copyWith(
+        name: cleanName,
+        updatedAt: now,
+        syncStatus: _pendingSync,
+      ),
+    );
+
+    if (!updated) {
+      return SubcategorySaveResult.notFound;
+    }
+
+    await _database.activityLogsDao.insertActivityLog(
+      ActivityLogsCompanion.insert(
+        id: IdGenerator.create(),
+        userId: Value(actor.id),
+        userNameSnapshot: actor.username,
+        userRoleSnapshot: actor.role,
+        action: AppActivityLogActions.updateSubcategory,
+        entityType: AppActivityLogEntities.subcategory,
+        entityId: Value(subcategory.id),
+        description: Value(
+          'Subcategoría renombrada: ${currentSubcategory.name} -> $cleanName',
+        ),
+        createdAt: now,
+        syncStatus: _pendingSync,
+      ),
+    );
+
+    return SubcategorySaveResult.success;
+  }
+
   Future<ProductSaveResult> createProduct({
     required User actor,
     required ProductDraft draft,
@@ -282,7 +437,10 @@ class InventoryRepository {
     Product product,
     ProductDraft draft,
   ) async {
-    final validationResult = await _validateProductDraft(draft);
+    final validationResult = await _validateProductDraft(
+      draft,
+      excludedProductId: product.id,
+    );
     if (validationResult != null) {
       return validationResult;
     }
@@ -382,11 +540,25 @@ class InventoryRepository {
     return ProductActionResult.success;
   }
 
-  Future<ProductSaveResult?> _validateProductDraft(ProductDraft draft) async {
+  Future<ProductSaveResult?> _validateProductDraft(
+    ProductDraft draft, {
+    String? excludedProductId,
+  }) async {
     final cleanName = draft.name.trim();
 
     if (cleanName.isEmpty) {
       return ProductSaveResult.emptyName;
+    }
+
+    final products = await _database.inventoryDao.watchProducts().first;
+    final nameExists = products.any(
+      (product) =>
+          product.id != excludedProductId &&
+          product.name.trim().toLowerCase() == cleanName.toLowerCase(),
+    );
+
+    if (nameExists) {
+      return ProductSaveResult.nameTaken;
     }
 
     if (draft.categoryId.trim().isEmpty) {

@@ -16,6 +16,7 @@ class CategoryProductList extends StatelessWidget {
     required this.selectedSubcategoryId,
     required this.onFilterChanged,
     required this.onProductTap,
+    this.onEditSubcategory,
     this.onDeleteSubcategory,
     this.onProductLongPress,
   });
@@ -25,6 +26,7 @@ class CategoryProductList extends StatelessWidget {
   final String searchQuery;
   final String? selectedSubcategoryId;
   final ValueChanged<String?> onFilterChanged;
+  final ValueChanged<Subcategory>? onEditSubcategory;
   final ValueChanged<Subcategory>? onDeleteSubcategory;
   final ValueChanged<Product> onProductTap;
   final ValueChanged<Product>? onProductLongPress;
@@ -69,6 +71,10 @@ class CategoryProductList extends StatelessWidget {
               section: section,
               onProductTap: onProductTap,
               onProductLongPress: onProductLongPress,
+              onEditSubcategory:
+                  section.subcategory == null || onEditSubcategory == null
+                  ? null
+                  : () => onEditSubcategory!(section.subcategory!),
               onDeleteSubcategory:
                   section.subcategory == null || onDeleteSubcategory == null
                   ? null

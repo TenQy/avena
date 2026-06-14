@@ -473,8 +473,12 @@ String _actionLabel(String action) {
       return 'Eliminación de usuario';
     case AppActivityLogActions.createCategory:
       return 'Creación de categoría';
+    case AppActivityLogActions.updateCategory:
+      return 'Edicion de categoria';
     case AppActivityLogActions.createSubcategory:
       return 'Creación de subcategoría';
+    case AppActivityLogActions.updateSubcategory:
+      return 'Edicion de subcategoria';
     case AppActivityLogActions.deleteSubcategory:
       return 'Eliminación de subcategoría';
     case AppActivityLogActions.setMainCategory:
@@ -542,7 +546,9 @@ IconData _iconFor(String action) {
     case AppActivityLogActions.deleteUser:
       return Icons.group_rounded;
     case AppActivityLogActions.createCategory:
+    case AppActivityLogActions.updateCategory:
     case AppActivityLogActions.createSubcategory:
+    case AppActivityLogActions.updateSubcategory:
     case AppActivityLogActions.deleteSubcategory:
     case AppActivityLogActions.setMainCategory:
     case AppActivityLogActions.deleteCategory:

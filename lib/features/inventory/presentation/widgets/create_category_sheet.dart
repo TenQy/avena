@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/database/app_database.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
 import '../../../authentication/providers/auth_provider.dart';
@@ -8,7 +9,9 @@ import '../../data/inventory_repository.dart';
 import '../../providers/inventory_provider.dart';
 
 class CreateCategorySheet extends ConsumerStatefulWidget {
-  const CreateCategorySheet({super.key});
+  const CreateCategorySheet({super.key, this.category});
+
+  final Category? category;
 
   @override
   ConsumerState<CreateCategorySheet> createState() =>
@@ -19,6 +22,14 @@ class _CreateCategorySheetState extends ConsumerState<CreateCategorySheet> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   bool _isSaving = false;
+
+  bool get _isEditing => widget.category != null;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController.text = widget.category?.name ?? '';
+  }
 
   @override
   void dispose() {
@@ -56,7 +67,7 @@ class _CreateCategorySheetState extends ConsumerState<CreateCategorySheet> {
               ),
               const SizedBox(height: AppSpacing.lg),
               Text(
-                'Nueva categoría',
+                _isEditing ? 'Editar categoria' : 'Nueva categoría',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: AppSpacing.md),
@@ -89,7 +100,7 @@ class _CreateCategorySheetState extends ConsumerState<CreateCategorySheet> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('Crear categoría'),
+                    Text(_isEditing ? 'Guardar cambios' : 'Crear categoría'),
                     const SizedBox(width: AppSpacing.sm),
                     if (_isSaving)
                       const SizedBox(
@@ -126,13 +137,22 @@ class _CreateCategorySheetState extends ConsumerState<CreateCategorySheet> {
       setState(() {
         _isSaving = false;
       });
-      Navigator.of(context).pop(CategorySaveResult.nameTaken);
+      Navigator.of(context).pop(CategorySaveResult.notFound);
       return;
     }
 
-    final result = await ref
-        .read(inventoryRepositoryProvider)
-        .createCategory(actor: actor, name: _nameController.text);
+    final repository = ref.read(inventoryRepositoryProvider);
+    final category = widget.category;
+    final result = category == null
+        ? await repository.createCategory(
+            actor: actor,
+            name: _nameController.text,
+          )
+        : await repository.updateCategory(
+            actor: actor,
+            category: category,
+            name: _nameController.text,
+          );
 
     if (!mounted) {
       return;
