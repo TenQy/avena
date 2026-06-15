@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../../core/constants/app_products.dart';
 import '../../../../shared/theme/app_colors.dart';
@@ -11,6 +12,7 @@ class SaleItemsCard extends StatelessWidget {
     required this.items,
     required this.onIncreaseQuantity,
     required this.onDecreaseQuantity,
+    required this.onUpdateUnitQuantity,
     required this.onEditBulkItem,
     required this.onApplyBulkPortion,
     required this.onRemoveItem,
@@ -19,6 +21,7 @@ class SaleItemsCard extends StatelessWidget {
   final List<SaleDraftItem> items;
   final ValueChanged<SaleDraftItem> onIncreaseQuantity;
   final ValueChanged<SaleDraftItem> onDecreaseQuantity;
+  final void Function(SaleDraftItem item, int quantity) onUpdateUnitQuantity;
   final ValueChanged<SaleDraftItem> onEditBulkItem;
   final void Function(SaleDraftItem item, AppBulkPortion portion)
   onApplyBulkPortion;
@@ -42,6 +45,7 @@ class SaleItemsCard extends StatelessWidget {
                   item: item,
                   onIncreaseQuantity: onIncreaseQuantity,
                   onDecreaseQuantity: onDecreaseQuantity,
+                  onUpdateUnitQuantity: onUpdateUnitQuantity,
                   onEditBulkItem: onEditBulkItem,
                   onApplyBulkPortion: onApplyBulkPortion,
                   onRemoveItem: onRemoveItem,
@@ -64,6 +68,7 @@ class _SaleItemTile extends StatelessWidget {
     required this.item,
     required this.onIncreaseQuantity,
     required this.onDecreaseQuantity,
+    required this.onUpdateUnitQuantity,
     required this.onEditBulkItem,
     required this.onApplyBulkPortion,
     required this.onRemoveItem,
@@ -72,6 +77,7 @@ class _SaleItemTile extends StatelessWidget {
   final SaleDraftItem item;
   final ValueChanged<SaleDraftItem> onIncreaseQuantity;
   final ValueChanged<SaleDraftItem> onDecreaseQuantity;
+  final void Function(SaleDraftItem item, int quantity) onUpdateUnitQuantity;
   final ValueChanged<SaleDraftItem> onEditBulkItem;
   final void Function(SaleDraftItem item, AppBulkPortion portion)
   onApplyBulkPortion;
@@ -85,7 +91,7 @@ class _SaleItemTile extends StatelessWidget {
     final stockQuantity = product.stockQuantity ?? 0;
     final stockLabel = isBulk ? 'kg disponibles' : 'pz disponibles';
     final canAddUnit = !product.trackStock || item.quantity < stockQuantity;
-    final removesUnitItem = !isBulk && item.quantity <= 1;
+    final canDecreaseUnit = !isBulk && item.quantity > 1;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -173,7 +179,7 @@ class _SaleItemTile extends StatelessWidget {
                   IconButton(
                     tooltip: 'Quitar',
                     onPressed: () => onRemoveItem(item),
-                    icon: Icon(Icons.close_rounded),
+                    icon: Icon(Icons.delete_outline_rounded),
                   ),
                 ],
               ),
@@ -182,21 +188,23 @@ class _SaleItemTile extends StatelessWidget {
         else
           Row(
             children: [
-              IconButton(
-                tooltip: removesUnitItem ? 'Quitar producto' : 'Restar',
-                onPressed: () => onDecreaseQuantity(item),
-                icon: Icon(
-                  removesUnitItem
-                      ? Icons.delete_outline_rounded
-                      : Icons.remove_circle_outline_rounded,
-                ),
+              SizedBox(
+                width: 48,
+                child: canDecreaseUnit
+                    ? IconButton(
+                        tooltip: 'Restar',
+                        onPressed: () => onDecreaseQuantity(item),
+                        icon: Icon(Icons.remove_circle_outline_rounded),
+                      )
+                    : null,
               ),
               SizedBox(
-                width: 32,
-                child: Text(
-                  _quantity(item.quantity),
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyLarge,
+                width: 74,
+                child: _UnitQuantityInput(
+                  item: item,
+                  onChanged: (quantity) {
+                    onUpdateUnitQuantity(item, quantity);
+                  },
                 ),
               ),
               IconButton(
@@ -208,11 +216,96 @@ class _SaleItemTile extends StatelessWidget {
               IconButton(
                 tooltip: 'Quitar',
                 onPressed: () => onRemoveItem(item),
-                icon: Icon(Icons.close_rounded),
+                icon: Icon(Icons.delete_outline_rounded),
               ),
             ],
           ),
       ],
+    );
+  }
+}
+
+class _UnitQuantityInput extends StatefulWidget {
+  const _UnitQuantityInput({required this.item, required this.onChanged});
+
+  final SaleDraftItem item;
+  final ValueChanged<int> onChanged;
+
+  @override
+  State<_UnitQuantityInput> createState() => _UnitQuantityInputState();
+}
+
+class _UnitQuantityInputState extends State<_UnitQuantityInput> {
+  late final TextEditingController _controller;
+  late final FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: _quantity(widget.item.quantity));
+    _focusNode = FocusNode()..addListener(_syncWhenFocusLeaves);
+  }
+
+  @override
+  void didUpdateWidget(covariant _UnitQuantityInput oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.item.quantity != widget.item.quantity &&
+        !_focusNode.hasFocus) {
+      _syncController();
+    }
+  }
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(_syncWhenFocusLeaves);
+    _focusNode.dispose();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _syncWhenFocusLeaves() {
+    if (!_focusNode.hasFocus) {
+      _syncController();
+    }
+  }
+
+  void _syncController() {
+    final nextText = _quantity(widget.item.quantity);
+    if (_controller.text == nextText) {
+      return;
+    }
+
+    _controller.value = TextEditingValue(
+      text: nextText,
+      selection: TextSelection.collapsed(offset: nextText.length),
+    );
+  }
+
+  void _handleChanged(String value) {
+    final quantity = int.tryParse(value);
+    if (quantity == null || quantity <= 0) {
+      return;
+    }
+
+    widget.onChanged(quantity);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: _controller,
+      focusNode: _focusNode,
+      keyboardType: TextInputType.number,
+      textAlign: TextAlign.center,
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly,
+        LengthLimitingTextInputFormatter(4),
+      ],
+      decoration: const InputDecoration(
+        isDense: true,
+        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+      ),
+      onChanged: _handleChanged,
     );
   }
 }

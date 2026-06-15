@@ -159,6 +159,24 @@ class CurrentSaleController extends StateNotifier<CurrentSaleState> {
     _setItems(items);
   }
 
+  void updateUnitQuantity(SaleDraftItem item, int quantity) {
+    if (quantity <= 0) {
+      return;
+    }
+
+    _updateItem(item, (currentItem) {
+      final nextQuantity = quantity.toDouble();
+      if (!_hasAvailableStock(currentItem, nextQuantity)) {
+        return currentItem;
+      }
+
+      return currentItem.copyWith(
+        quantity: nextQuantity,
+        customSubtotal: currentItem.product.price * nextQuantity,
+      );
+    });
+  }
+
   void applyBulkPortion(SaleDraftItem item, AppBulkPortion portion) {
     _updateItem(item, (currentItem) {
       if (!_hasAvailableStock(currentItem, portion.kilogramFactor)) {

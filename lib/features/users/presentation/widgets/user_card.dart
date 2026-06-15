@@ -21,7 +21,8 @@ class UserCard extends ConsumerWidget {
 
   bool get _canEdit {
     if (_isCurrentUser) {
-      return currentUser.role == AppRoles.superadmin;
+      return currentUser.role == AppRoles.superadmin ||
+          currentUser.role == AppRoles.admin;
     }
 
     if (currentUser.role == AppRoles.superadmin) {
@@ -44,9 +45,15 @@ class UserCard extends ConsumerWidget {
   }
 
   bool get _canDelete {
-    return currentUser.role == AppRoles.superadmin &&
-        !_isCurrentUser &&
-        user.role != AppRoles.superadmin;
+    if (_isCurrentUser || user.role == AppRoles.superadmin) {
+      return false;
+    }
+
+    if (currentUser.role == AppRoles.superadmin) {
+      return true;
+    }
+
+    return currentUser.role == AppRoles.admin && user.role == AppRoles.employee;
   }
 
   @override
@@ -111,7 +118,7 @@ class UserCard extends ConsumerWidget {
                     ),
                     const SizedBox(width: AppSpacing.sm),
                     Text(
-                      user.phone!,
+                      _formatPhone(user.phone!),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
@@ -264,6 +271,20 @@ class UserCard extends ConsumerWidget {
 
     showUserActionResult(context, result, successMessage: 'Usuario eliminado.');
   }
+}
+
+String _formatPhone(String phone) {
+  final digits = phone.replaceAll(RegExp(r'\D'), '');
+  if (digits.length <= 2) {
+    return digits;
+  }
+
+  if (digits.length <= 6) {
+    return '${digits.substring(0, 2)} ${digits.substring(2)}';
+  }
+
+  final cappedDigits = digits.length <= 10 ? digits : digits.substring(0, 10);
+  return '${cappedDigits.substring(0, 2)} ${cappedDigits.substring(2, 6)} ${cappedDigits.substring(6)}';
 }
 
 class _UserActionTile extends StatelessWidget {

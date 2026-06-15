@@ -37,7 +37,7 @@
 - [x] En pago mixto, mostrar el restante dinámico junto al input, no solo como placeholder.
 - [x] Agregar chip rápido de 2kg para productos a granel.
 - [x] Evaluar chips rápidos para granel: 100g, 500g, 1kg, 2kg.
-- [] Agregar forma rápida para vender varias unidades: +5, +10 o input directo.
+- [x] Agregar forma rápida para vender varias unidades: +5, +10 o input directo.
 - [] Evaluar si + y - en producto a granel deben aumentar/disminuir 1kg, aunque por ahora modificar cantidad y chips rápidos puede ser suficiente.
 
 ## Mejoras futuras / UI
@@ -91,10 +91,10 @@
 
 ## Mejoras seguras
 
-- [] Ocultar superadmin en vista del admin.
-- [] Formatear teléfono como 00 0000 0000.
-- [] Permitir que admin cambie su contraseña.
-- [] Permitir eliminar empleados.
+- [x] Ocultar superadmin en vista del admin.
+- [x] Formatear teléfono como 00 0000 0000.
+- [x] Permitir que admin cambie su contraseña.
+- [x] Permitir eliminar empleados.
 
 ## Futuro negocio
 

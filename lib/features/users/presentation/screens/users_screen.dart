@@ -49,9 +49,13 @@ class _UsersContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final visibleUsers = currentUser.role == AppRoles.admin
+        ? users.where((user) => user.role != AppRoles.superadmin).toList()
+        : users;
+
     return Stack(
       children: [
-        if (users.isEmpty)
+        if (visibleUsers.isEmpty)
           const _UsersEmptyState()
         else
           ListView.separated(
@@ -62,10 +66,13 @@ class _UsersContent extends StatelessWidget {
               104,
             ),
             itemBuilder: (context, index) {
-              return UserCard(currentUser: currentUser, user: users[index]);
+              return UserCard(
+                currentUser: currentUser,
+                user: visibleUsers[index],
+              );
             },
             separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
-            itemCount: users.length,
+            itemCount: visibleUsers.length,
           ),
         Positioned(
           right: AppSpacing.lg,

@@ -227,6 +227,7 @@ class _SaleEditSheetState extends ConsumerState<SaleEditSheet> {
           items: _items,
           onIncreaseQuantity: _increaseQuantity,
           onDecreaseQuantity: _decreaseQuantity,
+          onUpdateUnitQuantity: _updateUnitQuantity,
           onEditBulkItem: _showBulkItemSheet,
           onApplyBulkPortion: _applyBulkPortion,
           onRemoveItem: _removeItem,
@@ -384,6 +385,24 @@ class _SaleEditSheetState extends ConsumerState<SaleEditSheet> {
 
     setState(() {
       _items = items;
+    });
+  }
+
+  void _updateUnitQuantity(SaleDraftItem item, int quantity) {
+    if (quantity <= 0) {
+      return;
+    }
+
+    _updateItem(item, (currentItem) {
+      final nextQuantity = quantity.toDouble();
+      if (!_hasAvailableStock(currentItem, nextQuantity)) {
+        return currentItem;
+      }
+
+      return currentItem.copyWith(
+        quantity: nextQuantity,
+        customSubtotal: currentItem.product.price * nextQuantity,
+      );
     });
   }
 

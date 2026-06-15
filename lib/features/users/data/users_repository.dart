@@ -260,8 +260,7 @@ class UsersRepository {
 
   bool _canEditUser(User actor, User target, String nextRole) {
     if (actor.id == target.id) {
-      return actor.role == AppRoles.superadmin &&
-          nextRole == AppRoles.superadmin;
+      return actor.role == target.role && nextRole == target.role;
     }
 
     if (actor.role == AppRoles.superadmin) {
@@ -287,9 +286,15 @@ class UsersRepository {
   }
 
   bool _canDeleteUser(User actor, User target) {
-    return actor.role == AppRoles.superadmin &&
-        actor.id != target.id &&
-        target.role != AppRoles.superadmin;
+    if (actor.id == target.id || target.role == AppRoles.superadmin) {
+      return false;
+    }
+
+    if (actor.role == AppRoles.superadmin) {
+      return true;
+    }
+
+    return actor.role == AppRoles.admin && target.role == AppRoles.employee;
   }
 
   String? _normalizePhone(String? phone) {
@@ -298,6 +303,18 @@ class UsersRepository {
       return null;
     }
 
-    return digits.length <= 10 ? digits : digits.substring(0, 10);
+    return _formatPhone(digits.length <= 10 ? digits : digits.substring(0, 10));
+  }
+
+  String _formatPhone(String digits) {
+    if (digits.length <= 2) {
+      return digits;
+    }
+
+    if (digits.length <= 6) {
+      return '${digits.substring(0, 2)} ${digits.substring(2)}';
+    }
+
+    return '${digits.substring(0, 2)} ${digits.substring(2, 6)} ${digits.substring(6)}';
   }
 }

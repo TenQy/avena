@@ -85,6 +85,7 @@ class _SalesScreenState extends ConsumerState<SalesScreen> {
               items: currentSale.items,
               onIncreaseQuantity: saleController.increaseQuantity,
               onDecreaseQuantity: saleController.decreaseQuantity,
+              onUpdateUnitQuantity: saleController.updateUnitQuantity,
               onEditBulkItem: _showBulkItemSheet,
               onApplyBulkPortion: saleController.applyBulkPortion,
               onRemoveItem: saleController.removeItem,

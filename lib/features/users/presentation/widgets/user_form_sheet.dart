@@ -59,6 +59,10 @@ class _UserFormSheetState extends ConsumerState<UserFormSheet> {
       return const [AppRoles.employee, AppRoles.admin];
     }
 
+    if (widget.user?.id == widget.actor.id) {
+      return const [AppRoles.admin];
+    }
+
     return const [AppRoles.employee];
   }
 
@@ -68,7 +72,9 @@ class _UserFormSheetState extends ConsumerState<UserFormSheet> {
     _usernameController = TextEditingController(text: widget.user?.username);
     _passwordController = TextEditingController();
     _confirmPasswordController = TextEditingController();
-    _phoneController = TextEditingController(text: widget.user?.phone);
+    _phoneController = TextEditingController(
+      text: _formatPhone(widget.user?.phone ?? ''),
+    );
     _role = widget.user?.role ?? _availableRoles.first;
   }
 
@@ -206,10 +212,7 @@ class _UserFormSheetState extends ConsumerState<UserFormSheet> {
               TextFormField(
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(10),
-                ],
+                inputFormatters: [_PhoneInputFormatter()],
                 textInputAction: TextInputAction.next,
                 decoration: const InputDecoration(
                   labelText: 'Teléfono opcional',
@@ -323,4 +326,39 @@ class _UserFormSheetState extends ConsumerState<UserFormSheet> {
       }
     }
   }
+}
+
+class _PhoneInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final digits = newValue.text.replaceAll(RegExp(r'\D'), '');
+    final cappedDigits = digits.length <= 10 ? digits : digits.substring(0, 10);
+    final text = _formatPhone(cappedDigits);
+
+    return TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
+  }
+}
+
+String _formatPhone(String phone) {
+  final digits = phone.replaceAll(RegExp(r'\D'), '');
+  if (digits.isEmpty) {
+    return '';
+  }
+
+  if (digits.length <= 2) {
+    return digits;
+  }
+
+  if (digits.length <= 6) {
+    return '${digits.substring(0, 2)} ${digits.substring(2)}';
+  }
+
+  final cappedDigits = digits.length <= 10 ? digits : digits.substring(0, 10);
+  return '${cappedDigits.substring(0, 2)} ${cappedDigits.substring(2, 6)} ${cappedDigits.substring(6)}';
 }
