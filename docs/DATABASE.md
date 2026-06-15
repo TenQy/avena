@@ -301,6 +301,7 @@ Campos:
 - `subtotal`
 - `commissionTotal`
 - `total`
+- `cashReceivedAmount`
 - `paidAmount`
 - `pendingAmount`
 - `paymentStatus`
@@ -335,6 +336,7 @@ Reglas:
 - Sólo admin y superadmin pueden cancelar ventas.
 - La cancelación debe guardar motivo.
 - Si una venta queda pendiente total o parcialmente, puede generar un pago pendiente.
+- Si la venta se paga en efectivo, debe guardar el efectivo recibido para consultar el cambio en historial.
 
 ---
 

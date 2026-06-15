@@ -12,8 +12,6 @@
 - [x] Agregar edición de nombre para categoría.
 - [x] Agregar edición de nombre para subcategoría.
 - [x] Cambiar "Sin subcategoría" por "Otros".
-- [] Mejorar mensaje al intentar eliminar categoría con productos asociados.
-- [] Evaluar opción futura para mover productos antes de eliminar una categoría.
 
 ## Mejoras futuras / UI
 
@@ -28,7 +26,7 @@
 
 ## Bugs 
 
-- [] Se puede pagar aunque el efectivo recibido sea menor al total.
+- [x] Se puede pagar aunque el efectivo recibido sea menor al total.
 - [x] Pagado en efectivo no muestra faltante, solo cambio.
 - [x] El buscador muestra productos sin stock.
 - [x] No poder decrementar si hay 1 producto genera duda: debería quitar el producto o deshabilitarse claramente.

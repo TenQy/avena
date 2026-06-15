@@ -61,6 +61,10 @@ class CurrentSaleState {
       return false;
     }
 
+    if (paymentMethod == AppPaymentMethods.cash) {
+      return cashReceived + 0.01 >= total;
+    }
+
     if (paymentMethod != AppPaymentMethods.mixed) {
       return AppPaymentMethods.all.contains(paymentMethod);
     }

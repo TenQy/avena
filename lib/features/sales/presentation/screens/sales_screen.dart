@@ -175,6 +175,9 @@ class _SalesScreenState extends ConsumerState<SalesScreen> {
       ],
       paymentMethod: currentSale.paymentMethod,
       mixedPayments: currentSale.mixedPayments,
+      cashReceivedAmount: currentSale.paymentMethod == AppPaymentMethods.cash
+          ? currentSale.cashReceived
+          : null,
       commissionRates: currentSale.commissionRates,
     );
     final shouldRegister = await ConfirmDialog.show(

@@ -4978,6 +4978,17 @@ class $SalesTable extends Sales with TableInfo<$SalesTable, Sale> {
     type: DriftSqlType.double,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _cashReceivedAmountMeta =
+      const VerificationMeta('cashReceivedAmount');
+  @override
+  late final GeneratedColumn<double> cashReceivedAmount =
+      GeneratedColumn<double>(
+        'cash_received_amount',
+        aliasedName,
+        true,
+        type: DriftSqlType.double,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _paidAmountMeta = const VerificationMeta(
     'paidAmount',
   );
@@ -5093,6 +5104,7 @@ class $SalesTable extends Sales with TableInfo<$SalesTable, Sale> {
     subtotal,
     commissionTotal,
     total,
+    cashReceivedAmount,
     paidAmount,
     pendingAmount,
     paymentStatus,
@@ -5185,6 +5197,15 @@ class $SalesTable extends Sales with TableInfo<$SalesTable, Sale> {
       );
     } else if (isInserting) {
       context.missing(_totalMeta);
+    }
+    if (data.containsKey('cash_received_amount')) {
+      context.handle(
+        _cashReceivedAmountMeta,
+        cashReceivedAmount.isAcceptableOrUnknown(
+          data['cash_received_amount']!,
+          _cashReceivedAmountMeta,
+        ),
+      );
     }
     if (data.containsKey('paid_amount')) {
       context.handle(
@@ -5304,6 +5325,10 @@ class $SalesTable extends Sales with TableInfo<$SalesTable, Sale> {
         DriftSqlType.double,
         data['${effectivePrefix}total'],
       )!,
+      cashReceivedAmount: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}cash_received_amount'],
+      ),
       paidAmount: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
         data['${effectivePrefix}paid_amount'],
@@ -5358,6 +5383,7 @@ class Sale extends DataClass implements Insertable<Sale> {
   final double subtotal;
   final double commissionTotal;
   final double total;
+  final double? cashReceivedAmount;
   final double paidAmount;
   final double pendingAmount;
   final String paymentStatus;
@@ -5376,6 +5402,7 @@ class Sale extends DataClass implements Insertable<Sale> {
     required this.subtotal,
     required this.commissionTotal,
     required this.total,
+    this.cashReceivedAmount,
     required this.paidAmount,
     required this.pendingAmount,
     required this.paymentStatus,
@@ -5397,6 +5424,9 @@ class Sale extends DataClass implements Insertable<Sale> {
     map['subtotal'] = Variable<double>(subtotal);
     map['commission_total'] = Variable<double>(commissionTotal);
     map['total'] = Variable<double>(total);
+    if (!nullToAbsent || cashReceivedAmount != null) {
+      map['cash_received_amount'] = Variable<double>(cashReceivedAmount);
+    }
     map['paid_amount'] = Variable<double>(paidAmount);
     map['pending_amount'] = Variable<double>(pendingAmount);
     map['payment_status'] = Variable<String>(paymentStatus);
@@ -5425,6 +5455,9 @@ class Sale extends DataClass implements Insertable<Sale> {
       subtotal: Value(subtotal),
       commissionTotal: Value(commissionTotal),
       total: Value(total),
+      cashReceivedAmount: cashReceivedAmount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(cashReceivedAmount),
       paidAmount: Value(paidAmount),
       pendingAmount: Value(pendingAmount),
       paymentStatus: Value(paymentStatus),
@@ -5457,6 +5490,9 @@ class Sale extends DataClass implements Insertable<Sale> {
       subtotal: serializer.fromJson<double>(json['subtotal']),
       commissionTotal: serializer.fromJson<double>(json['commissionTotal']),
       total: serializer.fromJson<double>(json['total']),
+      cashReceivedAmount: serializer.fromJson<double?>(
+        json['cashReceivedAmount'],
+      ),
       paidAmount: serializer.fromJson<double>(json['paidAmount']),
       pendingAmount: serializer.fromJson<double>(json['pendingAmount']),
       paymentStatus: serializer.fromJson<String>(json['paymentStatus']),
@@ -5482,6 +5518,7 @@ class Sale extends DataClass implements Insertable<Sale> {
       'subtotal': serializer.toJson<double>(subtotal),
       'commissionTotal': serializer.toJson<double>(commissionTotal),
       'total': serializer.toJson<double>(total),
+      'cashReceivedAmount': serializer.toJson<double?>(cashReceivedAmount),
       'paidAmount': serializer.toJson<double>(paidAmount),
       'pendingAmount': serializer.toJson<double>(pendingAmount),
       'paymentStatus': serializer.toJson<String>(paymentStatus),
@@ -5503,6 +5540,7 @@ class Sale extends DataClass implements Insertable<Sale> {
     double? subtotal,
     double? commissionTotal,
     double? total,
+    Value<double?> cashReceivedAmount = const Value.absent(),
     double? paidAmount,
     double? pendingAmount,
     String? paymentStatus,
@@ -5521,6 +5559,9 @@ class Sale extends DataClass implements Insertable<Sale> {
     subtotal: subtotal ?? this.subtotal,
     commissionTotal: commissionTotal ?? this.commissionTotal,
     total: total ?? this.total,
+    cashReceivedAmount: cashReceivedAmount.present
+        ? cashReceivedAmount.value
+        : this.cashReceivedAmount,
     paidAmount: paidAmount ?? this.paidAmount,
     pendingAmount: pendingAmount ?? this.pendingAmount,
     paymentStatus: paymentStatus ?? this.paymentStatus,
@@ -5551,6 +5592,9 @@ class Sale extends DataClass implements Insertable<Sale> {
           ? data.commissionTotal.value
           : this.commissionTotal,
       total: data.total.present ? data.total.value : this.total,
+      cashReceivedAmount: data.cashReceivedAmount.present
+          ? data.cashReceivedAmount.value
+          : this.cashReceivedAmount,
       paidAmount: data.paidAmount.present
           ? data.paidAmount.value
           : this.paidAmount,
@@ -5590,6 +5634,7 @@ class Sale extends DataClass implements Insertable<Sale> {
           ..write('subtotal: $subtotal, ')
           ..write('commissionTotal: $commissionTotal, ')
           ..write('total: $total, ')
+          ..write('cashReceivedAmount: $cashReceivedAmount, ')
           ..write('paidAmount: $paidAmount, ')
           ..write('pendingAmount: $pendingAmount, ')
           ..write('paymentStatus: $paymentStatus, ')
@@ -5613,6 +5658,7 @@ class Sale extends DataClass implements Insertable<Sale> {
     subtotal,
     commissionTotal,
     total,
+    cashReceivedAmount,
     paidAmount,
     pendingAmount,
     paymentStatus,
@@ -5635,6 +5681,7 @@ class Sale extends DataClass implements Insertable<Sale> {
           other.subtotal == this.subtotal &&
           other.commissionTotal == this.commissionTotal &&
           other.total == this.total &&
+          other.cashReceivedAmount == this.cashReceivedAmount &&
           other.paidAmount == this.paidAmount &&
           other.pendingAmount == this.pendingAmount &&
           other.paymentStatus == this.paymentStatus &&
@@ -5655,6 +5702,7 @@ class SalesCompanion extends UpdateCompanion<Sale> {
   final Value<double> subtotal;
   final Value<double> commissionTotal;
   final Value<double> total;
+  final Value<double?> cashReceivedAmount;
   final Value<double> paidAmount;
   final Value<double> pendingAmount;
   final Value<String> paymentStatus;
@@ -5674,6 +5722,7 @@ class SalesCompanion extends UpdateCompanion<Sale> {
     this.subtotal = const Value.absent(),
     this.commissionTotal = const Value.absent(),
     this.total = const Value.absent(),
+    this.cashReceivedAmount = const Value.absent(),
     this.paidAmount = const Value.absent(),
     this.pendingAmount = const Value.absent(),
     this.paymentStatus = const Value.absent(),
@@ -5694,6 +5743,7 @@ class SalesCompanion extends UpdateCompanion<Sale> {
     required double subtotal,
     this.commissionTotal = const Value.absent(),
     required double total,
+    this.cashReceivedAmount = const Value.absent(),
     this.paidAmount = const Value.absent(),
     this.pendingAmount = const Value.absent(),
     required String paymentStatus,
@@ -5724,6 +5774,7 @@ class SalesCompanion extends UpdateCompanion<Sale> {
     Expression<double>? subtotal,
     Expression<double>? commissionTotal,
     Expression<double>? total,
+    Expression<double>? cashReceivedAmount,
     Expression<double>? paidAmount,
     Expression<double>? pendingAmount,
     Expression<String>? paymentStatus,
@@ -5744,6 +5795,8 @@ class SalesCompanion extends UpdateCompanion<Sale> {
       if (subtotal != null) 'subtotal': subtotal,
       if (commissionTotal != null) 'commission_total': commissionTotal,
       if (total != null) 'total': total,
+      if (cashReceivedAmount != null)
+        'cash_received_amount': cashReceivedAmount,
       if (paidAmount != null) 'paid_amount': paidAmount,
       if (pendingAmount != null) 'pending_amount': pendingAmount,
       if (paymentStatus != null) 'payment_status': paymentStatus,
@@ -5766,6 +5819,7 @@ class SalesCompanion extends UpdateCompanion<Sale> {
     Value<double>? subtotal,
     Value<double>? commissionTotal,
     Value<double>? total,
+    Value<double?>? cashReceivedAmount,
     Value<double>? paidAmount,
     Value<double>? pendingAmount,
     Value<String>? paymentStatus,
@@ -5786,6 +5840,7 @@ class SalesCompanion extends UpdateCompanion<Sale> {
       subtotal: subtotal ?? this.subtotal,
       commissionTotal: commissionTotal ?? this.commissionTotal,
       total: total ?? this.total,
+      cashReceivedAmount: cashReceivedAmount ?? this.cashReceivedAmount,
       paidAmount: paidAmount ?? this.paidAmount,
       pendingAmount: pendingAmount ?? this.pendingAmount,
       paymentStatus: paymentStatus ?? this.paymentStatus,
@@ -5825,6 +5880,9 @@ class SalesCompanion extends UpdateCompanion<Sale> {
     }
     if (total.present) {
       map['total'] = Variable<double>(total.value);
+    }
+    if (cashReceivedAmount.present) {
+      map['cash_received_amount'] = Variable<double>(cashReceivedAmount.value);
     }
     if (paidAmount.present) {
       map['paid_amount'] = Variable<double>(paidAmount.value);
@@ -5870,6 +5928,7 @@ class SalesCompanion extends UpdateCompanion<Sale> {
           ..write('subtotal: $subtotal, ')
           ..write('commissionTotal: $commissionTotal, ')
           ..write('total: $total, ')
+          ..write('cashReceivedAmount: $cashReceivedAmount, ')
           ..write('paidAmount: $paidAmount, ')
           ..write('pendingAmount: $pendingAmount, ')
           ..write('paymentStatus: $paymentStatus, ')
@@ -14984,6 +15043,7 @@ typedef $$SalesTableCreateCompanionBuilder =
       required double subtotal,
       Value<double> commissionTotal,
       required double total,
+      Value<double?> cashReceivedAmount,
       Value<double> paidAmount,
       Value<double> pendingAmount,
       required String paymentStatus,
@@ -15005,6 +15065,7 @@ typedef $$SalesTableUpdateCompanionBuilder =
       Value<double> subtotal,
       Value<double> commissionTotal,
       Value<double> total,
+      Value<double?> cashReceivedAmount,
       Value<double> paidAmount,
       Value<double> pendingAmount,
       Value<String> paymentStatus,
@@ -15168,6 +15229,11 @@ class $$SalesTableFilterComposer extends Composer<_$AppDatabase, $SalesTable> {
 
   ColumnFilters<double> get total => $composableBuilder(
     column: $table.total,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get cashReceivedAmount => $composableBuilder(
+    column: $table.cashReceivedAmount,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -15395,6 +15461,11 @@ class $$SalesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<double> get cashReceivedAmount => $composableBuilder(
+    column: $table.cashReceivedAmount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<double> get paidAmount => $composableBuilder(
     column: $table.paidAmount,
     builder: (column) => ColumnOrderings(column),
@@ -15537,6 +15608,11 @@ class $$SalesTableAnnotationComposer
 
   GeneratedColumn<double> get total =>
       $composableBuilder(column: $table.total, builder: (column) => column);
+
+  GeneratedColumn<double> get cashReceivedAmount => $composableBuilder(
+    column: $table.cashReceivedAmount,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<double> get paidAmount => $composableBuilder(
     column: $table.paidAmount,
@@ -15764,6 +15840,7 @@ class $$SalesTableTableManager
                 Value<double> subtotal = const Value.absent(),
                 Value<double> commissionTotal = const Value.absent(),
                 Value<double> total = const Value.absent(),
+                Value<double?> cashReceivedAmount = const Value.absent(),
                 Value<double> paidAmount = const Value.absent(),
                 Value<double> pendingAmount = const Value.absent(),
                 Value<String> paymentStatus = const Value.absent(),
@@ -15783,6 +15860,7 @@ class $$SalesTableTableManager
                 subtotal: subtotal,
                 commissionTotal: commissionTotal,
                 total: total,
+                cashReceivedAmount: cashReceivedAmount,
                 paidAmount: paidAmount,
                 pendingAmount: pendingAmount,
                 paymentStatus: paymentStatus,
@@ -15804,6 +15882,7 @@ class $$SalesTableTableManager
                 required double subtotal,
                 Value<double> commissionTotal = const Value.absent(),
                 required double total,
+                Value<double?> cashReceivedAmount = const Value.absent(),
                 Value<double> paidAmount = const Value.absent(),
                 Value<double> pendingAmount = const Value.absent(),
                 required String paymentStatus,
@@ -15823,6 +15902,7 @@ class $$SalesTableTableManager
                 subtotal: subtotal,
                 commissionTotal: commissionTotal,
                 total: total,
+                cashReceivedAmount: cashReceivedAmount,
                 paidAmount: paidAmount,
                 pendingAmount: pendingAmount,
                 paymentStatus: paymentStatus,

@@ -15,6 +15,7 @@ enum SaleRegisterResult {
   emptySale,
   emptyCustomerName,
   invalidPayment,
+  insufficientCashReceived,
   invalidPendingAmount,
   cashSessionNotFound,
   productNotFound,
@@ -59,12 +60,14 @@ class SaleRegisterDraft {
     required this.items,
     required this.paymentMethod,
     required this.mixedPayments,
+    this.cashReceivedAmount,
     this.commissionRates = AppPaymentCommissions.defaults,
   });
 
   final List<SaleRegisterItem> items;
   final String paymentMethod;
   final Map<String, double> mixedPayments;
+  final double? cashReceivedAmount;
   final PaymentCommissionRates commissionRates;
 }
 
@@ -460,6 +463,12 @@ class SalesRepository {
       final total = _roundMoney(
         payments.fold(0.0, (sum, payment) => sum + payment.totalCharged),
       );
+      final cashReceivedAmount = _cashReceivedAmountFor(draft);
+      if (draft.paymentMethod == AppPaymentMethods.cash &&
+          (cashReceivedAmount == null ||
+              cashReceivedAmount + _centTolerance < total)) {
+        return SaleRegisterResult.insufficientCashReceived;
+      }
       final currentProducts = <String, Product>{};
 
       for (final item in draft.items) {
@@ -523,6 +532,7 @@ class SalesRepository {
           subtotal: subtotal,
           commissionTotal: Value(commissionTotal),
           total: total,
+          cashReceivedAmount: Value(cashReceivedAmount),
           paidAmount: Value(total),
           pendingAmount: const Value(0),
           paymentStatus: AppPaymentStatuses.paid,
@@ -869,6 +879,19 @@ class SalesRepository {
     );
 
     return (mixedBaseTotal - subtotal).abs() <= _centTolerance;
+  }
+
+  double? _cashReceivedAmountFor(SaleRegisterDraft draft) {
+    if (draft.paymentMethod != AppPaymentMethods.cash) {
+      return null;
+    }
+
+    final cashReceivedAmount = draft.cashReceivedAmount;
+    if (cashReceivedAmount == null) {
+      return null;
+    }
+
+    return _roundMoney(cashReceivedAmount);
   }
 
   List<_SalePaymentDraft> _buildPayments(

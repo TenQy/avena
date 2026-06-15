@@ -107,6 +107,15 @@ class SalesHistoryCard extends ConsumerWidget {
                 error: (_, _) =>
                     const _InlineUnavailable(message: 'Pago no disponible.'),
               ),
+              if (sale.cashReceivedAmount != null) ...[
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  'Recibido en efectivo: ${_money(sale.cashReceivedAmount!)}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.textSecondaryFor(context),
+                  ),
+                ),
+              ],
               if (sale.pendingAmount > 0) ...[
                 const SizedBox(height: AppSpacing.xs),
                 Text(

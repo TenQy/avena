@@ -13,6 +13,7 @@ class Sales extends Table {
   RealColumn get subtotal => real()();
   RealColumn get commissionTotal => real().withDefault(const Constant(0))();
   RealColumn get total => real()();
+  RealColumn get cashReceivedAmount => real().nullable()();
   RealColumn get paidAmount => real().withDefault(const Constant(0))();
   RealColumn get pendingAmount => real().withDefault(const Constant(0))();
   TextColumn get paymentStatus => text()();

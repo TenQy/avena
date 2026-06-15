@@ -58,7 +58,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {
@@ -68,6 +68,9 @@ class AppDatabase extends _$AppDatabase {
           await migrator.addColumn(products, products.cost);
           await migrator.addColumn(saleItems, saleItems.unitCostSnapshot);
           await migrator.addColumn(saleItems, saleItems.costSubtotalSnapshot);
+        }
+        if (from < 3) {
+          await migrator.addColumn(sales, sales.cashReceivedAmount);
         }
       },
       beforeOpen: (details) async {
